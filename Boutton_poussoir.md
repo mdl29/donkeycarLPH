@@ -26,7 +26,7 @@ logger Shutdown button pressed
 shutdown -h now
 ```
 
-Enrengistrez le fichier, puis rendez-le exécutable avec chmod +x
+Enregistrez le fichier, puis rendez-le exécutable avec chmod +x
 ```
 # chmod +x /root/pin-shutdown.sh
 ```
@@ -37,7 +37,7 @@ Vous pouvez tester votre script en l'exécutant de la manière suivante :
 ## Créer le service
 Il vout faut maintenant créer un service pour qu'au démarrage, le script soit lancé en arrière-plan, afin qu'il puissse détecter n'importe quand le boutton poussoir.
 
-Premièrement, il faut créer le fichier de notre service. Pour cela, on réutilise un logiciel de traitement de texte. On va enrengistrer notre service dans le fichier /etc/systemd/system/
+Premièrement, il faut créer le fichier de notre service. Pour cela, on réutilise un logiciel de traitement de texte. On va enregistrer notre service dans le fichier /etc/systemd/system/
 ```
 # nano /etc/systemd/system/button-shutdown.service
 ```
