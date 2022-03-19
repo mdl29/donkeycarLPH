@@ -11,15 +11,10 @@ Sur un système Raspian-Lite :
 # apt-get install wiringpi
 ```
 ## Créer le script bash
-A l'aide d'un logiciel de traitement de texte comme nano ou vim, créer un fichier nommé pin-shutdown.sh dans le dossier root
+A l'aide d'un logiciel de traitement de texte comme nano, créer un fichier nommé pin-shutdown.sh dans le dossier root
 ```
 # nano /root/pin-shutdown.sh
 ```
-ou
-```
-# vim /root/pin-shutdown.sh
-```
-
 Dans votre fichier sh, mettez les lignes suivantes :
 ```bash
 #!/bin/bash
@@ -31,7 +26,7 @@ logger Shutdown button pressed
 shutdown -h now
 ```
 
-Enregistrez le fichier, puis rendez-le exécutable avec chmod +x
+Enrengistrez le fichier, puis rendez-le exécutable avec chmod +x
 ```
 # chmod +x /root/pin-shutdown.sh
 ```
