@@ -4,7 +4,7 @@
 This book can be used in 2 different ways :
 
 * deploy it on a running raspberry pi thought SSH, your raspberry pi needs internet access and should be connected to the same network as your host computer
-* build a raspbian image based on this book, you should then take a look at our [packer instructions](../README.md)
+* build a raspbian image based on this book, you should then take a look at our [packer instructions](../packer/README.md)
 
 ## Deploys book on a booted raspberry pi
 
