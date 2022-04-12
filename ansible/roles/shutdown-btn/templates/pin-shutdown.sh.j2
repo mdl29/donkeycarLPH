@@ -1,0 +1,19 @@
+#!/bin/bash
+
+pin={{ shutdown_pin }}  # pin 40 (internal: 21) on raspi layout
+gpio mode "$pin" "in"
+
+while :; do
+	gpio wfi "$pin" rising
+	d_start="$(date +%s)"
+	gpio wfi "$pin" falling
+	d_end="$(date +%s)"
+	delta=$((d_end - d_start))
+	if [ "$delta" -gt "3" ]; then
+		break
+	fi
+done
+
+logger Shutdown button pressed
+shutdown -h now
+

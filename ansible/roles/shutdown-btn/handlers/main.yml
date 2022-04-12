@@ -1,0 +1,8 @@
+---
+# Shutdown-btn handlers
+
+- name: Start button-shutdown service
+  service:
+    name: button-shutdown
+    state: started
+    enabled: yes

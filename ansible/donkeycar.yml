@@ -1,0 +1,10 @@
+---
+# This playbook deploys the whole DonkeyCar framework.
+
+- name: apply common configuration to all cars
+  hosts: all
+  remote_user: pi
+
+  roles:
+    - role: shutdown-btn
+      become: yes # This role need root privileges

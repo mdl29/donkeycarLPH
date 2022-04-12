@@ -1,0 +1,10 @@
+[cars]
+dababycar.local
+monkecar.local
+bluecar.local
+
+[dev]
+raspberrypi.local ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=pi ansible_password=raspberry
+
+[local]
+controlmachine ansible_connection=local

@@ -1,0 +1,3 @@
+---
+# Defaults variables for shutdown-btn
+shutdown_btn_script_path: /usr/local/pin-shutdown.sh # Brest place according to https://unix.stackexchange.com/a/132725
