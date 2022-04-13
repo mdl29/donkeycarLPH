@@ -31,5 +31,4 @@
 
 - name: Enable camera
   command: raspi-config nonint do_camera 1
-  become: true
-    
+  become: true   
