@@ -4,7 +4,7 @@ monkecar.local
 bluecar.local
 
 [dev]
-raspberrypi.local ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=pi ansible_password=raspberry
+bluecar.local ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_user=pi ansible_password=dababycar
 
 [local]
 controlmachine ansible_connection=local

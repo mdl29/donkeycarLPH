@@ -1,11 +1,11 @@
 ---
-- name: enable ssh on boot
+- name: Enable ssh on boot
   ansible.builtin.file:
     path: /boot/ssh
     state: touch
     mode: u=rw,g=r,o=r
   
-- name: Copy wpa conf to the car
+- name: modifie the wpa configuration
   template:
     src: wpa-suplicant-conf.j2
     dest: /etc/wpa_supplicant/wpa_supplicant.conf
@@ -24,4 +24,12 @@
     name: pi
     update_password: always
     password: "{{ new_password|password_hash('sha512') }}"
+
+- name: Enable I2C
+  command: raspi-config nonint do_i2c 1
+  become: true
+
+- name: Enable camera
+  command: raspi-config nonint do_camera 1
+  become: true
     
