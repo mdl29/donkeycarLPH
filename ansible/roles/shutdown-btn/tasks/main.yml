@@ -1,0 +1,25 @@
+---
+# This playbook contains shutdown btn install tasks.
+
+- name: Install wiringpi package
+  apt:
+    name: wiringpi
+    state: present
+  tags: shutdown-btn
+
+- name: Install shutdown service script
+  template:
+    src: pin-shutdown.sh.j2
+    dest: "{{ shutdown_btn_script_path }}"
+    mode: u=rwx,g=rx,o=rx
+  tags: shutdown-btn
+
+- name: Copy systemd service file to server
+  template:
+    src: button-shutdown.service.j2
+    dest: /etc/systemd/system/button-shutdown.service
+    owner: root
+    group: root
+  notify:
+    - Start button-shutdown service
+  tags: shutdown-btn
