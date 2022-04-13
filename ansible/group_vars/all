@@ -2,3 +2,7 @@
 # Variables listed here are applicable to all cars
 
 shutdown_pin: 29 # Ping no 40, GPIO 21. See wireringpi layout pin numbers here : https://fr.pinout.xyz/pinout/wiringpi#
+wpa_ssid: donkeycarlph 
+wpa_password: lph123456
+country_mode: FR
+new_password: dababycar

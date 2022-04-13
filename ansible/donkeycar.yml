@@ -6,5 +6,7 @@
   remote_user: pi
 
   roles:
+    - role: raspi-config
+      become: yes # This role need root privileges
     - role: shutdown-btn
       become: yes # This role need root privileges

@@ -1,0 +1,27 @@
+---
+- name: enable ssh on boot
+  ansible.builtin.file:
+    path: /boot/ssh
+    state: touch
+    mode: u=rw,g=r,o=r
+  
+- name: Copy wpa conf to the car
+  template:
+    src: wpa-suplicant-conf.j2
+    dest: /etc/wpa_supplicant/wpa_supplicant.conf
+    owner: root
+    group: root
+  tags: wpa-configuration
+
+- name: Update and upgrade apt packages
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 
+
+- name: Change user password
+  user:
+    name: pi
+    update_password: always
+    password: "{{ new_password|password_hash('sha512') }}"
+    
