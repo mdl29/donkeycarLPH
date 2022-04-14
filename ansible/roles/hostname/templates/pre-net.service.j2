@@ -1,0 +1,13 @@
+[Unit]
+DefaultDependencies=false
+Wants=network-pre.target
+Before=network-pre.target
+After=local-fs.target
+After=sys-subsystem-net-devices-eth0.device
+
+[Service]
+ExecStart=/usr/local/sbin/pre-net.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=network.target

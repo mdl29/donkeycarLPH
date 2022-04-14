@@ -16,3 +16,5 @@
       become: yes # This role need root privileges
     - role: mycar # shutdown button service
       become: no # This role need root privileges
+    - role: hostname
+      become: yes

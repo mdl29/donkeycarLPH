@@ -1,0 +1,3 @@
+---
+# local path to file containing hostname/mac address map
+hostnames_path: /var/hostnames
