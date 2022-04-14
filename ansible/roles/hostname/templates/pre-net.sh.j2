@@ -2,7 +2,7 @@
 echo "pre-net begin"
 hostnames="{{ hostnames_path }}"
 mac="$(tail -n1 < /sys/class/net/eth0/address)"
-hostname="$(grep "$mac" "$hostnames" | awk '{print $1}')"
+hostname="$(awk '/^'"$mac"'/ {r=$1} END{print r}' < "$hostnames")"
 
 # exit now if the hostname isn't known (the current computer is not a car)
 # exit 3 to be a different number than unrelated errors
@@ -10,10 +10,10 @@ hostname="$(grep "$mac" "$hostnames" | awk '{print $1}')"
 
 hostnamectl set-hostname "$hostname"
 cp /etc/hosts /var/hosts.back
-if grep "# PRENET_HOSTNAME" /etc/hosts; then
-        sed 's/^.\+ # PRENET_HOSTNAME$/127.0.0.1        '"${hostname}"' # PRENET_HOSTNAME/' < /etc/hosts > /tmp/hosts
+if grep " # PRENET_HOSTNAME" /etc/hosts; then
+        sed 's/^.\+ # PRENET_HOSTNAME$/127.0.0.1	'"${hostname}"' # PRENET_HOSTNAME/' < /etc/hosts > /tmp/hosts
         mv /tmp/hosts /etc/hosts
 else
-        echo "127.0.0.1 $hostname # PRENET_HOSTNAME" >> /etc/hosts
+        echo "127.0.0.1	$hostname # PRENET_HOSTNAME" >> /etc/hosts
 fi
 echo "hostname set"
