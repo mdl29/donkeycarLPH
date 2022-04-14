@@ -1,0 +1,58 @@
+- name: Install dependencies
+  become: true
+  apt:
+    pkg:
+      - build-essential 
+      - python3 
+      - python3-dev 
+      - python3-venv
+      - python3-pip 
+      - python3-virtualenv 
+      - python3-numpy 
+      - python3-picamera 
+      - python3-pandas 
+      - python3-rpi.gpio 
+      - i2c-tools 
+      - avahi-utils 
+      - joystick 
+      - libopenjp2-7-dev 
+      - libtiff5-dev 
+      - gfortran 
+      - libatlas-base-dev 
+      - libopenblas-dev 
+      - libhdf5-serial-dev 
+      - libgeos-dev 
+      - git 
+      - ntp
+    state: latest
+
+- name: Create projects directory
+  file:
+    path: /home/pi/projects
+    state: directory
+
+- name: Clone the donkeycar repository and checkout in main branch 
+  ansible.builtin.git:
+    repo: https://github.com/autorope/donkeycar.git
+    dest: /home/pi/projects/
+    force: yes
+    single_branch: yes
+    version: main
+
+- name: Create python3 virtual environment & install tensorflow
+  pip:
+    name: https://github.com/lhelontra/tensorflow-on-arm/releases/download/v2.2.0/tensorflow-2.2.0-cp37-none-linux_armv7l.whl
+    virtualenv: /home/pi/venv/
+    virtualenv_command: /usr/bin/python3 -m venv
+
+- name: run setup.py
+  pip:
+    chdir: /home/pi/projects/
+    name: .[pi]
+    virtualenv: /home/pi/venv/
+    extra_args: '-e'
+
+- name: Add virtualenv activation in bashrc file for pi user
+  lineinfile:
+    dest: /home/pi/.bashrc
+    line: "source ~/venv/bin/activate"

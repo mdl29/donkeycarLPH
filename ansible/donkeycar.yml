@@ -6,7 +6,9 @@
   remote_user: pi
 
   roles:
-    - role: raspi-config
+    - role: raspi-config #rasperry pi configuration role
       become: yes # This role need root privileges
-    - role: shutdown-btn
+    - role: donkeycar # Donkeycar installation 
+      become: no # This role need root privileges
+    - role: shutdown-btn # shutdown button service
       become: yes # This role need root privileges
