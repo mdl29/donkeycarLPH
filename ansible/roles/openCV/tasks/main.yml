@@ -19,5 +19,5 @@
     
 - name: Install openCV
   apt:
-    name: opencv-python
+    name: python3-opencv
     state: present
