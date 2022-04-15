@@ -10,5 +10,7 @@
       become: yes # This role need root privileges
     - role: donkeycar # Donkeycar installation 
       become: no # This role doesn't need root privileges
+    - role: openCV
+      become: yes
     - role: shutdown-btn # shutdown button service
       become: yes # This role need root privileges
