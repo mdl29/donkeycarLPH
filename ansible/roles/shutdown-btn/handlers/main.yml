@@ -2,7 +2,8 @@
 # Shutdown-btn handlers
 
 - name: Start button-shutdown service
-  service:
+  systemd:
     name: button-shutdown
+    daemon-reload: yes
     state: started
     enabled: yes

@@ -18,3 +18,5 @@
       become: no # This role need root privileges
     - role: hostname
       become: yes
+    - role: hostname
+      become: yes

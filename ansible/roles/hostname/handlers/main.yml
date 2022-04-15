@@ -2,6 +2,7 @@
 # Shutdown-btn handlers
 
 - name: Start pre-net service
-  service:
+  systemd:
     name: pre-net
+    daemon_reload: yes
     enabled: yes

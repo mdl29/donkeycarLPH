@@ -1,13 +1,13 @@
 ---
 # This playbook contains first time setup of this shit
 
-- name: Install script
+- name: Install pre-net script
   template:
-    src: pre-net.j2
+    src: pre-net.sh.j2
     dest: "/usr/local/sbin/pre-net.sh"
     mode: u=rwx,g=rx,o=rx
 
-- name: Copy systemd service file
+- name: Copy systemd pre-net service file
   template:
     src: pre-net.service.j2
     dest: /etc/systemd/system/pre-net.service
