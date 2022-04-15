@@ -22,6 +22,16 @@
 - name: Change user password
   command: "echo pi:{{new_password}} | chpasswd -e"
 
+- name: Install pigpio
+  apt:
+    pkg:
+    - pigpio 
+    - python3-pigpio
+    state: latest
+
+- name: Enable pigpio
+  notify: Start pigpio service
+
 - name: Enable I2C
   command: raspi-config nonint do_i2c 1
 
