@@ -2,7 +2,16 @@
 # Variables listed here are applicable to all cars
 
 shutdown_pin: 29 # Ping no 40, GPIO 21. See wireringpi layout pin numbers here : https://fr.pinout.xyz/pinout/wiringpi#
+
+# raspi-config var
 wpa_ssid: donkeycarlph 
 wpa_password: lph123456
 country_mode: FR
 new_password: dababycar
+
+# mycar config var
+steering_left_pwm: 622
+steering_right_pwm: 520
+throttle_forward_pwm: 515
+throttle_stopped_pwm: 470
+throttle_reverse_pwm: 445

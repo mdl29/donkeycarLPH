@@ -14,3 +14,5 @@
       become: yes
     - role: shutdown-btn # shutdown button service
       become: yes # This role need root privileges
+    - role: mycar # shutdown button service
+      become: no # This role need root privileges
