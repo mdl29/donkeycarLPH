@@ -4,7 +4,7 @@
 - name: Install mac address database
   copy:
     src: hostnames
-    dest: {{ hostnames_path }}
+    dest: "{{ hostnames_path }}"
     owner: root
     group: root
     mode: u=rw,g=r,o=r
