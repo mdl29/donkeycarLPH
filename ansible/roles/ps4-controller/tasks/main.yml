@@ -28,8 +28,7 @@
       
 - name: run setup.py
   become: no
-  command: /usr/bin/python3 setup.py install
-
+  command: /home/pi/venv/python setup.py install
 
 - name: reload systemctl
   become: yes
