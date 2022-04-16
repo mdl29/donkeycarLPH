@@ -27,7 +27,7 @@
     version: 193_limit_simultaneous_controllers
       
 - name: run setup.py
-  become: yes
+  become: no
   command: /usr/bin/python3 setup.py install
 
 
