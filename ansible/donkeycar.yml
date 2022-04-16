@@ -6,17 +6,16 @@
   remote_user: pi
 
   roles:
-    - role: raspi-config #rasperry pi configuration role
-      become: yes # This role need root privileges
-    - role: donkeycar # Donkeycar installation 
-      become: no # This role doesn't need root privileges
-    - role: openCV # Install openCV (optional)
-      become: yes # This role need root privileges
-    - role: shutdown-btn # shutdown button service
-      become: yes # This role need root privileges
-    - role: mycar # create car with configurations
-      become: no # This role no need root privileges
+    # - role: raspi-config #rasperry pi configuration role
+    #   become: yes # This role need root privileges
+    # - role: donkeycar # Donkeycar installation 
+    #   become: no # This role doesn't need root privileges
+    # - role: openCV # Install openCV (optional)
+    #   become: yes # This role need root privileges
+    # - role: shutdown-btn # shutdown button service
+    #   become: yes # This role need root privileges
+    # - role: mycar # create car with configurations
+    #   become: no # This role no need root privileges
     - role: ps4-controller # install and configure ds4drv
-      become: no # This role no need root privileges
-    - role: hostname
+      become: no # This role no need root privileges    - role: hostname
       become: yes

@@ -25,14 +25,12 @@
     force: yes
     single_branch: yes
     version: 193_limit_simultaneous_controllers
-    
+      
 - name: run setup.py
-  pip:
-    chdir: /home/pi/ds4drv/
-    name: setup.py
-    virtualenv: /home/pi/venv/
-    virtualenv_command: /usr/bin/python3 -m venv
-  
+  become: yes
+  command: /usr/bin/python3 setup.py install
+
+
 - name: reload systemctl
   become: yes
   command: systemctl daemon-reload
