@@ -1,9 +1,8 @@
 ---
-- name: Enable ssh on boot
-  ansible.builtin.file:
-    path: /boot/ssh
-    state: touch
-    mode: u=rw,g=r,o=r
+- name: Enable ssh service
+  ansible.builtin.systemd:
+    name: ssh
+    enabled: yes
 
 - name: Put the wpa configuration in /boot # first boot on the
   template:
