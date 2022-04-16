@@ -29,7 +29,8 @@ sde      8:64   1  29,1G  0 disk
 ├─sde1   8:65   1   256M  0 part /media/benjamin/boot
 └─sde2   8:66   1  28,9G  0 part /media/benjamin/rootfs
 # For me it's /dev/sde, 30 GB sd card
-$ sudo dd if=output-raspbian/image bs=4M of=/dev/sde status=progress && sync
+$ export DEVICE_NAME=/dev/sde # Adapt this line
+$ sudo dd if=output-raspbian/image bs=4M of=$DEVICE_NAME status=progress && sync
 ```
 
 # Current issue
