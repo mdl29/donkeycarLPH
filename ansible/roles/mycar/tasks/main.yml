@@ -1,8 +1,9 @@
 --- 
 
 - name: create car
-  chdir : ~/
-  ansible.builtin.command: donkey createcar --path ~/mycar
+  shell: |
+    cd ~
+    donkey createcar --path ~/mycar
 
 - name: modifie the car conf
   template:
