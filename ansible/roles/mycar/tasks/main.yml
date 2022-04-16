@@ -2,11 +2,10 @@
 
 - name: create car
   shell: |
-    cd ~
-    donkey createcar --path ~/mycar
+    /home/pi/venv/bin/donkey createcar --path /home/pi/mycar
 
 - name: modifie the car conf
   template:
-    src: car-conf.j2
+    src: myconfig.py.j2
     dest: /home/pi/mycar/myconfig.py
 
