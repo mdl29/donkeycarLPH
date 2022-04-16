@@ -5,7 +5,7 @@ After=bluetooth.service
 
 [Service]
 EnvironmentFile=/etc/donkeycar/ds4drv.env
-ExecStart=sudo /home/pi/env/bin/ds4drv --controller-limit 1 --led 00CED1
+ExecStart=sudo /home/pi/env/bin/ds4drv --controller-limit 1 --led {{ ps4_contoller_led_color }}
 Restart=on-abort
 
 [Install]

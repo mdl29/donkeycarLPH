@@ -15,3 +15,6 @@ steering_right_pwm: 520
 throttle_forward_pwm: 515
 throttle_stopped_pwm: 470
 throttle_reverse_pwm: 445
+
+# PS4 controller config
+ps4_contoller_led_color: 00CED1 # hexadecimal color ( don't forget, remove the `#` before )
