@@ -1,0 +1,12 @@
+[Unit]
+Description=ds4drv daemon
+Requires=bluetooth.service
+After=bluetooth.service
+
+[Service]
+EnvironmentFile=/etc/donkeycar/ds4drv.env
+ExecStart=sudo /home/pi/env/bin/ds4drv --controller-limit 1 --led 00CED1
+Restart=on-abort
+
+[Install]
+WantedBy=bluetooth.target

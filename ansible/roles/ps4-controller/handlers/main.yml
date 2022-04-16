@@ -1,0 +1,8 @@
+---
+# ps4 controller handlers
+
+- name: Start ds4drv service
+  service:
+    name: ds4drv
+    state: started
+    enabled: yes
