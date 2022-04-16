@@ -28,8 +28,6 @@
     - pigpio 
     - python3-pigpio
     state: latest
-
-- name: Enable pigpio
   notify: Start pigpio service
 
 - name: Enable I2C
