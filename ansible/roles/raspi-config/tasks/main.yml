@@ -1,0 +1,37 @@
+---
+- name: Enable ssh on boot
+  ansible.builtin.file:
+    path: /boot/ssh
+    state: touch
+    mode: u=rw,g=r,o=r
+
+- name: Put the wpa configuration in /boot # first boot on the
+  template:
+    src: wpa-suplicant-conf.j2
+    dest: /boot/wpa_supplicant.conf
+    owner: root
+    group: root
+  tags: wpa-configuration
+
+- name: Update and upgrade apt packages ( can take soooooooooo muchhhhhhhhhhhhh time, don't worry !! )
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 
+
+- name: Change user password
+  command: "echo pi:{{new_password}} | chpasswd -e"
+
+- name: Install pigpio
+  apt:
+    pkg:
+    - pigpio 
+    - python3-pigpio
+    state: latest
+  notify: Start pigpio service
+
+- name: Enable I2C
+  command: raspi-config nonint do_i2c 1
+
+- name: Enable camera
+  command: raspi-config nonint do_camera 1  

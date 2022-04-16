@@ -1,0 +1,23 @@
+
+---
+- name: Install openCV dependencies
+  become: true
+  apt:
+    pkg:
+    - libilmbase-dev 
+    - libopenexr-dev 
+    - libgstreamer1.0-dev 
+    - libjasper-dev 
+    - libwebp-dev 
+    - libatlas-base-dev 
+    - libavcodec-dev 
+    - libavformat-dev 
+    - libswscale-dev 
+    - libqtgui4 
+    - libqt4-test
+    state: latest
+    
+- name: Install openCV
+  apt:
+    name: python3-opencv
+    state: present

@@ -1,0 +1,11 @@
+--- 
+
+- name: create car
+  shell: |
+    /home/pi/venv/bin/donkey createcar --path /home/pi/mycar
+
+- name: modifie the car conf
+  template:
+    src: myconfig.py.j2
+    dest: /home/pi/mycar/myconfig.py
+

@@ -1,0 +1,8 @@
+---
+# pigpio handlers
+
+- name: Start pigpio service
+  service:
+    name: pigpio
+    state: started
+    enabled: yes
