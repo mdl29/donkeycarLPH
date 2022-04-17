@@ -27,14 +27,27 @@
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 
- - name: Create the file configuration for ds4drv
+- name: Create the /etc/donkeycar directory
+  file:
+    path: /etc/donkeycar
+    state: directory
+    
+- name: Configure ds4drv.conf file
+  become: yes
+  template:
+    src: ds4drv.conf.j2
+    dest: /etc/donkeycar/ds4drv.conf
+    owner: root
+    group: root
+
+- name: Create the environment file for ds4drv
   become: yes
   template:
     src: ds4drv.env.j2
     dest: /etc/donkeycar/ds4drv.env
     owner: root
     group: root
-    
+      
 - name: Copy systemd service file to server
   become: yes
   template:

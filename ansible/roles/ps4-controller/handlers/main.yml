@@ -2,7 +2,7 @@
 # ps4 controller handlers
 
 - name: Start ds4drv service
-  service:
+  systemd:
     name: ds4drv
     daemon-reload: yes
     state: started
