@@ -17,18 +17,13 @@
 - name: activate rules
   become: yes
   command: udevadm trigger
-
-- name: Clone the ds4drv repository in /home/pi
-  ansible.builtin.git:
-    repo: https://github.com/Benvii/ds4drv.git
-    dest: /home/pi/ds4drv
-    force: yes
-    single_branch: yes
-    version: 193_limit_simultaneous_controllers
       
-- name: run setup.py
+- name: Install ds4drv (version with controller limit)
   become: no
-  command: /home/pi/venv/bin/python setup.py install
+  pip:
+    name: git+https://github.com/Benvii/ds4drv.git@193_limit_simultaneous_controllers
+    virtualenv: /home/pi/venv/
+    virtualenv_command: /usr/bin/python3 -m venv
 
 - name: reload systemctl
   become: yes
