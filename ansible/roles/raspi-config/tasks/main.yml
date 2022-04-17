@@ -27,7 +27,7 @@
     - pigpio 
     - python3-pigpio
     state: latest
-  notify: Start pigpio service
+  notify: Start pigpiod service
 
 - name: Enable I2C
   command: raspi-config nonint do_i2c 1
