@@ -8,7 +8,9 @@
 
 - name: Put rules in /etc/udev/rules.d/
   become: yes
-  command: wget https://raw.githubusercontent.com/chrippa/ds4drv/master/udev/50-ds4drv.rules -O /etc/udev/rules.d/50-ds4drv.rules
+  get_url:
+    url: https://raw.githubusercontent.com/chrippa/ds4drv/master/udev/50-ds4drv.rules
+    dest: /etc/udev/rules.d/50-ds4drv.rules
 
 - name: reload ds4drv rules
   become: yes
@@ -24,11 +26,7 @@
     name: git+https://github.com/Benvii/ds4drv.git@193_limit_simultaneous_controllers
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
-
-- name: reload systemctl
-  become: yes
-  command: systemctl daemon-reload
-
+    
 - name: Copy systemd service file to server
   become: yes
   template:
