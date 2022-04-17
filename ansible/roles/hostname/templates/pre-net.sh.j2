@@ -1,4 +1,7 @@
 #!/bin/bash
+set -euo pipefail
+shopt -s inherit_errexit
+
 echo "pre-net begin"
 hostnames="{{ hostnames_path }}"
 mac="$(tail -n1 < /sys/class/net/eth0/address)"
