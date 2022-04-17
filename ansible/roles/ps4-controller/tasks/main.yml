@@ -26,11 +26,19 @@
     name: git+https://github.com/Benvii/ds4drv.git@193_limit_simultaneous_controllers
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
+
+ - name: Create the file configuration for ds4drv
+  become: yes
+  template:
+    src: ds4drv.env.j2
+    dest: /etc/donkeycar/ds4drv.env
+    owner: root
+    group: root
     
 - name: Copy systemd service file to server
   become: yes
   template:
-    src: ds4drv-service.j2
+    src: ds4drv.service.j2
     dest: /etc/systemd/system/ds4drv.service
     owner: root
     group: root

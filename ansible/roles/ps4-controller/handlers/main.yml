@@ -4,5 +4,6 @@
 - name: Start ds4drv service
   service:
     name: ds4drv
+    daemon-reload: yes
     state: started
     enabled: yes
