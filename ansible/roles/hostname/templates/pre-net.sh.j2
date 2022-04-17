@@ -3,7 +3,7 @@ set -euo pipefail
 shopt -s inherit_errexit
 
 echo "pre-net begin"
-hostnames="{{ hostnames_path }}"
+hostnames="{{ config_path }}/hostnames"
 mac="$(tail -n1 < /sys/class/net/eth0/address)"
 hostname="$(awk '/^'"$mac"'/ {r=$2} END{print r}' < "$hostnames")"
 
@@ -22,3 +22,8 @@ else
         echo "127.0.0.1	$hostname # PRENET_HOSTNAME" >> /etc/hosts
 fi
 echo "hostname set"
+echo "installing config"
+mkdir -p /etc/donkeycar
+echo "  ds4drv.env"
+cp "{{ config_path }}/$hostname/ds4drv.env" "/etc/donkeycar/ds4drv.env"
+echo "installed config"

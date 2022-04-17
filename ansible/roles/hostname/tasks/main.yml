@@ -1,10 +1,10 @@
 ---
 # This playbook contains first time setup of this shit
 
-- name: Install mac address database
+- name: Install configs
   copy:
-    src: hostnames
-    dest: "{{ hostnames_path }}"
+    src: config
+    dest: "{{ config_path }}"
     owner: root
     group: root
     mode: u=rw,g=r,o=r
