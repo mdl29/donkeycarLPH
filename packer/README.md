@@ -14,7 +14,7 @@ For developers :
 Packer ARM plugin need root privileges to run. To build the images use the following commands :
 ```bash
 sudo packer init .
-sudo packer build donkeycar.pkr.hcl
+sudo packer build -on-error=abort donkeycar.pkr.hcl # Using on-error abort to keep the image if error occured
 ```
 
 Then grab some ☕️☕️☕️

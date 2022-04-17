@@ -1,0 +1,25 @@
+---
+# This playbook contains first time setup of this shit
+
+- name: Install mac address database
+  copy:
+    src: hostnames
+    dest: "{{ hostnames_path }}"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Install pre-net script
+  template:
+    src: pre-net.sh.j2
+    dest: "/usr/local/sbin/pre-net.sh"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Copy systemd pre-net service file
+  template:
+    src: pre-net.service.j2
+    dest: /etc/systemd/system/pre-net.service
+    owner: root
+    group: root
+  notify:
+    - Start pre-net service

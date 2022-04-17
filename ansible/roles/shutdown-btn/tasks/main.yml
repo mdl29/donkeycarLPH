@@ -20,6 +20,5 @@
     dest: /etc/systemd/system/button-shutdown.service
     owner: root
     group: root
-  notify:
-    - Start button-shutdown service
+  notify: Start button-shutdown service
   tags: shutdown-btn
