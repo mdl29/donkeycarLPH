@@ -17,5 +17,6 @@
     - role: mycar # create car with configurations
       become: no # This role no need root privileges
     - role: ps4-controller # install and configure ds4drv
-      become: no # This role no need root privileges    - role: hostname
+      become: no # This role no need root privileges
+    - role: hostname
       become: yes
