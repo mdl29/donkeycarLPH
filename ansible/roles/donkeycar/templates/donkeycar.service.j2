@@ -7,7 +7,7 @@ After=pigpiod.service
 [Service]
 User=pi
 ExecStartPre=/bin/sleep 5
-ExecStart=/home/pi/env/bin/python /home/pi/mycar/manage.py drive --js
+ExecStart=/home/pi/venv/bin/python /home/pi/mycar/manage.py drive --js
 Restart=on-abort
 
 [Install]
