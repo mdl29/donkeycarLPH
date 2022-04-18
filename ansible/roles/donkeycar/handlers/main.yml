@@ -1,0 +1,9 @@
+---
+# donkeycar.service handlers
+
+- name: Start donckeycar.service service
+  systemd:
+    name: donckeycar
+    daemon-reload: yes
+    state: started
+    enabled: yes
