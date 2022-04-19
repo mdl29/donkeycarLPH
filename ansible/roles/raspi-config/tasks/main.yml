@@ -4,7 +4,7 @@
     name: ssh
     enabled: yes
 
-- name: Put the wpa configuration in /boot # first boot on the
+- name: Put the wpa configuration in /boot 
   template:
     src: wpa-suplicant-conf.j2
     dest: /boot/wpa_supplicant.conf
@@ -34,3 +34,10 @@
 
 - name: Enable camera
   command: raspi-config nonint do_camera 1  
+
+- name: modifie the dhcpd5 service
+  template:
+    src: dhcpd5.service.j2
+    dest: /etc/systemd/system/dhcpcd5.service
+    owner: root
+    group: root

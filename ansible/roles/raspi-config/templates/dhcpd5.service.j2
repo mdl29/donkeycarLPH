@@ -1,0 +1,15 @@
+[Unit]
+Description=dhcpcd on all interfaces
+Wants=network.target
+Before=network.target
+Restart=always
+
+[Service]his i
+Type=forking
+PIDFile=/run/dhcpcd.pid
+ExecStart=/usr/lib/dhcpcd5/dhcpcd -w -q -t 0 %I
+ExecStop=/sbin/dhcpcd -x
+
+[Install]
+WantedBy=multi-user.target
+Alias=dhcpcd5.service
