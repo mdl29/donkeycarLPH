@@ -4,11 +4,12 @@ Wants=network.target
 Before=network.target
 Restart=always
 
-[Service]his i
+[Service]
 Type=forking
 PIDFile=/run/dhcpcd.pid
-ExecStart=/usr/lib/dhcpcd5/dhcpcd -w -q -t 0 %I
+ExecStart=/usr/lib/dhcpcd5/dhcpcd -q -b
 ExecStop=/sbin/dhcpcd -x
+TimeoutStartSec=180
 
 [Install]
 WantedBy=multi-user.target

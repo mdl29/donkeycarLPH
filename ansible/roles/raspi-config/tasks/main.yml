@@ -38,6 +38,9 @@
 - name: modifie the dhcpd5 service
   template:
     src: dhcpd5.service.j2
-    dest: /etc/systemd/system/dhcpcd5.service
+    dest: /lib/systemd/system/dhcpcd.service
     owner: root
     group: root
+  # We won't notify to restart DHCP service because it could cause Ansible deconnexion
+  # Change will be taken into account at restart, it's not an issue as our fixe covers
+  # timeout issue at the first boot of the raspberry pi.
