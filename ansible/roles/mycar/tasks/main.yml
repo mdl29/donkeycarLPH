@@ -1,6 +1,8 @@
 --- 
 
 - name: create car
+  become: yes
+  become_user: pi
   shell: |
     /home/pi/venv/bin/donkey createcar --path /home/pi/mycar
 
