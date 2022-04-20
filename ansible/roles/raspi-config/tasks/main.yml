@@ -22,7 +22,7 @@
   command: "echo pi:{{new_password}} | chpasswd -e"
 
 - name: Enable I2C
-  command: raspi-config nonint do_i2c 1
+  command: sed -i "s/start_x=0/start_x=1/g" /boot/config.txt
 
 - name: Enable camera
-  command: raspi-config nonint do_camera 1  
+  command: sed -i "s/dtparam=i2c_arm=off/dtparam=i2c_arm=on/g" /boot/config.txt 
