@@ -1,9 +1,0 @@
----
-# pigpio handlers
-
-- name: Start pigpiod service
-  systemd:
-    name: pigpiod
-    state: started
-    enabled: yes
-    daemon-reload: yes

@@ -9,10 +9,6 @@
       - python3-venv
       - python3-pip 
       - python3-virtualenv 
-      - python3-numpy 
-      - python3-picamera 
-      - python3-pandas 
-      - python3-rpi.gpio 
       - i2c-tools 
       - avahi-utils 
       - joystick 
@@ -46,6 +42,11 @@
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 
+- name: Add virtualenv activation in bashrc file for pi user
+  lineinfile:
+    dest: /home/pi/.bashrc
+    line: "source ~/venv/bin/activate"
+
 - name: run setup.py
   pip:
     chdir: /home/pi/projects/
@@ -53,10 +54,24 @@
     virtualenv: /home/pi/venv/
     extra_args: '-e'
 
-- name: Add virtualenv activation in bashrc file for pi user
-  lineinfile:
-    dest: /home/pi/.bashrc
-    line: "source ~/venv/bin/activate"
+- name: Install pigpio
+  apt:
+    pkg:
+    - pigpio 
+    - python3-pigpio
+    state: latest
+  notify: Start pigpiod service
+
+- name: Install python dependencies
+  pip:
+    name: 
+      - pigpio
+      - numpy
+      - picamera
+      - pandas
+      - rpi.gpio
+    virtualenv: /home/pi/venv/
+    virtualenv_command: /usr/bin/python3 -m venv
 
 - name: Create donkeycar service for launch manage.py start at startup
   template:
