@@ -18,11 +18,40 @@
     update_cache: yes
     cache_valid_time: 86400 
 
-- name: Change user password
-  command: "echo pi:{{new_password}} | chpasswd -e"
+- name: Change pi password
+  user:
+    name: pi
+    update_password: always
+    password: "{{ new_password|password_hash('sha512') }}"
 
-- name: Enable I2C
-  command: sed -i "s/start_x=0/start_x=1/g" /boot/config.txt
+- name: Camera, ensure start_x=0 option is in /boot/config.txt
+  # Solution found here : https://raspberrypi.stackexchange.com/a/14419
+  ansible.builtin.lineinfile:
+    path: /boot/config.txt
+    state: present
+    create: yes
+    regexp: 'start_x=[0-1]'
+    line: 'start_x=1'
 
-- name: Enable camera
-  command: sed -i "s/dtparam=i2c_arm=off/dtparam=i2c_arm=on/g" /boot/config.txt 
+- name: Enable I2C in /boot/config
+  ansible.builtin.replace: # Equivalent to : sed -i "s/dtparam=i2c_arm=off/dtparam=i2c_arm=on/g" /boot/config.txt
+    path: /boot/config.txt
+    regexp: '^#?dtparam=i2c_arm=(on)|(off)'
+    replace: 'dtparam=i2c_arm=on'
+
+- name: Enable I2C in /etc/modules
+  ansible.builtin.lineinfile:
+    path: /etc/modules
+    state: present
+    create: yes
+    line: 'i2c-dev'
+
+- name: modifie the dhcpd5 service
+  template:
+    src: dhcpd.service.j2
+    dest: /lib/systemd/system/dhcpcd.service
+    owner: root
+    group: root
+  # We won't notify to restart DHCP service because it could cause Ansible deconnexion
+  # Change will be taken into account at restart, it's not an issue as our fixe covers
+  # timeout issue at the first boot of the raspberry pi.
