@@ -1,6 +1,5 @@
 ---
 - name: Install dependencies
-  become: true
   apt:
     pkg:
       - build-essential 
@@ -37,6 +36,8 @@
     version: main
 
 - name: Create python3 virtual environment & install tensorflow
+  become: yes
+  become_user: pi
   pip:
     name: https://github.com/lhelontra/tensorflow-on-arm/releases/download/v2.2.0/tensorflow-2.2.0-cp37-none-linux_armv7l.whl
     virtualenv: /home/pi/venv/
@@ -48,9 +49,12 @@
     line: "source ~/venv/bin/activate"
 
 - name: run setup.py
+  become: yes
+  become_user: pi
   pip:
     chdir: /home/pi/projects/
     name: .[pi]
+    become_user: pi
     virtualenv: /home/pi/venv/
     extra_args: '-e'
 
@@ -63,6 +67,8 @@
   notify: Start pigpiod service
 
 - name: Install python dependencies
+  become: yes
+  become_user: pi
   pip:
     name: 
       - pigpio
