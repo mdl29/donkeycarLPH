@@ -23,11 +23,15 @@
     state: latest
 
 - name: Create projects directory
+  become: yes
+  become_user: pi
   file:
     path: /home/pi/projects
     state: directory
 
 - name: Clone the donkeycar repository and checkout in main branch 
+  become: yes
+  become_user: pi
   ansible.builtin.git:
     repo: https://github.com/autorope/donkeycar.git
     dest: /home/pi/projects/
