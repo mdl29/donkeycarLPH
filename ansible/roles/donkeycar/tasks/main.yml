@@ -54,7 +54,6 @@
   pip:
     chdir: /home/pi/projects/
     name: .[pi]
-    become_user: pi
     virtualenv: /home/pi/venv/
     extra_args: '-e'
 
@@ -86,3 +85,8 @@
     owner: root
     group: root
   notify: Start donckeycar.service service
+
+- name: Add virtualenv activation in bashrc file for pi user
+  lineinfile:
+    dest: /home/pi/.bashrc
+    line: "source ~/venv/bin/activate"
