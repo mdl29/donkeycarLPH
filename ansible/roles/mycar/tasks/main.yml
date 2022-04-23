@@ -11,3 +11,10 @@
     src: myconfig.py.j2
     dest: /home/pi/mycar/myconfig.py
 
+- name: Create donkeycar service for launch manage.py start at startup
+  template:
+    src: donkeycar.service.j2
+    dest: /etc/systemd/system/donkeycar.service
+    owner: root
+    group: root
+  notify: Start donckeycar.service service
