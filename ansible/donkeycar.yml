@@ -6,7 +6,7 @@
   remote_user: pi
 
   roles:
-    - role: raspi-config #rasperry pi configuration role
+    - role: raspi-config #rasperry pi confiuguration role
       become: yes # This role need root privileges
     - role: car-config
       become: yes
@@ -22,3 +22,5 @@
       become: no # This role no need root privileges
     - role: IR-lap-timer # install dependencies for take charge IR counter
       become: yes # This role need root privileges
+    - role: optimizations # Remove some expensive and useless things
+      become: yes

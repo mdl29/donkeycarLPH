@@ -1,0 +1,6 @@
+---
+
+- name: Disable daily upgrades
+  systemd:
+    name: apt-daily-upgrade.timer
+    state: disabled
