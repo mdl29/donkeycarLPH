@@ -1,5 +1,6 @@
 ---
 - name: Install dependencies
+  become: yes
   apt:
     pkg:
       - build-essential 
@@ -48,6 +49,8 @@
     virtualenv_command: /usr/bin/python3 -m venv
 
 - name: Add virtualenv activation in bashrc file for pi user
+  become: yes
+  become_user: pi
   lineinfile:
     dest: /home/pi/.bashrc
     line: "source ~/venv/bin/activate"
@@ -62,6 +65,7 @@
     extra_args: '-e'
 
 - name: Install pigpio
+  become: yes
   apt:
     pkg:
     - pigpio 
@@ -81,8 +85,3 @@
       - rpi.gpio
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
-
-- name: Add virtualenv activation in bashrc file for pi user
-  lineinfile:
-    dest: /home/pi/.bashrc
-    line: "source ~/venv/bin/activate"
