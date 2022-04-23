@@ -23,11 +23,15 @@
     state: latest
 
 - name: Create projects directory
+  become: yes
+  become_user: pi
   file:
     path: /home/pi/projects
     state: directory
 
 - name: Clone the donkeycar repository and checkout in main branch 
+  become: yes
+  become_user: pi
   ansible.builtin.git:
     repo: https://github.com/autorope/donkeycar.git
     dest: /home/pi/projects/
@@ -54,7 +58,6 @@
   pip:
     chdir: /home/pi/projects/
     name: .[pi]
-    become_user: pi
     virtualenv: /home/pi/venv/
     extra_args: '-e'
 
@@ -78,3 +81,8 @@
       - rpi.gpio
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
+
+- name: Add virtualenv activation in bashrc file for pi user
+  lineinfile:
+    dest: /home/pi/.bashrc
+    line: "source ~/venv/bin/activate"
