@@ -82,14 +82,6 @@
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 
-- name: Create donkeycar service for launch manage.py start at startup
-  template:
-    src: donkeycar.service.j2
-    dest: /etc/systemd/system/donkeycar.service
-    owner: root
-    group: root
-  notify: Start donckeycar.service service
-
 - name: Add virtualenv activation in bashrc file for pi user
   lineinfile:
     dest: /home/pi/.bashrc
