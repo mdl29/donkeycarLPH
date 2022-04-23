@@ -18,3 +18,12 @@
     owner: root
     group: root
   notify: Start donckeycar.service service
+
+- name: ramfs 
+  lineinfile
+
+- name: ramfs
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: tmpfs /home/pi/mycar/data rw,noatime,nodev,size=512M,node=1777 0 0
+    create: yes
