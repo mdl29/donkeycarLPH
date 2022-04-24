@@ -16,7 +16,7 @@
       become: no # This role no need root privileges
     - role: openCV # Install openCV (optional)
       become: yes # This role need root privileges
-    # - role: donkeycar # Donkeycar installation 
-    #   become: no # This role doesn't need root privileges
-    # - role: mycar # create car with configurations
-    #   become: no # This role no need root privileges
+    - role: donkeycar # Donkeycar installation 
+      become: no # This role doesn't need root privileges
+    - role: mycar # create car with configurations
+      become: no # This role no need root privileges
