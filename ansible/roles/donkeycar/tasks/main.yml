@@ -1,6 +1,6 @@
 ---
 - name: Install dependencies
-  become: true
+  become: yes
   apt:
     pkg:
       - build-essential 
@@ -9,10 +9,6 @@
       - python3-venv
       - python3-pip 
       - python3-virtualenv 
-      - python3-numpy 
-      - python3-picamera 
-      - python3-pandas 
-      - python3-rpi.gpio 
       - i2c-tools 
       - avahi-utils 
       - joystick 
@@ -28,11 +24,15 @@
     state: latest
 
 - name: Create projects directory
+  become: yes
+  become_user: pi
   file:
     path: /home/pi/projects
     state: directory
 
 - name: Clone the donkeycar repository and checkout in main branch 
+  become: yes
+  become_user: pi
   ansible.builtin.git:
     repo: https://github.com/autorope/donkeycar.git
     dest: /home/pi/projects/
@@ -41,19 +41,47 @@
     version: main
 
 - name: Create python3 virtual environment & install tensorflow
+  become: yes
+  become_user: pi
   pip:
     name: https://github.com/lhelontra/tensorflow-on-arm/releases/download/v2.2.0/tensorflow-2.2.0-cp37-none-linux_armv7l.whl
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 
+- name: Add virtualenv activation in bashrc file for pi user
+  become: yes
+  become_user: pi
+  lineinfile:
+    dest: /home/pi/.bashrc
+    line: "source ~/venv/bin/activate"
+
 - name: run setup.py
+  become: yes
+  become_user: pi
   pip:
     chdir: /home/pi/projects/
     name: .[pi]
     virtualenv: /home/pi/venv/
     extra_args: '-e'
 
-- name: Add virtualenv activation in bashrc file for pi user
-  lineinfile:
-    dest: /home/pi/.bashrc
-    line: "source ~/venv/bin/activate"
+- name: Install pigpio
+  become: yes
+  apt:
+    pkg:
+    - pigpio 
+    - python3-pigpio
+    state: latest
+  notify: Start pigpiod service
+
+- name: Install python dependencies
+  become: yes
+  become_user: pi
+  pip:
+    name: 
+      - pigpio
+      - numpy
+      - picamera
+      - pandas
+      - rpi.gpio
+    virtualenv: /home/pi/venv/
+    virtualenv_command: /usr/bin/python3 -m venv

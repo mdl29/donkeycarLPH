@@ -1,0 +1,9 @@
+---
+# pigpio handlers
+
+- name: Start donckeycar.service service
+  systemd:
+    name: donkeycar
+    state: started
+    enabled: yes
+    daemon-reload: yes
