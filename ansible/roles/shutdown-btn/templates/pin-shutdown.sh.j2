@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pin={{ shutdown_pin }}  # pin 40 (internal: 21) on raspi layout
+pin={{ shutdown_pin }}  # pin 18 (internal: 24) on raspi layout
 gpio mode "$pin" "in"
 
 while :; do
