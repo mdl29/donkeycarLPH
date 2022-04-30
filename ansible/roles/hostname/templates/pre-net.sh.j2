@@ -24,6 +24,9 @@ fi
 echo "hostname set"
 echo "installing config"
 mkdir -p /etc/donkeycar
+mkdir -p /home/pi/mycar
 echo "  ds4drv.env"
 cp "{{ config_path }}/$hostname/ds4drv.env" "/etc/donkeycar/ds4drv.env"
+echo "  myconfig.py"
+cp "{{ config_path }}/$hostname/myconfig.py" "/home/pi/mycar/myconfig.py"
 echo "installed config"
