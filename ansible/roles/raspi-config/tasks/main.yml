@@ -48,7 +48,7 @@
     
 - name: modifie the dhcpd5 service
   template:
-    src: dhcpd.service.j2
+    src: dhcpcd.service.j2
     dest: /lib/systemd/system/dhcpcd.service
     owner: root
     group: root
