@@ -2,7 +2,7 @@
 set -euo pipefail
 shopt -s inherit_errexit
 
-echo "pre-net begin"
+echo "deploy begin"
 hostnames="{{ config_path }}/hostnames"
 mac="$(tail -n1 < /sys/class/net/eth0/address)"
 hostname="$(awk '/^'"$mac"'/ {r=$2} END{print r}' < "$hostnames")"
@@ -15,18 +15,20 @@ echo "found hostname: $hostname"
 echo "$hostname" > /etc/hostname
 sysctl kernel.hostname="$hostname"
 cp /etc/hosts /var/hosts.back
-if grep " # PRENET_HOSTNAME" /etc/hosts; then
-        sed 's/^.\+ # PRENET_HOSTNAME$/127.0.0.1	'"${hostname}"' # PRENET_HOSTNAME/' < /etc/hosts > /tmp/hosts
+if grep " # DEPLOY_HOSTNAME" /etc/hosts; then
+        sed 's/^.\+ # DEPLOY_HOSTNAME$/127.0.0.1	'"${hostname}"' # DEPLOY_HOSTNAME/' < /etc/hosts > /tmp/hosts
         mv /tmp/hosts /etc/hosts
 else
-        echo "127.0.0.1	$hostname # PRENET_HOSTNAME" >> /etc/hosts
+        echo "127.0.0.1	$hostname # DEPLOY_HOSTNAME" >> /etc/hosts
 fi
+
 echo "hostname set"
-echo "installing config"
+echo "installing configs"
 mkdir -p /etc/donkeycar
 mkdir -p /home/pi/mycar
 echo "  ds4drv.env"
 cp "{{ config_path }}/$hostname/ds4drv.env" "/etc/donkeycar/ds4drv.env"
 echo "  myconfig.py"
 cp "{{ config_path }}/$hostname/myconfig.py" "/home/pi/mycar/myconfig.py"
-echo "installed config"
+echo "installed configs"
+echo "deploy finished"
