@@ -5,10 +5,9 @@ After=bluetooth.service
 
 [Service]
 EnvironmentFile=/etc/donkeycar/ds4drv.env
-ExecStartPre=/bin/sleep 10
 ExecStart=/home/pi/venv/bin/ds4drv --controller-limit 1 --led ${CONTROLLER_LED_COLOR} --config /etc/donkeycar/ds4drv.conf --bindings donkeycar
 Restart=always
-RestartSec=2
+RestartSec=3
 
 [Install]
 WantedBy=bluetooth.target
