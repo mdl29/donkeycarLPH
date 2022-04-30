@@ -2,7 +2,7 @@
 - name: Install configs
   copy:
     src: config
-    dest: "{{ config_path }}"
+    dest: "{{ config_loc }}"
     owner: root
     group: root
     mode: u=rw,g=r,o=r

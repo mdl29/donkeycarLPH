@@ -3,7 +3,7 @@ set -euo pipefail
 shopt -s inherit_errexit
 
 echo "deploy begin"
-hostnames="{{ config_path }}/hostnames"
+hostnames="{{ config_loc }}/config/hostnames"
 mac="$(tail -n1 < /sys/class/net/eth0/address)"
 hostname="$(awk '/^'"$mac"'/ {r=$2} END{print r}' < "$hostnames")"
 
@@ -27,8 +27,8 @@ echo "installing configs"
 mkdir -p /etc/donkeycar
 mkdir -p /home/pi/mycar
 echo "  ds4drv.env"
-cp "{{ config_path }}/$hostname/ds4drv.env" "/etc/donkeycar/ds4drv.env"
+cp "{{ config_loc }}/config/$hostname/ds4drv.env" "/etc/donkeycar/ds4drv.env"
 echo "  myconfig.py"
-cp "{{ config_path }}/$hostname/myconfig.py" "/home/pi/mycar/myconfig.py"
+cp "{{ config_loc }}/config/$hostname/myconfig.py" "/home/pi/mycar/myconfig.py"
 echo "installed configs"
 echo "deploy finished"
