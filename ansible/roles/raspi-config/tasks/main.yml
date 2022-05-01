@@ -55,3 +55,11 @@
   # We won't notify to restart DHCP service because it could cause Ansible deconnexion
   # Change will be taken into account at restart, it's not an issue as our fixe covers
   # timeout issue at the first boot of the raspberry pi.
+
+- name : create car booting led 
+  ansible.builtin.lineinfile:
+    path: /boot/config.txt
+    state: present
+    line: enable_uart=1
+    owner: root
+    group: root
