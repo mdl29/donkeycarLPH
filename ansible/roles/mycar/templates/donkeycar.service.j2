@@ -1,0 +1,15 @@
+[Unit]
+Description=Start donkeycar drive on boot, to be able to drive directly the car
+Requires=ds4drv.service
+Requires=pigpiod.service
+After=ds4drv.service
+After=pigpiod.service
+
+[Service]
+User=pi
+ExecStartPre=/bin/sleep 5
+ExecStart=/home/pi/venv/bin/python /home/pi/mycar/manage.py drive --js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
