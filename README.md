@@ -14,4 +14,5 @@ Shéma des branchements| Schema de la connectique de la donkeycar | [image](doc/
 Doc pour Ansible | Comment installer donkeycar sur des voitures ( plus nos features ) avec Ansible en ssh | [documentation](ansible/README.md)
 Doc pour packer | Comment generer une image propre pour les voitures avec packer | [documentation](packer/README.md)
 Antivol | Antivol pour manette PS4 | [doc](anti-theft-ps4/README.md)
+Chassis pour voiture V4 | Picots pour adaptation de la voiture au chassis donkeycar | [doc](car-chassis/README.md)
 
