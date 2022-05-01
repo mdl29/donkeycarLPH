@@ -13,6 +13,5 @@ Doc pour les backups | Comment créer sa backup pour sa raspberry pi | [document
 Shéma des branchements| Schema de la connectique de la donkeycar | [image](doc/schema/schema-electronique.png) / [Fichier Fritzing](doc/schema/shema-electronique.fzz)
 Doc pour Ansible | Comment installer donkeycar sur des voitures ( plus nos features ) avec Ansible en ssh | [documentation](ansible/README.md)
 Doc pour packer | Comment generer une image propre pour les voitures avec packer | [documentation](packer/README.md)
-Schéma des branchements| schema de la connectique de la donkeycar | [image](doc/schema/schema-electronique.png) / [Fichier Fritzing](doc/schema/shema-electronique.fzz)
 Antivol | Antivol pour manette PS4 | [doc](anti-theft-ps4/README.md)
 
