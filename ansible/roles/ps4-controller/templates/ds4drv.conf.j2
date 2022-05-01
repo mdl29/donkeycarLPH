@@ -180,3 +180,4 @@ PS+Triangle+L2+Circle = exec echo shutdown
 
 [bindings:donkeycar]
 PS+Triangle+L2+Circle = exec sudo shutdown -h now
+PS+Triangle+L2+R2 = exec sudo systemctl stop ds4drv.service && raspistill -o /tmp/picamera-test.jpg && sudo systemctl restart ds4drv.service
