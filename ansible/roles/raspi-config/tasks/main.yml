@@ -56,10 +56,9 @@
   # Change will be taken into account at restart, it's not an issue as our fixe covers
   # timeout issue at the first boot of the raspberry pi.
 
-- name : create car booting led 
-  ansible.builtin.lineinfile:
-    path: /boot/config.txt
-    state: present
+- name: create car booting led 
+  lineinfile:
+    dest: /boot/config.txt
     line: enable_uart=1
     owner: root
     group: root
