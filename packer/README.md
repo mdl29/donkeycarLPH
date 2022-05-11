@@ -33,5 +33,38 @@ $ export DEVICE_NAME=/dev/sde # Adapt this line
 $ sudo dd if=output-raspbian/image bs=4M of=$DEVICE_NAME status=progress && sync
 ```
 
+## Mounting an image
+
+To mount an image and read / write to it without having to write to it a physical drive first, you can use `losetup`:
+
+To add the device
+```
+# losetup -Pf <image>
+```
+
+The image's 'drives' will then be of the form `/dev/loopX` (`/dev/loopXpY` for partitions).
+(ex)
+```
+$ lsblk
+NAME         MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+loop0          7:0    0   7.6G  0 loop 
+├─loop0p1    259:13   0   256M  0 part
+└─loop0p2    259:14   0   7.4G  0 part 
+```
+
+You can then mount these to any path on the computer.
+
+To remove the device, first make sure to unmount the partitions
+```
+# umount /dev/loopXp0
+# umount /dev/loopXp1
+...
+```
+
+Then detach it using losetup
+```
+# losetup -d /dev/loopX
+```
+
 # Current issue
 We didn't manage to use packer Ansible-remote (due to this issue [packer-builder-arm#169](https://github.com/mkaczanowski/packer-builder-arm/issues/169), so we need to install ansible on the raspberry pi it self.

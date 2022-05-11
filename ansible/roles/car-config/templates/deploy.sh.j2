@@ -1,0 +1,34 @@
+#!/bin/bash
+set -euo pipefail
+shopt -s inherit_errexit
+
+echo "deploy begin"
+hostnames="{{ config_loc }}/config/hostnames"
+mac="$(tail -n1 < /sys/class/net/eth0/address)"
+hostname="$(awk '/^'"$mac"'/ {r=$2} END{print r}' < "$hostnames")"
+
+# exit now if the hostname isn't known (the current computer is not a car)
+# exit 3 to be a different number than unrelated errors
+[ -z "$hostname" ] && exit 3
+
+echo "found hostname: $hostname"
+echo "$hostname" > /etc/hostname
+sysctl kernel.hostname="$hostname"
+cp /etc/hosts /var/hosts.back
+if grep " # DEPLOY_HOSTNAME" /etc/hosts; then
+        sed 's/^.\+ # DEPLOY_HOSTNAME$/127.0.0.1	'"${hostname}"' # DEPLOY_HOSTNAME/' < /etc/hosts > /tmp/hosts
+        mv /tmp/hosts /etc/hosts
+else
+        echo "127.0.0.1	$hostname # DEPLOY_HOSTNAME" >> /etc/hosts
+fi
+
+echo "hostname set"
+echo "installing configs"
+mkdir -p /etc/donkeycar
+mkdir -p /home/pi/mycar
+echo "  ds4drv.env"
+cp "{{ config_loc }}/config/$hostname/ds4drv.env" "/etc/donkeycar/ds4drv.env"
+echo "  myconfig.py"
+cp "{{ config_loc }}/config/$hostname/myconfig.py" "/home/pi/mycar/myconfig.py"
+echo "installed configs"
+echo "deploy finished"

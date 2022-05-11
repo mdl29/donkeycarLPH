@@ -1,0 +1,6 @@
+---
+- name: Start car-config service
+  systemd:
+    name: car-config
+    daemon_reload: yes
+    enabled: yes
