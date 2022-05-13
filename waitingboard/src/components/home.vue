@@ -16,10 +16,10 @@
 <script>
 export default {
   methods: {
-    redirect() {
-      this.$router.push('/register'); 
+    redirect () {
+      this.$router.push('/register')
+    }
   }
-}
 }
 </script>
 
