@@ -1,26 +1,36 @@
 --- 
 
-- name: create car
+- name: Create car
   become: yes
   become_user: pi
   shell: |
     /home/pi/venv/bin/donkey createcar --path /home/pi/mycar
 
-- name: modifie the car conf
-  template:
-    src: myconfig.py.j2
+- name: Install the (default) car config
+  ansible.builtin.copy:
+    src: myconfig.py
     dest: /home/pi/mycar/myconfig.py
+    owner: pi
+    group: pi
 
-- name: Create donkeycar service for launch manage.py start at startup
-  template:
-    src: donkeycar.service.j2
+- name: Install donkeycar service for launch manage.py start at startup
+  ansible.builtin.copy:
+    src: donkeycar.service
     dest: /etc/systemd/system/donkeycar.service
     owner: root
     group: root
   notify: Start donckeycar.service service
 
-- name: ramfs
+- name: Ramfs
   ansible.builtin.lineinfile:
     path: /etc/fstab
     line: tmpfs /home/pi/mycar/data tmpfs defaults,size=200M,mode=1700,uid=pi,gid=pi,noexec,nodev,nosuid 0 0
     create: yes
+
+- name: Install custom joystick
+  ansible.builtin.copy:
+    src: my_joystick.py
+    dest: /home/pi/mycar/my_joystick.py
+    owner: pi
+    group: pi
+    mode: u=r,g=rw,o=rw
