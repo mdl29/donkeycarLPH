@@ -1,4 +1,4 @@
-name: raspberrypi-image-build
+name: raspberrypi-image
 
 # Oppossite build of raspberrypi-image-build-needed.yml
 # As to enforce check policy even if no changes were made concerning the images sources files
@@ -11,7 +11,7 @@ on:
     - packer/**
 
 jobs:
-  raspberrypi-image-build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - run: 'echo "No raspberrypi images realted files (Ansible or packer) were changed, no build required" '
