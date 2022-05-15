@@ -30,9 +30,7 @@
             </vs-td>
             <vs-td>
             <vs-button color="#00b4d8" v-if="tr.status === 'drive'" > Drive a car </vs-button>
-
             <vs-button color="#faa307" v-if="tr.status === 'waiting'" > Waiting a car </vs-button>
-
             <vs-button color="#8338ec" v-if="tr.status === 'train'" >  recording data </vs-button>
             </vs-td>
             <vs-td>
