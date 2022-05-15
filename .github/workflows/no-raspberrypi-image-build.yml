@@ -1,0 +1,17 @@
+name: raspberrypi-image
+
+# Oppossite build of raspberrypi-image-build-needed.yml
+# As to enforce check policy even if no changes were made concerning the images sources files
+# This worflow return green for all non Ansible / Packer related PR so that the enforced check passed
+# See : https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks
+on: 
+  pull_request_target: # Allow from forks, but a condition limit where the forks comes from on the sensitive job
+    paths-ignore:
+    - ansible/**
+    - packer/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No raspberrypi images related files (ansible or packer) were changed, no build required" '
