@@ -4,7 +4,7 @@ name: Build raspberry pi DonkeyCar image
 # Waiting for them to build automatically when someone wants to make a full test/review
 # is too long. That's why we are building them on pull requests and on push / merge on main (latest stable).
 on: 
-  pull_request:
+  pull_request_target: # Allow from forks, but a condition limit where the forks comes from on the sensitive job
     paths:
     - ansible/**
     - packer/**
@@ -17,6 +17,10 @@ on:
 
 jobs:
   packer-build:
+    # Check the PR if it comes from a fork is a trusted fork or not
+    # We also need to check if it's not ourself as pull_request_target is also used for PR coming from origin branches
+    if: ${{ github.event_name != 'pull_request_target' || github.event_name == 'pull_request_target' && ( github.event.pull_request.head.repo.owner.login == 'mdl29' || github.event.pull_request.head.repo.owner.login == 'viandoxdev' || github.event.pull_request.head.repo.owner.login == 'benvii' || github.event.pull_request.head.repo.owner.login == 'yannis-mlgrn' ) }}
+
     concurrency: # Run only one workflow by branch, cancel already running ones for new ones
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
