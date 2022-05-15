@@ -14,4 +14,4 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "No raspberrypi images realted files (Ansible or packer) were changed, no build required" '
+      - run: 'echo "No raspberrypi images related files (ansible or packer) were changed, no build required" '
