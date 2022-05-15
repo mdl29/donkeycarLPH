@@ -94,7 +94,7 @@
     </div>
     <div class="cards-wrapper" v-if="active === 'cars'">
       <vs-card-group>
-        <vs-card :key="i" v-for="(car, i) in cars" :data="car" >
+        <vs-card :key="i" v-for="(car, i) in cars" :data="car">
           <template #title>
             <h3>{{car.name}}</h3>
           </template>
@@ -113,18 +113,8 @@
                 </vs-col>
               </vs-row>
               <p v-if="car.user!=''"> Used by : <b>{{car.user}}</b> </p>
+              <vs-button class="param-btn" warn @click=" carSpec={car} ; parampopup=true"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
             </div>
-          </template>
-          <template #interactions>
-            <vs-button danger icon>
-              <i class='bx bx-heart'></i>
-            </vs-button>
-            <vs-button class="btn-chat" shadow primary>
-              <i class='bx bx-chat' ></i>
-              <span class="span">
-                54
-              </span>
-            </vs-button>
           </template>
         </vs-card>
       </vs-card-group>
@@ -152,6 +142,19 @@
             </div>
          </template>
       </vs-dialog>
+      <vs-dialog class="param-dialog" width="800px" blur not-close v-if="parampopup === true" v-model="carSpec">
+        <template #header>
+          <h1 class="not-margin">
+            Welcome to {{carSpec.car.name}} parameters </h1>
+        </template>
+        <template #footer>
+          <div class="con-footer">
+            <vs-button @click="parampopup=false" transparent>
+              Ok
+            </vs-button>
+          </div>
+        </template>
+      </vs-dialog>
 </div>
 </template>
 <script>
@@ -161,7 +164,9 @@ import cars from '../data/cars.js'
 
 export default {
   data: () => ({
+    parampopup: false,
     edit: null,
+    carSpec: {},
     editProp: {},
     editActive: false,
     active: 'home',
