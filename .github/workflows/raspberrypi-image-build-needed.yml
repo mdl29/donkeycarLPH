@@ -1,4 +1,4 @@
-name: Build raspberry pi DonkeyCar image
+name: raspberrypi-image-build
 
 # Images are need for QA / tests on a real car
 # Waiting for them to build automatically when someone wants to make a full test/review
@@ -16,7 +16,7 @@ on:
     - packer/**
 
 jobs:
-  packer-build:
+  raspberrypi-image-build:
     # Check the PR if it comes from a fork is a trusted fork or not
     # We also need to check if it's not ourself as pull_request_target is also used for PR coming from origin branches
     if: ${{ github.event_name != 'pull_request_target' || github.event_name == 'pull_request_target' && ( github.event.pull_request.head.repo.owner.login == 'mdl29' || github.event.pull_request.head.repo.owner.login == 'viandoxdev' || github.event.pull_request.head.repo.owner.login == 'benvii' || github.event.pull_request.head.repo.owner.login == 'yannis-mlgrn' ) }}
