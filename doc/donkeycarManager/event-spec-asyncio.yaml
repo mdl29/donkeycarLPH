@@ -1,0 +1,141 @@
+asyncapi: 2.4.0
+
+
+info:
+  title: Donkeycar Management events
+  version: 1.0.0
+  description: Event related to managing multiple donkeycar cars (on an event for instance). Socket.io event name is the "name" field (written in orange).
+
+
+channels:
+  /:
+    subscribe:
+      message:
+        oneOf:
+        - name: driveWaitingPool.updated
+          description: Send the new drivers pool
+          payload:
+            type: object
+            properties:
+              drivePlayersWaitingPool:
+                type: array
+                items:
+                  $ref: "#/components/schemas/player"
+            required: 
+              - 'drivePlayersWaitingPool'
+
+        - name: car.updated
+          description: "A car was change, might be a changed in state, player or race."
+          payload:
+            type: object
+            properties:
+                car:
+                  $ref: "#/components/schemas/car"
+        
+        - name: car.added
+          description: A new car joined the game.
+          payload:
+            type: object
+            properties:
+                car:
+                  $ref: "#/components/schemas/car"
+        
+        - name: car.removed
+          description: A new was shutdown or lost.
+          payload:
+            type: object
+            properties:
+                carName:
+                    $ref: '#/components/schemas/carName'
+
+        - name: laptimer.added
+          description: A new timing was recorded for a car currently running.
+          payload:
+            type: object
+            properties:
+              lapTimer:
+                $ref: '#/components/schemas/lapTimer'
+
+    publish: {}
+
+
+components:
+  schemas:
+    player:
+      title: Player
+      type: object
+      properties:
+        pseudo:
+          title: pseudo
+          type: string
+          description: Player nickname used as unique identifier.
+          examples: ['benvii', 'yannis']
+        registeredDate:
+            title: registeredDate
+            type: string
+            format: date-time
+            description: Registration datetime.
+      required:
+        - pseudo
+        - registeredDate
+
+    car:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/carName'
+        ip:
+          type: string
+          description: IP v4 address on the current network.
+          examples: ['192.168.1.30', '192.168.1.2']
+        state:
+          type: string
+          enum:
+            - "DRIVE"
+            - "RECORDING"
+            - "AI_ASSISTED"
+            - "MAINTAINANCE"
+        color:
+          type: string
+          description: Hex color code of the car, this color is reflected on the PS4 controller and the car 3D printed parts should also have this color.
+          examples: ['ee3209', '3dee09']
+        player:
+          description: Current player using this car.
+          $ref: "#/components/schemas/player"
+        race:
+          type: string
+          description: TO BE DETERMINED
+      required:
+        - name
+        - ip
+        - state
+        - color
+    
+    carName:
+      type: string
+      description: Unique name of the car.
+      examples: ['dababycar', 'bleucar', 'monkecar']
+
+    lapTimer:
+      type: object
+      description: A lap time record on the track by one car for a specified player.
+      properties:
+        lapId:
+          type: string
+          description: Unique ID of the lap timer.
+          examples: ['507f191e810c19729de860ea']
+        player:
+          $ref: '#/components/schemas/player'
+        car:
+          $ref: '#/components/schemas/car'
+        startDatetime:
+          type: string
+          format: date-time
+          description: When the lap was started, for the first lap it's when the car starts running.
+        duration:
+          type: integer
+          description: Lap race duration in ms.
+        endDatetime:
+          type: string
+          format: date-time
+          description: End date of the lap, when the finish/starting line was passed/crossed.
