@@ -4,6 +4,7 @@ import home from '@/components/home'
 import register from '@/components/register'
 import waitingBoard from '@/components/waitingBoard'
 import dashboard from '@/components/dashboard'
+import ranking from '@/components/ranking'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/dashboard',
       name: 'dashboard',
       component: dashboard
+    },
+    {
+      path: '/ranking',
+      name: 'pilot ranking',
+      component: ranking
     }
   ]
 })
