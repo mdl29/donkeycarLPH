@@ -5,7 +5,6 @@
   hosts: all
   remote_user: pi
 
-
   roles:
     - role: raspi-config #rasperry pi configuration role
       become: yes # This role need root privileges
