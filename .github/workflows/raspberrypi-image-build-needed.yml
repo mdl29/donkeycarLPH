@@ -63,9 +63,10 @@ jobs:
       - name: Display image location # Print the image location
         run: |
           echo "Download this build here :"
-          echo "https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/"$GITHUB_RUN_NB"/"${GITHUB_REF##*/}".img.tar.gz"
+          echo "https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/"$GITHUB_RUN_NB"/"${GITHUB_HEAD_REF##*/}".img.tar.gz"
         env:
           GITHUB_RUN_NB: ${{github.run_number}}
+          GITHUB_HEAD_REF: ${{ github.head_ref || github.ref }} 
       - name: Post comment on PR with build URL  # It it's a PR sending a message on it with link to the image
         if: github.event_name == 'pull_request_target'
         uses: marocchino/sticky-pull-request-comment@v2
@@ -73,4 +74,4 @@ jobs:
           append: true
           message: |
             Build for ${{ github.sha }} is here :
-            [${{ github.ref }}.img.tar.gz](https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/${{ github.run_number }}/${{ github.head_ref }}.img.tar.gz)
+            [${{ github.head_ref || github.ref }}.img.tar.gz](https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/${{ github.run_number }}/${{ github.head_ref || github.ref }}.img.tar.gz)
