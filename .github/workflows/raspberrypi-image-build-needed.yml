@@ -64,7 +64,7 @@ jobs:
         env:
           GITHUB_RUN_NB: ${{github.run_number}}
       - name: Post comment on PR with build URL  # It it's a PR sending a message on it with link to the image
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           append: true
