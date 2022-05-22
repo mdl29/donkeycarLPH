@@ -1,10 +1,10 @@
 ---
-- name: Enable ssh service
+- name: BENVII FORK - Enable ssh service
   ansible.builtin.systemd:
     name: ssh
     enabled: yes
 
-- name: Put the wpa configuration in /boot 
+- name: BENVII FORK - Put the wpa configuration in /boot 
   template:
     src: wpa-suplicant-conf.j2
     dest: /boot/wpa_supplicant.conf
@@ -12,13 +12,13 @@
     group: root
   tags: wpa-configuration
 
-- name: Update and upgrade apt packages ( can take soooooooooo muchhhhhhhhhhhhh time, don't worry !! )
+- name: BENVII FORK - Update and upgrade apt packages ( can take soooooooooo muchhhhhhhhhhhhh time, don't worry !! )
   apt:
     upgrade: yes
     update_cache: yes
     cache_valid_time: 86400 
 
-- name: Change pi password
+- name: BENVII FORK - Change pi password
   user:
     name: pi
     update_password: always
