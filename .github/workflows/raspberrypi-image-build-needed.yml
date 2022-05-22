@@ -28,6 +28,9 @@ jobs:
     steps:
       - name: Checkout current repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
       - name: Install packer from apt  # This step will install latest packer version on the VM
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
