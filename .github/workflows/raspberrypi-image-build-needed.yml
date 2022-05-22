@@ -73,5 +73,5 @@ jobs:
         with:
           append: true
           message: |
-            Build for ${{ github.sha }} is here :
+            Build for ${{ github.event.pull_request.head.sha }} is here :
             [${{ github.head_ref || github.ref }}.img.tar.gz](https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/${{ github.run_number }}/${{ github.head_ref || github.ref }}.img.tar.gz)
