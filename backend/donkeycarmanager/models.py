@@ -26,3 +26,5 @@ class DrivingWaitingQueue(Base):
         nullable=False,
         default=datetime.datetime.utcnow
     )
+
+    player = relationship("Player")

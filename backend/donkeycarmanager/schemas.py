@@ -31,6 +31,7 @@ class DrivingWaitingQueueCreate(DrivingWaitingQueueBase):
 class DrivingWaitingQueue(DrivingWaitingQueueBase):
     rank: int
     start_waiting_datetime: datetime.datetime
+    player: Player
 
     class Config:
         orm_mode = True
