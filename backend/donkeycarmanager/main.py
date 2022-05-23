@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Union
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import crud, models, schemas
@@ -29,9 +29,17 @@ def create_player(player: schemas.PlayerCreate, db: Session = Depends(get_db)):
 
 
 @app.get("/players/", response_model=List[schemas.Player])
-def read_players(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    players = crud.get_players(db, skip=skip, limit=limit)
-    return players
+def read_players(player_pseudo: Union[str, None] = Query(
+        default=None,
+        description="Will get a list a player matching this pseudo, as pseudo are unique "
+                    "it should at most return one player."
+    ),
+        skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+
+    if player_pseudo:
+        return [crud.get_player_by_pseudo(db, player_pseudo=player_pseudo)]
+
+    return crud.get_players(db, skip=skip, limit=limit)
 
 
 @app.get("/player/{player_id}", response_model=schemas.Player)
