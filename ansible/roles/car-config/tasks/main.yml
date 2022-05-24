@@ -1,0 +1,23 @@
+---
+- name: Install configs
+  copy:
+    src: config
+    dest: "{{ config_loc }}"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Install deploy script
+  template:
+    src: deploy.sh.j2
+    dest: "/usr/local/sbin/deploy.sh"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Copy systemd car-config service file
+  template:
+    src: car-config.service.j2
+    dest: /etc/systemd/system/car-config.service
+    owner: root
+    group: root
+  notify:
+    - Start car-config service

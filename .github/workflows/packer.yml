@@ -1,0 +1,69 @@
+name: Build raspberry pi DonkeyCar image
+
+# Images are need for QA / tests on a real car
+# Waiting for them to build automatically when someone wants to make a full test/review
+# is too long. That's why we are building them on pull requests and on push / merge on main (latest stable).
+on: 
+  pull_request:
+    paths:
+    - ansible/**
+    - packer/**
+  push:
+    branches:
+      - main
+    paths:
+    - ansible/**
+    - packer/**
+
+jobs:
+  packer-build:
+    concurrency: # Run only one workflow by branch, cancel already running ones for new ones
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v3
+      - name: Install packer from apt  # This step will install latest packer version on the VM
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
+      - name: Check packer version  # Displaying the version, might help for debugging
+        run: packer -v
+      - name: Packer init
+        run: |
+          cd packer/
+          packer init donkeycar.pkr.hcl
+      - name: Packer build  # Build the full image
+        run: |
+          cd packer/ # otherwise it doesn't found relative path to ansible playbook
+          sudo packer build donkeycar.pkr.hcl
+      - name: Compressing the output image # Rename the image output file and compress it
+        run: |
+          sudo mv "packer/output-raspbian/image" "packer/output-raspbian/${GITHUB_REF##*/}.img"
+          sudo tar zcvf "packer/output-raspbian/${GITHUB_REF##*/}.img.tar.gz" "packer/output-raspbian/${GITHUB_REF##*/}.img"
+          sudo rm "packer/output-raspbian/${GITHUB_REF##*/}.img"
+      - name: Upload result to S3  # Upload the build to S3
+        uses: jakejarvis/s3-sync-action@master
+        env:
+          AWS_S3_BUCKET: 'donkeycar-lph-packer-builds'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'eu-west-3'
+          SOURCE_DIR: 'packer/output-raspbian'
+          DEST_DIR: ${{github.run_number}}
+      - name: Display image location # Print the image location
+        run: |
+          echo "Download this build here :"
+          echo "https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/"$GITHUB_RUN_NB"/"${GITHUB_REF##*/}".img.tar.gz"
+        env:
+          GITHUB_RUN_NB: ${{github.run_number}}
+      - name: Post comment on PR with build URL  # It it's a PR sending a message on it with link to the image
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          append: true
+          message: |
+            Build for ${{ github.sha }} is here :
+            [${{ github.ref }}.img.tar.gz](https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/${{ github.run_number }}/${{ github.head_ref }}.img.tar.gz)

@@ -41,6 +41,14 @@
     owner: root
     group: root
 
+- name: Create the sh script to take test pictures
+  become: yes
+  template:
+    src: picture.sh.j2
+    dest: /etc/donkeycar/picture.sh
+    owner: root
+    group: root
+
 - name: Create the environment file for ds4drv
   become: yes
   template:

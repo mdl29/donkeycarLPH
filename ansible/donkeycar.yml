@@ -8,7 +8,7 @@
   roles:
     - role: raspi-config #rasperry pi configuration role
       become: yes # This role need root privileges
-    - role: hostname
+    - role: car-config
       become: yes
     - role: shutdown-btn # shutdown button service
       become: yes # This role need root privileges
