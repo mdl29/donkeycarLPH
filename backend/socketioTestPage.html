@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+        <script>
+            var socket = io.connect('http://127.0.0.1:8000', { path: '/ws/socket.io' });
+
+            socket.on('driveWaitingPool.updated', function(data) {
+                console.log("data:", data)
+                addMessage(data);
+            });
+            socket.on('error', console.error.bind(console));
+            socket.on('message', console.log.bind(console));
+
+            function addMessage(message) {
+                var text = document.createTextNode(message),
+                    el = document.createElement('li'),
+                    messages = document.getElementById('messages');
+
+                el.appendChild(text);
+                messages.appendChild(el);
+            }
+        </script>
+    </head>
+    <body>
+        Open web console to see playlist at each change (player added to queue, player position changed).
+    </body>
+</html>

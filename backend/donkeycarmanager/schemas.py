@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 import datetime
 
@@ -32,6 +32,13 @@ class DrivingWaitingQueue(DrivingWaitingQueueBase):
     rank: int
     start_waiting_datetime: datetime.datetime
     player: Player
+
+    class Config:
+        orm_mode = True
+
+
+class EventDrivingWaitingQueueUpdated(BaseModel):
+    drivePlayersWaitingPool: List[DrivingWaitingQueue]
 
     class Config:
         orm_mode = True
