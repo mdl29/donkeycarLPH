@@ -159,8 +159,8 @@
 </template>
 <script>
 
-import clients from '../data/clients.js'
-import cars from '../data/cars.js'
+// import clients from '../data/clients.js'
+// import cars from '../data/cars.js'
 
 export default {
   data: () => ({
@@ -170,8 +170,8 @@ export default {
     editProp: {},
     editActive: false,
     active: 'home',
-    clients: clients,
-    cars: cars
+    clients: [],
+    cars: []
   })
 }
 </script>

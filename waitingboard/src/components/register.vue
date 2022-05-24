@@ -49,7 +49,6 @@
 </template>
 
 <script>
-import clients from '../data/clients.js'
 
 export default {
   data: () => ({
@@ -77,17 +76,16 @@ export default {
       this.$router.push('/')
     },
     addUser () {
-      const numero = clients.length + 1
-      clients.push(
-        {
-          ordre: numero,
-          timestamp: '',
-          pseudo: this.pseudo,
-          tel: this.tel,
-          status: 'waiting'
-        }
-      )
-      console.log(clients)
+      // const numero = clients.length + 1
+      // clients.push(
+      //   {
+      //     ordre: numero,
+      //     timestamp: '',
+      //     pseudo: this.pseudo,
+      //     tel: this.tel,
+      //     status: 'waiting'
+      //   }
+      // )
     }
   }
 }
