@@ -1,6 +1,6 @@
 import json
 import socketio
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import desc, asc
 from sqlalchemy.orm import Session
@@ -25,14 +25,14 @@ async def on_waiting_queue_change(db: Session, sio: socketio.AsyncServer) -> Non
                    json.loads(schema_queue.json()))  # Workaround to get pydantic deep conversation as dict
 
 
-def get_driving_waiting_queue(db: Session, skip: int = 0, limit: int = 100):
+def get_driving_waiting_queue(db: Session, skip: int = 0, limit: int = 100) -> List[schemas.DrivingWaitingQueue]:
     return db.query(models.DrivingWaitingQueue) \
         .offset(skip) \
         .limit(limit) \
         .all()
 
 
-def get_driving_waiting_queue_by_rank(db: Session, skip: int = 0, limit: int = 100):
+def get_driving_waiting_queue_by_rank(db: Session, skip: int = 0, limit: int = 100) -> List[schemas.DrivingWaitingQueue]:
     return db.query(models.DrivingWaitingQueue)\
         .order_by(asc(models.DrivingWaitingQueue.rank))\
         .offset(skip)\
@@ -41,7 +41,8 @@ def get_driving_waiting_queue_by_rank(db: Session, skip: int = 0, limit: int = 1
 
 
 async def create_driving_waiting_queue(db: Session, sio: socketio.AsyncServer,
-                                       driving_waiting_queue: schemas.DrivingWaitingQueueCreate):
+                                       driving_waiting_queue: schemas.DrivingWaitingQueueCreate) \
+        -> schemas.DrivingWaitingQueue:
     # Find ranking number
     last_driver: Optional[models.DrivingWaitingQueue] = db.query(models.DrivingWaitingQueue).\
         order_by(desc(models.DrivingWaitingQueue.rank)).limit(1).first()
@@ -59,14 +60,14 @@ async def create_driving_waiting_queue(db: Session, sio: socketio.AsyncServer,
     return db_driving_waiting_queue
 
 
-def get_driving_queue_item(db: Session, player_id: int):
+def get_driving_queue_item(db: Session, player_id: int) -> schemas.DrivingWaitingQueue:
     return db.query(models.DrivingWaitingQueue) \
         .where(models.DrivingWaitingQueue.player_id == player_id).first()
 
 
 async def move_player_after_another_in_waiting_queue(db: Session, sio: socketio.AsyncServer,
                                                to_move: models.DrivingWaitingQueue,
-                                               before_item: models.DrivingWaitingQueue) -> models.DrivingWaitingQueue:
+                                               before_item: models.DrivingWaitingQueue) -> schemas.DrivingWaitingQueue:
     """
     Move player waiting queue item (to_move) after another player waiting queue item.
     :param db: Database
@@ -103,7 +104,7 @@ async def move_player_after_another_in_waiting_queue(db: Session, sio: socketio.
 
 async def move_player_before_another_in_waiting_queue(db: Session, sio: socketio.AsyncServer,
                                                 to_move: models.DrivingWaitingQueue,
-                                                after_item: models.DrivingWaitingQueue) -> models.DrivingWaitingQueue:
+                                                after_item: models.DrivingWaitingQueue) -> schemas.DrivingWaitingQueue:
     """
     Move player waiting queue item (to_move) before another player waiting queue item.
     :param db: Database

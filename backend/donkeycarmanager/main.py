@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from donkeycarmanager import models
 from donkeycarmanager.database import engine
 from donkeycarmanager.dependencies import get_db, sm, get_sio
-from donkeycarmanager.routers import players, driving_waiting_queue
+from donkeycarmanager.routers import players, driving_waiting_queue, cars, races
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -28,6 +28,8 @@ sm.mount(app)  # Mount socketIO
 # Routes
 app.include_router(players.router)
 app.include_router(driving_waiting_queue.router)
+app.include_router(cars.router)
+app.include_router(races.router)
 
 
 def main():
