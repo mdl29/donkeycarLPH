@@ -10,7 +10,7 @@ models.Base.metadata.create_all(bind=engine)
 
 open_api_tags_metadata = [
     {"name": "Players", "description": "Handle people willing to play with cars."},
-    {"name": "DriveWaitingQueue", "description": "Manage pool of players waiting for their turn to drive a car."}
+    {"name": "DriveWaitingQueue", "description": "Manage pool of players.py waiting for their turn to drive a car."}
 ]
 
 app = FastAPI(

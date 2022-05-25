@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from donkeycarmanager import models, schemas
 from donkeycarmanager.schemas import EventDrivingWaitingQueueUpdated
 
-RANKING_STEP = 1000  # How much place by default between 2 players in driving waiting queue
+RANKING_STEP = 1000  # How much place by default between 2 players.py in driving waiting queue
 
 
 async def on_waiting_queue_change(db: Session, sio: socketio.AsyncServer) -> None:

@@ -24,3 +24,9 @@ def create_player(db: Session, player: schemas.PlayerCreate):
     db.refresh(db_player)
     return db_player
 
+
+def update_player(db: Session, player: schemas.Player) -> models.Player:
+    db_player = get_player(db=db, player_id=player.player_id)
+    db_player.player_pseudo = player.player_pseudo
+    db.commit()
+    return db_player
