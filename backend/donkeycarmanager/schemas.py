@@ -47,6 +47,28 @@ class Stage(str, Enum):
     MAINTENANCE = "MAINTENANCE"
 
 
+# ---- Lap Timer ----
+class LapTimerBase(BaseModel):
+    race_id: int
+    start_datetime: datetime.datetime
+    duration: int
+    end_datetime: datetime.datetime
+
+
+class LapTimerCreate(LapTimerBase):
+    pass
+
+
+class LapTimerUpdate(LapTimerBase):
+    laptimer_id: int
+
+
+class LapTimer(LapTimerUpdate):
+
+    class Config:
+        orm_mode = True
+
+
 # ---- Race ----
 class RaceBase(BaseModel):
     player_id: int
@@ -65,6 +87,7 @@ class RaceUpdate(RaceBase):
 
 class Race(RaceUpdate):
     player: Player
+    laptimers: List[LapTimer]
 
     class Config:
         orm_mode = True
@@ -90,24 +113,6 @@ class CarUpdate(CarBase):
 class Car(CarUpdate):  # As additional nested extended fields
     player: Optional[Player]
     race: Optional[Race]
-
-    class Config:
-        orm_mode = True
-
-
-# ---- Lap Timer ----
-class LapTimerBase(BaseModel):
-    start_datetime: datetime.datetime
-    duration: int
-    end_datetime: datetime.datetime
-
-
-class LapTimeCreate(LapTimerBase):
-    pass
-
-
-class LapTimer(LapTimerBase):
-    laptimer_id: int
 
     class Config:
         orm_mode = True

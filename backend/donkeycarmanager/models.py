@@ -44,6 +44,7 @@ class Race(Base):
     )
 
     player = relationship("Player")
+    laptimers = relationship("LapTimer", backref="race")
 
 
 class Car(Base):
@@ -69,9 +70,10 @@ class LapTimer(Base):
         nullable=False,
         default=datetime.datetime.utcnow
     )
-    duration: Column(Integer, nullable=False)
-    end_datetime: Column(
+    duration = Column(Integer, nullable=False)
+    end_datetime = Column(
         DateTime(timezone=True),
         nullable=False,
         default=datetime.datetime.utcnow
     )
+    race_id = Column(Integer, ForeignKey(Race.race_id), nullable=False)
