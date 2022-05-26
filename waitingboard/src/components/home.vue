@@ -5,7 +5,8 @@
   <div class="grid">
     <vs-row class="contents-wrapper">
       <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="12" class="description-wrapper">
-        <p class="description">Logoden biniou degemer mat, an. Poan tamm ha pemzek, stal. Gwele vourc’h ur gaer, krib. Seiz gounit warno abred, Entraven. Kalet poultrenn start ennout, Groe. Bemnoz danvez c'hanon gourc’hemennoù, da. Sailh kasoni galon Egineg, degouezhout. Da doñv ifern estreget , araok. Bluenn tre urzh digwener, Pont-Aven. Egile Kernev all Roazhon, sadorn.</p>
+        <p class="description">Les Petits Hackers de la maison du libre ont transformé des voitures radio commandées en véhicules doté d'une Intelligence Artificielle, capables de conduire tous seuls. Cependant ces voitures ont besoin d'apprendre à conduire ! As-tu l'âme d'un pilote de F1 ? Vient sur notre stand tester tes talents de pilote et comprendre le fonctionnement de ces voitures. Tu pourras conduire une voiture sur un circuit, enregistrer ta course, concevoir ton propre modèle d'IA ! </p>
+        <span class="Hashtag"> <a>#IA</a> <a>#OpenSource</a>  <a>#ComputerVision</a> </span>
       </vs-col>
       <vs-col align="center" w="12">
         <vs-button warn gradient @click="active = 25; redirect()" class="register-button">S'inscrire</vs-button>
@@ -28,6 +29,10 @@ export default {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@700&family=Radio+Canada:wght@500&display=swap');
 
+.Hashtag{
+  color: blue ;
+  font-weight: bold;
+}
 .contents-wrapper{
   padding-top:100px;
 }

@@ -50,10 +50,16 @@
 
 <script>
 
+import DonkeycarManagerService from '@/js/service.js'
+
+const ip = 'localhost'
+const srv = new DonkeycarManagerService('http://' + ip + ':8000')
+
 export default {
   data: () => ({
     pseudo: '',
     tel: '',
+    player: [],
     popup: false,
     pseudoBlank: false,
     telBlank: false,
@@ -68,24 +74,18 @@ export default {
       if (this.tel === '') {
         this.telBlank = true
       } else {
-        this.numero = Math.floor(Math.random() * 150)
-        this.popup = true
+        this.addUser()
       }
     },
     redirect () {
       this.$router.push('/')
     },
-    addUser () {
-      // const numero = clients.length + 1
-      // clients.push(
-      //   {
-      //     ordre: numero,
-      //     timestamp: '',
-      //     pseudo: this.pseudo,
-      //     tel: this.tel,
-      //     status: 'waiting'
-      //   }
-      // )
+    async addUser () {
+      this.player = await srv.createPlayer(this.pseudo)
+      console.log(this.player)
+      console.log(await srv.addDrivingWaitingQueue(this.player.player_id))
+      this.numero = this.player.player_id
+      this.popup = true
     }
   }
 }

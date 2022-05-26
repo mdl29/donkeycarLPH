@@ -45,13 +45,13 @@ export default class DonkeycarManagerService {
     const response = await axios.post(this.apiUrl + '/players', {
       player_pseudo: pseudo
     })
-    return response
+    return response.data.player_id
   }
 
   /**
   *
   * @async
-  * @augments ScratchyService
+  * @augments donkeycarManagerService
   * @param {int} skip - first player , e.g: 0
   * @param {int} limit - last player, e.g: 20
   * @returns {Promise<AllRoom>} - all player information
@@ -64,14 +64,70 @@ export default class DonkeycarManagerService {
   /**
   *
   * @async
-  * @augments ScratchyService
+  * @augments donkeycarManagerService
   * @param {Boolean} rank - sorted by rank or not
   * @param {int} skip - first player , e.g: 0
   * @param {int} limit - last player, e.g: 20
   * @returns {Promise<AllRoom>} - all player information
   */
   async getDrivingWaitingQueue (rank, skip, limit) {
-    const response = await axios.get('http://localhost:8000/drivingWaitingQueue/?by_rank=&skip=0&limit=20')
+    const response = await axios.get(this.apiUrl + '/drivingWaitingQueue/?by_rank=true&skip=0&limit=100')
+    return response.data
+  }
+  /**
+  * @async
+  * @augments donkeycarManagerService
+  * @param {string} pseudo - pseudo of the new player
+  * @returns {Promise<AllRoom>} - all player information
+  */
+  async createPlayer (pseudo) {
+    const response = await axios.post(this.apiUrl + '/players', {
+      'player_pseudo': pseudo
+    })
+    return response.data
+  }
+
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} playerId - id of the player
+  * @returns {Promise<AllRoom>} - all player information
+  */
+  async addDrivingWaitingQueue (playerId) {
+    const response = await axios.post(this.apiUrl + '/drivingWaitingQueue', {
+      'player_id': playerId
+    })
+    return response.data
+  }
+
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} playerId - id of the player
+  * @param {int} afterId - id of previous player
+  * @returns {Promise<AllRoom>} - all player information
+  */
+  async moveAfter (playerId, afterId) {
+    const response = await axios.post(this.apiUrl + '/drivingWaitingQueue/' + String(playerId) + '/move_after', {
+      'after_player_id': afterId
+    })
+    return response.data
+  }
+
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} playerId - id of the player
+  * @param {int} beforeId - id of previous player
+  * @returns {Promise<AllRoom>} - all player information
+  */
+  async moveBefore (playerId, beforeId) {
+    const response = await axios.post(this.apiUrl + '/drivingWaitingQueue/' + String(playerId) + '/move_before', {
+      'before_player_id': beforeId
+    })
     return response.data
   }
 }
