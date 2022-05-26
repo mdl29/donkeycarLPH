@@ -2,10 +2,11 @@ import json
 import socketio
 from typing import Optional, List
 
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc, literal_column
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import models, schemas
+from donkeycarmanager.crud.players import get_player
 from donkeycarmanager.schemas import EventDrivingWaitingQueueUpdated
 
 RANKING_STEP = 1000  # How much place by default between 2 players.py in driving waiting queue
@@ -138,3 +139,30 @@ async def move_player_before_another_in_waiting_queue(db: Session, sio: socketio
     print(f'Moved {to_move.player.player_pseudo} from rank {old_rank} to rank {to_move.rank}'
           f'so that he is after {after_item.player.player_pseudo} ({after_item.rank})')
     return to_move
+
+
+async def pop_player_in_queue(db: Session) -> Optional[models.DrivingWaitingQueue]:
+    """
+    Pop the first player queue item, meaning the item with the lowest rank.
+    First in first out, it also ensure no one can pop the same item at the same time.
+    Item will be removed from the queue.
+    :param db: Database session.
+    :return: The item or None if the queue is empty.
+    """
+    # See : https://stackoverflow.com/a/44760761
+    first_player_stm = db.query(models.DrivingWaitingQueue.player_id).\
+        order_by(asc(models.DrivingWaitingQueue.rank)).limit(1)
+    delete_stm = models.DrivingWaitingQueue.__table__.delete(). \
+        where(models.DrivingWaitingQueue.player_id.in_(first_player_stm)). \
+        returning(literal_column('*'))
+
+    result = db.execute(delete_stm).first()  # Not using ORM methods, as it's seems imposible to use returning with them
+    db.commit()
+
+    if result is None:
+        return None
+
+    player = get_player(db=db, player_id=result.player_id)  # Fix as the relation is populated
+
+    return schemas.DrivingWaitingQueue(**result,
+                                       player=player)

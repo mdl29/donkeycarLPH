@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Union
 
 import socketio
 from fastapi import APIRouter, HTTPException, Depends, Body
@@ -28,6 +28,15 @@ def read_players_in_driving_queue(by_rank: bool = True, skip: int = 0, limit: in
     else:
         waiting_players = crud.get_driving_waiting_queue(db, skip=skip, limit=limit)
     return waiting_players
+
+
+@router.get("/pop", response_model=schemas.DrivingWaitingQueue, summary="Pop de first player, lowest rank")
+async def pop_player_in_queue(db: Session = Depends(get_db)):
+    first_player = await crud.pop_player_in_queue(db=db)
+    if first_player is None:
+        raise HTTPException(status_code=404, detail="No player in queue :( ")
+
+    return first_player
 
 
 @router.post("/{player_id}/move_after",
