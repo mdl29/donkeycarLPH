@@ -159,7 +159,6 @@ export default {
   created () {
     const that = this
     socket.on('driveWaitingPool.updated', function (data) {
-      console.log('data:', data.drivePlayersWaitingPool)
       that.drivingWaitingQueue = data.drivePlayersWaitingPool
     })
   },
@@ -179,7 +178,7 @@ export default {
     async postNewParams (currentplayer) {
       this.paramPlayerDialog = false
       if (this.parPlayerPseudo !== currentplayer.player_pseudo) {
-        console.log(this.parPlayerPseudo)
+        await srv.updatePlayerPseudo(currentplayer, this.parPlayerPseudo)
       }
       if (this.moveBeforeInput !== '') {
         await srv.moveBefore(currentplayer.player_id, this.moveBeforeInput)

@@ -39,7 +39,7 @@ export default class DonkeycarManagerService {
   * @async
   * @augments donkeycarManagerService
   * @param {string} pseudo - New player
-  * @returns {Promise<undefined>} -
+  * @returns {Promise} -
   */
   async addPlayerToDatabase (pseudo) {
     const response = await axios.post(this.apiUrl + '/players', {
@@ -54,7 +54,7 @@ export default class DonkeycarManagerService {
   * @augments donkeycarManagerService
   * @param {int} skip - first player , e.g: 0
   * @param {int} limit - last player, e.g: 20
-  * @returns {Promise<AllRoom>} - all player information
+  * @returns {Promise} - all player information
   */
   async getAllplayers (skip, limit) {
     const response = await axios.get(this.apiUrl + '/players')
@@ -68,7 +68,7 @@ export default class DonkeycarManagerService {
   * @param {Boolean} rank - sorted by rank or not
   * @param {int} skip - first player , e.g: 0
   * @param {int} limit - last player, e.g: 20
-  * @returns {Promise<AllRoom>} - all player information
+  * @returns {Promise} - all player information
   */
   async getDrivingWaitingQueue (rank, skip, limit) {
     const response = await axios.get(this.apiUrl + '/drivingWaitingQueue/?by_rank=true&skip=0&limit=100')
@@ -78,7 +78,7 @@ export default class DonkeycarManagerService {
   * @async
   * @augments donkeycarManagerService
   * @param {string} pseudo - pseudo of the new player
-  * @returns {Promise<AllRoom>} - all player information
+  * @returns {Promise} - all player information
   */
   async createPlayer (pseudo) {
     const response = await axios.post(this.apiUrl + '/players', {
@@ -92,7 +92,7 @@ export default class DonkeycarManagerService {
   * @async
   * @augments donkeycarManagerService
   * @param {int} playerId - id of the player
-  * @returns {Promise<AllRoom>} - all player information
+  * @returns {Promise} - all player information
   */
   async addDrivingWaitingQueue (playerId) {
     const response = await axios.post(this.apiUrl + '/drivingWaitingQueue', {
@@ -107,7 +107,7 @@ export default class DonkeycarManagerService {
   * @augments donkeycarManagerService
   * @param {int} playerId - id of the player
   * @param {int} afterId - id of previous player
-  * @returns {Promise<AllRoom>} - all player information
+  * @returns {Promise} - all player information
   */
   async moveAfter (playerId, afterId) {
     const response = await axios.post(this.apiUrl + '/drivingWaitingQueue/' + String(playerId) + '/move_after', {
@@ -122,11 +122,28 @@ export default class DonkeycarManagerService {
   * @augments donkeycarManagerService
   * @param {int} playerId - id of the player
   * @param {int} beforeId - id of previous player
-  * @returns {Promise<AllRoom>} - all player information
+  * @returns {Promise} - all player information
   */
   async moveBefore (playerId, beforeId) {
     const response = await axios.post(this.apiUrl + '/drivingWaitingQueue/' + String(playerId) + '/move_before', {
       'before_player_id': beforeId
+    })
+    return response.data
+  }
+  /**
+   *
+   * @async
+   * @augments ScratchyService
+   * @param {string} pseudo - player pseudo
+   * @returns {Promise}
+   */
+  async updatePlayerPseudo (player, Newpseudo) {
+    console.log('new Pseudo :' + Newpseudo)
+    console.log(player)
+    const response = await axios.put(this.apiUrl + '/players/' + String(player.player_id), {
+      player_pseudo: Newpseudo,
+      register_datetime: player.register_datetime,
+      player_id: player.player_id
     })
     return response.data
   }
