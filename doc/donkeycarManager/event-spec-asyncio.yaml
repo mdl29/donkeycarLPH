@@ -1,0 +1,189 @@
+asyncapi: 2.4.0
+
+
+info:
+  title: Donkeycar Management events
+  version: 1.0.0
+  description: Event related to managing multiple donkeycar cars (on an event for instance). Socket.io event name is the "name" field (written in orange).
+
+
+channels:
+  /:
+    subscribe:
+      message:
+        oneOf:
+        - $ref: '#/components/messages/driveWaitingPool.updated'
+        - $ref: '#/components/messages/car.updated'
+        - $ref: '#/components/messages/car.added'
+        - $ref: '#/components/messages/car.removed'
+        - $ref: '#/components/messages/laptimer.added'
+
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/driveWaitingPool.updated'
+          - $ref: '#/components/messages/car.updated'
+          - $ref: '#/components/messages/car.added'
+          - $ref: '#/components/messages/car.removed'
+          - $ref: '#/components/messages/laptimer.added'
+
+components:
+  messages:
+    driveWaitingPool.updated:
+      name: driveWaitingPool.updated
+      description: Send the new drivers pool items, containing players
+      payload:
+        type: object
+        properties:
+          drivePlayersWaitingPool:
+            type: array
+            items:
+              $ref: "#/components/schemas/drivingWaitingQueueItem"
+        required: 
+          - 'drivePlayersWaitingPool'
+
+    car.updated:
+      name: car.updated
+      description: "A car was change, might be a changed in state, player or race."
+      payload:
+        type: object
+        properties:
+            car:
+              $ref: "#/components/schemas/car"
+
+    car.added:
+      name: car.added
+      description: A new car joined the game.
+      payload:
+        type: object
+        properties:
+            car:
+              $ref: "#/components/schemas/car"
+
+    car.removed:
+      name: car.removed
+      description: A new was shutdown or lost.
+      payload:
+        type: object
+        properties:
+            carName:
+                $ref: '#/components/schemas/carName'
+
+    laptimer.added:
+      name: laptimer.added
+      description: A new timing was recorded for a car currently running.
+      payload:
+        type: object
+        properties:
+          lapTimer:
+            $ref: '#/components/schemas/lapTimer'
+
+  schemas:
+    player:
+      title: Player
+      type: object
+      properties:
+        playerPseudo:
+          title: playerPseudo
+          type: string
+          description: Player nickname used as unique identifier.
+          examples: ['benvii', 'yannis']
+        registeredDatetime:
+            title: registeredDatetime
+            description: Registration datetime.
+            $ref: '#/components/schemas/dateISOms'
+      required:
+        - pseudo
+        - registeredDate
+
+    drivingWaitingQueueItem:
+      title: Driving waiting pool item (player)
+      type: object
+      properties:
+        rank:
+          type: integer
+        start_waiting_datetime:
+          $ref: '#/components/schemas/dateISOms'
+        player:
+          $ref: '#/components/schemas/player'
+
+
+    car:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/carName'
+        ip:
+          type: string
+          description: IP v4 address on the current network.
+          examples: ['192.168.1.30', '192.168.1.2']
+        color:
+          type: string
+          description: Hex color code of the car, this color is reflected on the PS4 controller and the car 3D printed parts should also have this color.
+          examples: ['ee3209', '3dee09']
+        currentStage:
+          $ref: '#/components/schemas/stage'
+        currentPlayer:
+          description: Current player using this car. If no one is playing it will be null.
+          $ref: "#/components/schemas/player"
+        currentRace:
+          description: "Current race made by the current player. You will essentially use it's Id to match lap timer events with the right car and player or maybe start displaying a race table."
+          $ref: '#/components/schemas/race'
+      required:
+        - name
+        - ip
+        - color
+        - currentState
+    
+    carName:
+      type: string
+      description: Unique name of the car.
+      examples: ['dababycar', 'bleucar', 'monkecar']
+
+    race:
+      type: object
+      properties:
+        raceId:
+          type: integer
+        playerPseudo:
+          type: string
+        stage:
+          $ref: '#/components/schemas/stage'
+        carName:
+          $ref: '#/components/schemas/carName'
+        startDatetime:
+          description: When the whole race was started.
+          $ref: '#/components/schemas/dateISOms'
+
+    lapTimer:
+      type: object
+      description: A lap time record on the track by one car for a specified player.
+      properties:
+        laptimerId:
+          type: integer
+          description: Unique ID of the lap timer.
+          examples: [2417]
+        race:
+          $ref: '#/components/schemas/race'
+        startDatetime:
+          description: When the lap was started, for the first lap it's when the car starts running. Unit micro seconds.
+          $ref: '#/components/schemas/dateISOms'
+        duration:
+          type: integer
+          description: Lap race duration in mili seconds.
+        endDatetime:
+          description: Lap end date, precision ms.
+          $ref: '#/components/schemas/dateISOms'
+
+    stage:
+      type: string
+      enum:
+        - "DRIVE"
+        - "RECORDING"
+        - "AI_ASSISTED"
+        - "MAINTAINANCE"
+
+    dateISOms:
+      type: string
+      description: Datetime with ms precision and timezone.
+      examples: ['2021-12-27T09:57:16.184Z']
