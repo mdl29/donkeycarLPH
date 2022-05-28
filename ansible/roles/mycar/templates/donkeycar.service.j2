@@ -10,6 +10,7 @@ User=pi
 ExecStartPre=/bin/sleep 5
 ExecStart=/home/pi/venv/bin/python /home/pi/mycar/manage.py drive --js
 Restart=on-failure
+EnvironmentFile=/etc/donkeycar/ds4drv.env
 
 [Install]
 WantedBy=multi-user.target

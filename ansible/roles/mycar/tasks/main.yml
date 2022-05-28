@@ -19,6 +19,28 @@
     group: root
   notify: Start donckeycar.service service
 
+- name: Install CarManager part dependencies
+  become: yes
+  become_user: pi
+  pip:
+    requirements: requirements.txt
+    virtualenv: /home/pi/venv/
+    virtualenv_command: /usr/bin/python3 -m venv
+
+- name: Install CarManager part
+  become: yes
+  become_user: pi
+  copy:
+    src: car_manager.py
+    dest: /home/py/mycar/car_manager.py
+
+- name: Install custom manage.py
+  become: yes
+  become_user: pi
+  copy:
+    src: manage.py
+    dest: /home/py/mycar/manage.py
+
 - name: ramfs
   ansible.builtin.lineinfile:
     path: /etc/fstab
