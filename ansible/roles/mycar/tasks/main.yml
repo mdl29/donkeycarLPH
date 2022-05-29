@@ -19,6 +19,13 @@
     group: root
   notify: Start donckeycar.service service
 
+- name: Install CarManager requirements
+  become: yes
+  become_user: pi
+  copy:
+    src: requirements.txt
+    dest: /home/pi/mycar/requirements.txt
+
 - name: Install CarManager part dependencies
   become: yes
   become_user: pi
