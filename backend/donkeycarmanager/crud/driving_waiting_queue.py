@@ -11,7 +11,6 @@ from donkeycarmanager.schemas import EventDrivingWaitingQueueUpdated
 
 RANKING_STEP = 1000  # How much place by default between 2 players.py in driving waiting queue
 
-
 async def on_waiting_queue_change(db: Session, sio: socketio.AsyncServer) -> None:
     """
     Handle executed each time the player driving waiting queue changes.
@@ -23,7 +22,7 @@ async def on_waiting_queue_change(db: Session, sio: socketio.AsyncServer) -> Non
     db_queue = get_driving_waiting_queue_by_rank(db=db)
     schema_queue = EventDrivingWaitingQueueUpdated(drivePlayersWaitingPool=db_queue)
     await sio.emit('driveWaitingPool.updated',
-                   json.loads(schema_queue.json()))  # Workaround to get pydantic deep conversation as dict
+                   json.loads(schema_queue.json()))  # Workaround to get pydantic deep convertion as dict
 
 
 def get_driving_waiting_queue(db: Session, skip: int = 0, limit: int = 100) -> List[schemas.DrivingWaitingQueue]:

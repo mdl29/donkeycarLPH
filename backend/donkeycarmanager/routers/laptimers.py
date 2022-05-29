@@ -1,11 +1,12 @@
 from typing import List, Union
+import socketio
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import schemas
 import donkeycarmanager.crud.laptimers as crud
-from donkeycarmanager.dependencies import get_db
+from donkeycarmanager.dependencies import get_db, get_sio
 
 router = APIRouter(
     prefix="/laptimers",
@@ -14,8 +15,9 @@ router = APIRouter(
 
 
 @router.post("/", response_model=schemas.LapTimer)
-def create_laptimer(laptimer: schemas.LapTimerCreate, db: Session = Depends(get_db)) -> schemas.LapTimer:
-    return crud.create_laptimer(db=db, laptimer=laptimer)
+async def create_laptimer(laptimer: schemas.LapTimerCreate, db: Session = Depends(get_db),
+                          sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.LapTimer:
+    return await crud.create_laptimer(db=db, sio=sio, laptimer=laptimer)
 
 
 @router.get("/", response_model=List[schemas.LapTimer])
