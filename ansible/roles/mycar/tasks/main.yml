@@ -30,7 +30,7 @@
   become: yes
   become_user: pi
   pip:
-    requirements: requirements.txt
+    requirements: /home/pi/mycar/requirements.txt
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 
