@@ -4,29 +4,6 @@
     <router-view/>
   </div>
 </template>
-<script>
-
-import DonkeycarManagerService from '@/js/service.js'
-
-const ip = 'localhost'
-const srv = new DonkeycarManagerService('http://' + ip + ':8000')
-
-export default {
-  data: () => ({
-    poolPlayers: [],
-    drivingWaitingQueue: [],
-    cars: null
-  }),
-  mounted () {
-    this.fetchPlayers()
-  },
-  methods: {
-    async fetchPlayers () {
-      this.poolPlayers = await srv.getAllplayers(0, 20)
-    }
-  }
-}
-</script>
 
 <style>
 

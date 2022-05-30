@@ -31,14 +31,14 @@ components:
   messages:
     driveWaitingPool.updated:
       name: driveWaitingPool.updated
-      description: Send the new drivers pool
+      description: Send the new drivers pool items, containing players
       payload:
         type: object
         properties:
           drivePlayersWaitingPool:
             type: array
             items:
-              $ref: "#/components/schemas/player"
+              $ref: "#/components/schemas/drivingWaitingQueueItem"
         required: 
           - 'drivePlayersWaitingPool'
 
@@ -95,7 +95,16 @@ components:
       required:
         - pseudo
         - registeredDate
-
+    drivingWaitingQueueItem:
+      title: Driving waiting pool item (player)
+      type: object
+      properties:
+        rank:
+          type: integer
+        start_waiting_datetime:
+          $ref: '#/components/schemas/dateISOms'
+        player:
+          $ref: '#/components/schemas/player'
     car:
       type: object
       properties:

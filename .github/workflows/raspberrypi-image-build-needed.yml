@@ -1,10 +1,10 @@
-name: Build raspberry pi DonkeyCar image
+name: raspberrypi-image
 
 # Images are need for QA / tests on a real car
 # Waiting for them to build automatically when someone wants to make a full test/review
 # is too long. That's why we are building them on pull requests and on push / merge on main (latest stable).
 on: 
-  pull_request:
+  pull_request_target: # Allow from forks, but a condition limit where the forks comes from on the sensitive job
     paths:
     - ansible/**
     - packer/**
@@ -16,14 +16,21 @@ on:
     - packer/**
 
 jobs:
-  packer-build:
+  build:
+    # Check the PR if it comes from a fork is a trusted fork or not
+    # We also need to check if it's not ourself as pull_request_target is also used for PR coming from origin branches
+    if: ${{ github.event_name != 'pull_request_target' || github.event_name == 'pull_request_target' && ( github.event.pull_request.head.repo.owner.login == 'mdl29' || github.event.pull_request.head.repo.owner.login == 'viandoxdev' || github.event.pull_request.head.repo.owner.login == 'benvii' || github.event.pull_request.head.repo.owner.login == 'yannis-mlgrn' ) }}
+
     concurrency: # Run only one workflow by branch, cancel already running ones for new ones
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }} # head_ref defined on pull_request and pull_request_target events
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
       - name: Install packer from apt  # This step will install latest packer version on the VM
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -41,9 +48,11 @@ jobs:
           sudo packer build donkeycar.pkr.hcl
       - name: Compressing the output image # Rename the image output file and compress it
         run: |
-          sudo mv "packer/output-raspbian/image" "packer/output-raspbian/${GITHUB_REF##*/}.img"
-          sudo tar zcvf "packer/output-raspbian/${GITHUB_REF##*/}.img.tar.gz" "packer/output-raspbian/${GITHUB_REF##*/}.img"
-          sudo rm "packer/output-raspbian/${GITHUB_REF##*/}.img"
+          sudo mv "packer/output-raspbian/image" "packer/output-raspbian/$IMAGE_FILENAME"
+          sudo tar zcvf "packer/output-raspbian/$IMAGE_FILENAME.tar.gz" "packer/output-raspbian/$IMAGE_FILENAME"
+          sudo rm "packer/output-raspbian/$IMAGE_FILENAME"
+        env:
+          IMAGE_FILENAME: '${{ github.event.pull_request.head.sha || github.sha }}-${{ github.head_ref || github.ref }}.img'
       - name: Upload result to S3  # Upload the build to S3
         uses: jakejarvis/s3-sync-action@master
         env:
@@ -56,14 +65,15 @@ jobs:
       - name: Display image location # Print the image location
         run: |
           echo "Download this build here :"
-          echo "https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/"$GITHUB_RUN_NB"/"${GITHUB_REF##*/}".img.tar.gz"
+          echo "https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/"$GITHUB_RUN_NB"/"$IMAGE_FILENAME".tar.gz"
         env:
+          IMAGE_FILENAME: '${{ github.event.pull_request.head.sha || github.sha }}-${{ github.head_ref || github.ref }}.img'
           GITHUB_RUN_NB: ${{github.run_number}}
       - name: Post comment on PR with build URL  # It it's a PR sending a message on it with link to the image
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           append: true
           message: |
-            Build for ${{ github.sha }} is here :
-            [${{ github.ref }}.img.tar.gz](https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/${{ github.run_number }}/${{ github.head_ref }}.img.tar.gz)
+            Build for ${{ github.event.pull_request.head.sha }} is here :
+            [${{ github.head_ref || github.ref }}.img.tar.gz](https://donkeycar-lph-packer-builds.s3.eu-west-3.amazonaws.com/${{ github.run_number }}/${{ github.event.pull_request.head.sha || github.sha }}-${{ github.head_ref || github.ref }}.img.tar.gz)

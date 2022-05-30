@@ -48,7 +48,6 @@ var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
 
 export default {
   data: () => ({
-    poolPlayers: [],
     drivingWaitingQueue: []
   }),
   mounted () {
@@ -62,9 +61,6 @@ export default {
     })
   },
   methods: {
-    async fetchPlayers () {
-      this.poolPlayers = await srv.getAllplayers(0, 20)
-    },
     async fetchDrivingQueue () {
       this.drivingWaitingQueue = await srv.getDrivingWaitingQueue(true, 0, 20)
       console.log(this.drivingWaitingQueue)

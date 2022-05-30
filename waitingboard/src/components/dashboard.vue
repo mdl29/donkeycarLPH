@@ -1,8 +1,7 @@
 <template>
 <div>
-<h1> Donkeycar Dashboard </h1>
     <div class="hidden">
-      <vs-sidebar absolute v-model="active" open>
+      <vs-sidebar absolute v-model="active" open class="slide-bar">
         <template #logo>
           <img class="logo" src="../assets/donkeycar.png">
         </template>
@@ -16,31 +15,40 @@
           <template #icon>
             <i class='bx bx-grid-alt'></i>
           </template>
-          voitures
+          cars
         </vs-sidebar-item>
         <vs-sidebar-item id="waitingList">
           <template #icon>
             <i class='bx bxs-music'></i>
           </template>
-          liste d'attente
+          waiting list
         </vs-sidebar-item>
       </vs-sidebar>
     </div>
+    <div class="table-wrapper" v-if="active === 'home'">
+      <div class="pl-data-wrapper">
+        <h1> Donkeycar Dashboard </h1>
+        <h3> data :</h3>
+        <p> Users in waitingList : {{this.drivingWaitingQueue.length}}</p>
+        <p> total users : {{this.allPlayers.length}}</p>
+      </div>
+    </div>
     <div class="table-wrapper" v-if="active === 'waitingList'">
+      <h1 class="title-dash"> Donkeycar Dashboard </h1>
       <vs-table >
         <template #thead>
           <vs-tr>
             <vs-th>
-              Ordre
+              order
             </vs-th>
             <vs-th>
-              Pseudo
+              username
             </vs-th>
             <vs-th>
               Id
             </vs-th>
             <vs-th>
-              Création
+              created ago
             </vs-th>
           </vs-tr>
         </template>
@@ -81,8 +89,9 @@
       </vs-table>
     </div>
     <div class="cards-wrapper" v-if="active === 'cars'">
-      <vs-card-group>
-        <vs-card :key="i" v-for="(car, i) in cars" :data="car">
+      <h1 class="title-dash"> Donkeycar Dashboard </h1>
+        <h4 style="display: inline-flex;">
+        <vs-card :key="i" v-for="(car, i) in donkeycars" :data="car">
           <template #title>
             <h3>{{car.name}}</h3>
           </template>
@@ -93,20 +102,37 @@
                 <vs-col class="text-status" vs-type="flex" vs-justify="right" vs-align="right" w="6">
                   <p>Status : </p>
                 </vs-col>
-                <vs-col vs-type="flex" vs-justify="right" vs-align="right" w="6">
-                  <vs-button color="#00b4d8" v-if="car.status === 'DRIVE'" > 🎮 Drive </vs-button>
-                  <vs-button color="#8338ec" v-if="car.status === 'RECORING'" > 🎥 recording data </vs-button>
-                  <vs-button color="#06d6a0" v-if="car.status === 'AI_ASSISTED'" > 🧪 AI assisted </vs-button>
-                  <vs-button color="#fe5f55" v-if="car.status === 'MAINTAINANCE'" > 🧰 In maintainance </vs-button>
+                <vs-col vs-type="flex" vs-justify="left" vs-align="left" w="6">
+                  <vs-button color="#00b4d8" v-if="car.current_stage === 'DRIVE'" > 🎮 Drive </vs-button>
+                  <vs-button color="#8338ec" v-if="car.current_stage === 'RECORING'" > 🎥 recording data </vs-button>
+                  <vs-button color="#06d6a0" v-if="car.current_stage === 'AI_ASSISTED'" > 🧪 AI assisted </vs-button>
+                  <vs-button color="#fe5f55" v-if="car.current_stage === 'MAINTAINANCE'" > 🧰 In maintainance </vs-button>
+                  <vs-button color="#fe5f55" v-if="car.current_stage === null" > ❌ no status </vs-button>
                 </vs-col>
               </vs-row>
-              <p v-if="car.user!=''"> Used by : <b>{{car.user}}</b> </p>
-              <vs-button class="param-btn" warn @click=" carSpec={car} ; parampopup=true"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
+              <p v-if="car.current_player_id!=null"> Used by : <b>{{car.player.player_pseudo}}</b> </p>
+              <p v-else> Used by : <b>nobody</b> </p>
+              <vs-button class="param-btn" warn @click=" carSpec=car ; parampopup=true"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
             </div>
           </template>
         </vs-card>
-      </vs-card-group>
+        </h4>
      </div>
+      <vs-dialog v-model="parampopup" style="display:flex;">
+        <template #header>
+          <h4 class="not-margin">
+            Welcome to <b>{{carSpec.name}}</b> parameters
+          </h4>
+        </template>
+
+        <template #footer>
+          <div class="footer-dialog">
+            <vs-button block success>
+              Save parameters
+            </vs-button>
+          </div>
+        </template>
+      </vs-dialog>
       <vs-dialog v-model="paramPlayerDialog">
         <template #header>
           <h4 class="not-margin">
@@ -151,23 +177,38 @@ export default {
     parampopup: false,
     carSpec: {},
     active: 'home',
-    drivingWaitingQueue: []
+    drivingWaitingQueue: [],
+    allPlayers: [],
+    donkeycars: []
   }),
   mounted () {
     this.fetchDrivingQueue()
+    this.fetchcars(0, 4)
+    this.getAllPlayers()
   },
   created () {
     const that = this
     socket.on('driveWaitingPool.updated', function (data) {
       that.drivingWaitingQueue = data.drivePlayersWaitingPool
+      that.getAllPlayers()
+    })
+    socket.on('car.updated', function (data) {
+      that.donkeycars = that.fetchcars(0, 4)
     })
   },
   methods: {
-    async fetchPlayers () {
-      this.poolPlayers = await srv.getAllplayers(0, 20)
+    async getPlayer (id) {
+      const player = await srv.getplayer(id)
+      return player
+    },
+    async getAllPlayers () {
+      this.allPlayers = await srv.getAllPlayers()
     },
     async fetchDrivingQueue () {
       this.drivingWaitingQueue = await srv.getDrivingWaitingQueue(true, 0, 20)
+    },
+    async fetchcars (skip, limit) {
+      this.donkeycars = await srv.getCars(skip, limit)
     },
     getISOFromNow (iso) {
       const date = new Date(iso)
@@ -194,6 +235,15 @@ export default {
 </script>
 
 <style>
+.title-dash{
+  text-align: center;
+}
+.pl-data-wrapper{
+  text-align: center;
+}
+.slide-bar{
+  width: 170px !important;
+}
 .param-input{
   padding-bottom: 35px;
 }
@@ -202,14 +252,14 @@ export default {
 }
 .text-status{
   padding-top:10px;
-  /* text-align: right; */
+  text-align: right;
   font-size: 15px;
 }
 .cards-wrapper{
-  padding-left: 260px;
+  padding-left: 180px;
 }
 .table-wrapper{
-    padding-left: 260px;
+    padding-left: 180px;
     text-align: left !important;
 }
 .logo{

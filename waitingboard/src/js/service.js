@@ -52,12 +52,22 @@ export default class DonkeycarManagerService {
   *
   * @async
   * @augments donkeycarManagerService
-  * @param {int} skip - first player , e.g: 0
-  * @param {int} limit - last player, e.g: 20
+  * @param {int} playerId - player Id , e.g: 0
   * @returns {Promise} - all player information
   */
-  async getAllplayers (skip, limit) {
-    const response = await axios.get(this.apiUrl + '/players')
+  async getPlayer (playerId) {
+    const response = await axios.get(this.apiUrl + '/players/' + String(playerId))
+    return response.data
+  }
+
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @returns {Promise} - all player information
+  */
+  async getAllPlayers () {
+    const response = await axios.get(this.apiUrl + '/players/')
     return response.data
   }
 
@@ -71,7 +81,7 @@ export default class DonkeycarManagerService {
   * @returns {Promise} - all player information
   */
   async getDrivingWaitingQueue (rank, skip, limit) {
-    const response = await axios.get(this.apiUrl + '/drivingWaitingQueue/?by_rank=true&skip=0&limit=100')
+    const response = await axios.get(this.apiUrl + '/drivingWaitingQueue/?by_rank=' + rank + '&skip=' + String(skip) + '&limit=' + String(limit))
     return response.data
   }
   /**
@@ -145,6 +155,21 @@ export default class DonkeycarManagerService {
       register_datetime: player.register_datetime,
       player_id: player.player_id
     })
+    return response.data
+  }
+
+  /*                     CAR SERVICE              */
+
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} skip - first player , e.g: 0
+  * @param {int} limit - last player, e.g: 20
+  * @returns {Promise} - all player information
+  */
+  async getCars (skip, limit) {
+    const response = await axios.get(this.apiUrl + '/cars/?skip=' + String(skip) + '&limit=' + String(limit))
     return response.data
   }
 }
