@@ -46,7 +46,7 @@
   become_user: pi
   copy:
     src: manage.py
-    dest: /home/py/mycar/manage.py
+    dest: /home/pi/mycar/manage.py
 
 - name: ramfs
   ansible.builtin.lineinfile:
