@@ -39,7 +39,7 @@
   become_user: pi
   copy:
     src: car_manager.py
-    dest: /home/py/mycar/car_manager.py
+    dest: /home/pi/mycar/car_manager.py
 
 - name: Install custom manage.py
   become: yes
