@@ -148,8 +148,6 @@ export default class DonkeycarManagerService {
    * @returns {Promise}
    */
   async updatePlayerPseudo (player, Newpseudo) {
-    console.log('new Pseudo :' + Newpseudo)
-    console.log(player)
     const response = await axios.put(this.apiUrl + '/players/' + String(player.player_id), {
       player_pseudo: Newpseudo,
       register_datetime: player.register_datetime,
@@ -170,6 +168,28 @@ export default class DonkeycarManagerService {
   */
   async getCars (skip, limit) {
     const response = await axios.get(this.apiUrl + '/cars/?skip=' + String(skip) + '&limit=' + String(limit))
+    return response.data
+  }
+
+  /**
+   *
+   * @async
+   * @augments ScratchyService
+   * @param {Array} Car - current car
+   * @param {string} stage - current stage
+   * @param {int} playerId - id of player in car
+   * @returns {Promise}
+   */
+  async updateCar (car, stage, playerID) {
+    const response = await axios.put(this.apiUrl + '/cars/' + car.name, {
+      name: car.name,
+      ip: car.ip,
+      color: car.color,
+      current_stage: stage,
+      current_player_id: playerID,
+      current_race_id: car.current_race_id,
+      race: car.race
+    })
     return response.data
   }
 }

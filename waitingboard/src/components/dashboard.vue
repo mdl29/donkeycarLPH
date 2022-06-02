@@ -91,7 +91,7 @@
     <div class="cards-wrapper" v-if="active === 'cars'">
       <h1 class="title-dash"> Donkeycar Dashboard </h1>
         <h4 style="display: inline-flex;">
-        <vs-card :key="i" v-for="(car, i) in donkeycars" :data="car">
+        <vs-card :key="car.name" v-for="car in donkeycars" :data="car">
           <template #title>
             <h3>{{car.name}}</h3>
           </template>
@@ -106,13 +106,13 @@
                   <vs-button color="#00b4d8" v-if="car.current_stage === 'DRIVE'" > 🎮 Drive </vs-button>
                   <vs-button color="#8338ec" v-if="car.current_stage === 'RECORING'" > 🎥 recording data </vs-button>
                   <vs-button color="#06d6a0" v-if="car.current_stage === 'AI_ASSISTED'" > 🧪 AI assisted </vs-button>
-                  <vs-button color="#fe5f55" v-if="car.current_stage === 'MAINTAINANCE'" > 🧰 In maintainance </vs-button>
+                  <vs-button color="#fe5f55" v-if="car.current_stage === 'MAINTENANCE'" > 🧰 Maintenance </vs-button>
                   <vs-button color="#fe5f55" v-if="car.current_stage === null" > ❌ no status </vs-button>
                 </vs-col>
               </vs-row>
               <p v-if="car.current_player_id!=null"> Used by : <b>{{car.player.player_pseudo}}</b> </p>
               <p v-else> Used by : <b>nobody</b> </p>
-              <vs-button class="param-btn" warn @click=" carSpec=car ; parampopup=true"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
+              <vs-button class="param-btn" warn @click=" carSpec=car ; parampopup=true ; newStatus = carSpec.current_stage ; calibValue =1; carPlayer = carSpec.current_player_id"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
             </div>
           </template>
         </vs-card>
@@ -126,8 +126,40 @@
         </template>
 
         <template #footer>
-          <div class="footer-dialog">
-            <vs-button block success>
+          <div class="center-box">
+            <vs-select class="param-input" placeholder="Select a throttle pourcent" v-model="calibValue" label="throttle calibration">
+              <vs-option label="100 %" value="1">
+                100%
+              </vs-option>
+              <vs-option label="75 %" value="0.75">
+                75%
+              </vs-option>
+              <vs-option label="50 %" value="0.5">
+                50%
+              </vs-option>
+              <vs-option  label="25 %" value="0.25">
+                25%
+              </vs-option>
+            </vs-select>
+            <vs-select class="param-input" placeholder="Change current stage" v-model="newStatus" label="change car stage" >
+              <vs-option label="DRIVE" value="DRIVE">
+                DRIVE
+              </vs-option>
+              <vs-option label="AI_ASSISTED" value="AI_ASSISTED">
+                AI_ASSISTED
+              </vs-option>
+              <vs-option label="MAINTENANCE" value="MAINTENANCE">
+                MAINTENANCE
+              </vs-option>
+              <vs-option  label="RECORING" value="RECORING">
+                RECORING
+              </vs-option>
+              <vs-option  label="null" value=null>
+                null
+              </vs-option>
+            </vs-select>
+            <vs-input class="param-input" label="Change current player" v-model="carPlayer" placeholder="player id" />
+            <vs-button block success @click="postNewCarParam (carSpec, newStatus, carPlayer)">
               Save parameters
             </vs-button>
           </div>
@@ -170,6 +202,9 @@ var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
 export default {
   data: () => ({
     paramPlayerDialog: false,
+    carPlayer: '',
+    calibValue: '1',
+    newStatus: '',
     playerSpec: {},
     parPlayerPseudo: '',
     moveBeforeInput: '',
@@ -229,12 +264,21 @@ export default {
         await srv.moveAfter(currentplayer.player_id, this.moveAfterInput)
         this.moveAfterInput = ''
       }
+    },
+    async postNewCarParam (car, newStatus, carPlayer) {
+      await srv.updateCar(car, newStatus, carPlayer)
+      this.parampopup = false
     }
   }
 }
 </script>
 
 <style>
+.center-box{
+  text-align: center ;
+  align-items: center ;
+  display:block;
+}
 .title-dash{
   text-align: center;
 }
