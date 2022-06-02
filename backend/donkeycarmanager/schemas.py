@@ -124,3 +124,29 @@ class EventDrivingWaitingQueueUpdated(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class EventCar(BaseModel):
+    car: Car
+
+    class Config:
+        orm_mode = True
+
+
+class EventCarUpdated(EventCar):
+    pass
+
+
+class EventCarAdded(EventCar):
+    pass
+
+
+class EventCarRemoved(BaseModel):
+    car_name: str
+
+
+class EventLapTimerAdded(BaseModel):
+    laptimer: LapTimer
+
+    class Config:
+        orm_mode = True

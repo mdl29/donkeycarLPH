@@ -1,11 +1,11 @@
 from typing import List, Union
-
+import socketio
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import schemas
 import donkeycarmanager.crud.cars as crud
-from donkeycarmanager.dependencies import get_db
+from donkeycarmanager.dependencies import get_db, get_sio
 
 router = APIRouter(
     prefix="/cars",
@@ -14,11 +14,12 @@ router = APIRouter(
 
 
 @router.post("/", response_model=schemas.Car)
-def create_car(car: schemas.CarCreate, db: Session = Depends(get_db)):
+async def create_car(car: schemas.CarCreate, db: Session = Depends(get_db),
+                     sio: socketio.AsyncServer = Depends(get_sio)):
     db_car = crud.get_car(db, name=car.name)
     if db_car:
         raise HTTPException(status_code=400, detail="Car already registered")
-    return crud.create_car(db=db, car=car)
+    return await crud.create_car(db=db, sio=sio, car=car)
 
 
 @router.get("/", response_model=List[schemas.Car])
@@ -35,8 +36,17 @@ def read_car(car_name: str, db: Session = Depends(get_db)):
 
 
 @router.put("/{car_name}", response_model=schemas.Car)
-def update_car(car_name: str, car: schemas.CarUpdate, db: Session = Depends(get_db)) -> schemas.Car:
+async def update_car(car_name: str, car: schemas.CarUpdate, db: Session = Depends(get_db),
+                     sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Car:
     db_car = crud.get_car(db, name=car_name)
     if db_car is None:
         raise HTTPException(status_code=404, detail="Car not found")
-    return crud.update_car(db, car=car)
+    return await crud.update_car(db=db, sio=sio, car=car)
+
+
+@router.delete("/{car_name}")
+async def delete_car(car_name: str, db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio)):
+    db_car = crud.get_car(db, name=car_name)
+    if db_car is None:
+        raise HTTPException(status_code=404, detail="Car not found")
+    return await crud.delete_car(db=db, sio=sio, car_name=db_car.name)

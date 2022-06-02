@@ -75,7 +75,7 @@ components:
       payload:
         type: object
         properties:
-          lapTimer:
+          laptimer:
             $ref: '#/components/schemas/lapTimer'
 
   schemas:
@@ -121,19 +121,25 @@ components:
           type: string
           description: Hex color code of the car, this color is reflected on the PS4 controller and the car 3D printed parts should also have this color.
           examples: ['ee3209', '3dee09']
-        currentStage:
+        current_stage:
           $ref: '#/components/schemas/stage'
-        currentPlayer:
+        current_player_id:
+          type: integer
+          description: ID of the current player
+        current_race_id:
+          type: integer
+          description: ID of the current race.
+        player:
           description: Current player using this car. If no one is playing it will be null.
           $ref: "#/components/schemas/player"
-        currentRace:
+        race:
           description: "Current race made by the current player. You will essentially use it's Id to match lap timer events with the right car and player or maybe start displaying a race table."
           $ref: '#/components/schemas/race'
       required:
         - name
         - ip
         - color
-        - currentState
+        - current_stage
     
     carName:
       type: string
@@ -159,19 +165,22 @@ components:
       type: object
       description: A lap time record on the track by one car for a specified player.
       properties:
-        laptimerId:
+        laptimer_id:
           type: integer
           description: Unique ID of the lap timer.
           examples: [2417]
+        race_id:
+          typer: integer
+          description: Id of the race this lap timing belongs to.
         race:
           $ref: '#/components/schemas/race'
-        startDatetime:
+        start_datetime:
           description: When the lap was started, for the first lap it's when the car starts running. Unit micro seconds.
           $ref: '#/components/schemas/dateISOms'
         duration:
           type: integer
           description: Lap race duration in mili seconds.
-        endDatetime:
+        end_datetime:
           description: Lap end date, precision ms.
           $ref: '#/components/schemas/dateISOms'
 
