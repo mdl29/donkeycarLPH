@@ -62,3 +62,10 @@
     line: enable_uart=1
     owner: root
     group: root
+
+- name: Change /etc/profile to support kitty
+  # Solution found here : https://raspberrypi.stackexchange.com/a/14419
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    line: 'export TERM=xterm'
+    create: yes
