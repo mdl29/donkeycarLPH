@@ -77,3 +77,31 @@ class LapTimer(Base):
         default=datetime.datetime.utcnow
     )
     race_id = Column(Integer, ForeignKey(Race.race_id), nullable=False)
+
+
+class Worker(Base):
+    __tablename__ = "worker"
+
+    worker_id = Column(Integer, nullable=False, primary_key=True, autoincrement=True)
+    type = Column(String(40), nullable=False)
+    state = Column(String(40), nullable=False)
+
+
+class Job(Base):
+    __tablename__ = "job"
+
+    job_id = Column(Integer, nullable=False, primary_key=True, autoincrement=True)
+    player_id = Column(Integer, ForeignKey(Player.player_id), nullable=True)
+    worker_id = Column(Integer, ForeignKey(Worker.worker_id), nullable=True)
+    worker_type = Column(String(40), nullable=False)
+    state = Column(String(40), nullable=False)
+    name = Column(String(40), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.datetime.utcnow
+    )
+    rank = Column(Integer, nullable=False, unique=True, index=True)
+    parameters = Column(String(800), nullable=True)
+
+    worker = relationship("Worker", backref="jobs")

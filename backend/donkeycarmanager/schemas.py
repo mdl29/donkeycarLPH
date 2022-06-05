@@ -118,6 +118,73 @@ class Car(CarUpdate):  # As additional nested extended fields
         orm_mode = True
 
 
+# ---- Worker  ----
+class WorkerType(str, Enum):
+    CAR = "CAR"
+    AI_TRAINER = "AI_TRAINER"
+
+
+class WorkerState(str, Enum):
+    AVAILABLE = "AVAILABLE"
+    BUSY = "BUSY"
+    STOPPED = "STOPPED"
+
+
+class WorkerBase(BaseModel):
+    type: WorkerType
+    state: WorkerState
+
+
+class WorkerCreate(WorkerBase):
+    pass
+
+
+class WorkerUpdate(WorkerBase):
+    worker_id: int
+
+
+class Worker(WorkerUpdate):
+
+    class Config:
+        orm_mode = True
+
+
+# ---- Worker  ----
+class JobState(str, Enum):
+    WAITING = "WAITING"
+    RUNNING = "RUNNING"
+    CANCELLING = "CANCELLING"
+    CANCELLED = "CANCELLED"
+    FAILED = "FAILED"
+    SUCCEED = "SUCCEED"
+
+
+class JobBase(BaseModel):
+    player_id: int
+    worker_type: WorkerType
+    name: str
+    parameters: Optional[str]
+
+
+class JobCreate(JobBase):
+    pass
+
+
+class JobUpdate(JobBase):
+    job_id: int
+    state: JobState
+    worker_id: int
+    created_at: datetime.datetime
+    rank: int
+
+
+class Job(JobUpdate):
+    worker: Worker
+
+    class Config:
+        orm_mode = True
+
+
 # ---- Events ----
 class EventDrivingWaitingQueueUpdated(BaseModel):
     drivePlayersWaitingPool: List[DrivingWaitingQueue]
