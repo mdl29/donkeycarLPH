@@ -9,19 +9,19 @@
           <template #icon>
             <i class='bx bx-home'></i>
           </template>
-          Home
+          HOME
         </vs-sidebar-item>
         <vs-sidebar-item id="cars">
           <template #icon>
             <i class='bx bx-grid-alt'></i>
           </template>
-          cars
+          CARS
         </vs-sidebar-item>
         <vs-sidebar-item id="waitingList">
           <template #icon>
             <i class='bx bxs-music'></i>
           </template>
-          waiting list
+          WAITING LIST
         </vs-sidebar-item>
       </vs-sidebar>
     </div>
