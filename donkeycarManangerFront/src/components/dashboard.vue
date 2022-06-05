@@ -112,7 +112,17 @@
               </vs-row>
               <p v-if="car.current_player_id!=null"> Used by : <b>{{car.player.player_pseudo}}</b> </p>
               <p v-else> Used by : <b>nobody</b> </p>
-              <vs-button class="param-btn" warn @click=" carSpec=car ; parampopup=true ; newStatus = carSpec.current_stage ; calibValue =1; carPlayer = carSpec.current_player_id"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
+              <vs-row class="popup-footer">
+                <vs-col vs-type="flex" w="4">
+                  <vs-button class="param-btn" warn @click=" carSpec=car ; parampopup=true ; newStatus = carSpec.current_stage ; calibValue =1; carPlayer = carSpec.current_player_id"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
+                </vs-col>
+                <vs-col vs-type="absolute" w="4" vs-justify="center" vs-align="center" >
+                  <vs-button danger class="engine-button"> Stop engines</vs-button>
+                </vs-col>
+                <vs-col vs-type="absolute" w="4">
+                  <vs-avatar class="avatar-color" :color="'#'+car.color"> <template #text> Color </template> </vs-avatar>
+                </vs-col>
+              </vs-row>
             </div>
           </template>
         </vs-card>
@@ -266,6 +276,12 @@ export default {
       }
     },
     async postNewCarParam (car, newStatus, carPlayer) {
+      if (newStatus === 'MAINTENANCE') {
+        carPlayer = null
+      }
+      if (carPlayer === 'null') {
+        carPlayer = null
+      }
       await srv.updateCar(car, newStatus, carPlayer)
       this.parampopup = false
     }
@@ -274,6 +290,17 @@ export default {
 </script>
 
 <style>
+.popup-footer{
+  padding-top: 30px;
+}
+.engine-button{
+  font-weight: bold;
+  width: 100%;
+}
+.avatar-color{
+  position: relative;
+  float: right;
+}
 .center-box{
   text-align: center ;
   align-items: center ;
