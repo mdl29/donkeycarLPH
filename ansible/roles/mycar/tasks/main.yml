@@ -34,3 +34,11 @@
     owner: pi
     group: pi
     mode: u=r,g=rw,o=rw
+
+- name: Install custom python submodule
+  ansible.builtin.copy:
+    src: custom
+    dest: /home/pi/mycar/
+    owner: pi
+    group: pi
+    mode: u=r,g=rw,o=rw
