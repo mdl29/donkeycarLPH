@@ -6,20 +6,20 @@
             var socket = io.connect('http://127.0.0.1:8000', { path: '/ws/socket.io' });
 
             socket.on('driveWaitingPool.updated', function(data) {
-                console.log("data:", data)
-                addMessage(data);
+                console.log("driveWaitingPool.updated - data:", data)
             });
-            socket.on('error', console.error.bind(console));
-            socket.on('message', console.log.bind(console));
-
-            function addMessage(message) {
-                var text = document.createTextNode(message),
-                    el = document.createElement('li'),
-                    messages = document.getElementById('messages');
-
-                el.appendChild(text);
-                messages.appendChild(el);
-            }
+            socket.on('car.updated', function(data) {
+                console.log("car.updated - data:", data)
+            });
+            socket.on('car.added', function(data) {
+                console.log("car.added - data:", data)
+            });
+            socket.on('car.removed', function(data) {
+                console.log("car.removed - data:", data)
+            });
+            socket.on('laptimer.added', function(data) {
+                console.log("laptimer.added - data:", data)
+            });
         </script>
     </head>
     <body>
