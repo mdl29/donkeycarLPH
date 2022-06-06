@@ -20,11 +20,11 @@
   become: yes
   command: udevadm trigger
       
-- name: Install ds4drv (version with controller limit)
+- name: Install ds4drv (version with controller limit and pipe)
   become: yes
   become_user: pi  # Everything in the venv is run as pi user
   pip:
-    name: git+https://github.com/Benvii/ds4drv.git@193_limit_simultaneous_controllers
+    name: git+https://github.com/Benvii/ds4drv.git@communication_pipe
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 

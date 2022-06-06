@@ -18,3 +18,6 @@ THROTTLE_PWM_FREQ = 75          #Frequency for PWM
 THROTTLE_PWM_INVERTED = False   #If PWM needs to be inverted
 
 AUTO_RECORD_ON_THROTTLE = False #if true, we will record whenever throttle is not zero. if false, you must manually toggle recording with some other trigger. Usually circle button on joystick.
+CONTROLLER_TYPE='custom' # Set the controller to be used to be our custom one ()
+
+LOGGING_LEVEL='DEBUG'
