@@ -1,103 +1,105 @@
 <template>
-<vs-row>
-      <vs-col v-if="player2.length == 0" vs-type="flex" vs-justify="center" vs-align="center" w="12" class="player-wrapper">
-        <h1> Course de {{player1.player_pseudo}} </h1>
-         <vs-table class="laps-table">
-            <template #thead>
-            <vs-tr>
-                <vs-th>
-                tours
-                </vs-th>
-                <vs-th>
-                temps
-                </vs-th>
-            </vs-tr>
-            </template>
-            <template #tbody>
-            <vs-tr :key="i" v-for="(laps,i) in player1Race.laptimers">
-                <vs-td>
-                {{ i + 1}}
-                </vs-td>
-                <vs-td>
-                {{ laps.duration / 1000 }} s
-                </vs-td>
-            </vs-tr>
-            </template>
-        </vs-table>
-        <div class="countdown-wrapper">
-          <flip-countdown :deadline="makeDate(player1Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
-        </div>
-    </vs-col>
-    <vs-col v-if="player2.length !== 0" vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
-        <h1> Course de {{player1.player_pseudo}} </h1>
-         <vs-table class="laps-table">
-            <template #thead>
-            <vs-tr>
-                <vs-th>
-                tours
-                </vs-th>
-                <vs-th>
-                temps
-                </vs-th>
-            </vs-tr>
-            </template>
-            <template #tbody>
-            <vs-tr :key="i" v-for="(laps,i) in player1Race.laptimers">
-                <vs-td>
-                {{ i + 1}}
-                </vs-td>
-                <vs-td>
-                {{ laps.duration / 1000 }} s
-                </vs-td>
-            </vs-tr>
-            </template>
-        </vs-table>
-        <div class="countdown-wrapper">
-          <flip-countdown :deadline="makeDate('2022-06-06T14:52:00.000Z')" :showDays="false" :showHours="false" ></flip-countdown>
-        </div>
-    </vs-col>
-    <vs-col v-if="player2.length !== 0" vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
-        <h1> Course de {{player2.player_pseudo}} </h1>
-        <vs-table class="laps-table">
-            <template #thead>
-            <vs-tr>
-                <vs-th>
-                tours
-                </vs-th>
-                <vs-th>
-                temps
-                </vs-th>
-            </vs-tr>
-            </template>
-            <template #tbody>
-            <vs-tr :key="i" v-for="(laps,i) in player2Race.laptimers">
-                <vs-td>
-                {{ i + 1}}
-                </vs-td>
-                <vs-td>
-                {{ laps.duration / 1000 }} s
-                </vs-td>
-            </vs-tr>
-            </template>
-        </vs-table>
-        <div class="countdown-wrapper">
-          <flip-countdown v-if="player2Race.length !== 0 " :deadline="makeDate(player2Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
-        </div>
-    </vs-col>
-</vs-row>
+<div>
+  <vs-row>
+        <vs-col v-if="player2.length == 0 && player1.length !== 0" vs-type="flex" vs-justify="center" vs-align="center" w="12" class="player-wrapper">
+          <h1> Course de {{player1.player_pseudo}} </h1>
+          <vs-table class="laps-table">
+              <template #thead>
+              <vs-tr>
+                  <vs-th>
+                  tours
+                  </vs-th>
+                  <vs-th>
+                  temps
+                  </vs-th>
+              </vs-tr>
+              </template>
+              <template #tbody>
+              <vs-tr :key="i" v-for="(laps,i) in player1Race.laptimers">
+                  <vs-td>
+                  {{ i + 1}}
+                  </vs-td>
+                  <vs-td>
+                  {{ laps.duration / 1000 }} s
+                  </vs-td>
+              </vs-tr>
+              </template>
+          </vs-table>
+          <div class="countdown-wrapper">
+            <flip-countdown :deadline="makeDate(player1Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+          </div>
+      </vs-col>
+      <vs-col v-if="player2.length !== 0 && player1.length !== 0" vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
+          <h1> Course de {{player1.player_pseudo}} </h1>
+          <vs-table class="laps-table">
+              <template #thead>
+              <vs-tr>
+                  <vs-th>
+                  tours
+                  </vs-th>
+                  <vs-th>
+                  temps
+                  </vs-th>
+              </vs-tr>
+              </template>
+              <template #tbody>
+              <vs-tr :key="i" v-for="(laps,i) in player1Race.laptimers">
+                  <vs-td>
+                  {{ i + 1}}
+                  </vs-td>
+                  <vs-td>
+                  {{ laps.duration / 1000 }} s
+                  </vs-td>
+              </vs-tr>
+              </template>
+          </vs-table>
+          <div class="countdown-wrapper">
+            <flip-countdown :deadline="makeDate(player2Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+          </div>
+      </vs-col>
+      <vs-col v-if="player2.length !== 0 && player1.length !== 0" vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
+          <h1> Course de {{player2.player_pseudo}} </h1>
+          <vs-table class="laps-table">
+              <template #thead>
+              <vs-tr>
+                  <vs-th>
+                  tours
+                  </vs-th>
+                  <vs-th>
+                  temps
+                  </vs-th>
+              </vs-tr>
+              </template>
+              <template #tbody>
+              <vs-tr :key="i" v-for="(laps,i) in player2Race.laptimers">
+                  <vs-td>
+                  {{ i + 1}}
+                  </vs-td>
+                  <vs-td>
+                  {{ laps.duration / 1000 }} s
+                  </vs-td>
+              </vs-tr>
+              </template>
+          </vs-table>
+          <div class="countdown-wrapper">
+            <flip-countdown v-if="player2Race.length !== 0 " :deadline="makeDate(player2Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+          </div>
+      </vs-col>
+  </vs-row>
+</div>
 </template>
 <script>
 import DonkeycarManagerService from '@/js/service.js'
 import FlipCountdown from 'vue2-flip-countdown'
 
-// const { io } = require('socket.io-client')
+const { io } = require('socket.io-client')
 const moment = require('moment')
 
 moment.locale('fr')
 
 const ip = 'localhost'
 const srv = new DonkeycarManagerService('http://' + ip + ':8000')
-// var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
+var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
 
 export default {
   components: { FlipCountdown },
@@ -108,6 +110,17 @@ export default {
     player2Race: [],
     cars: []
   }),
+  created () {
+    const that = this
+    socket.on('laptimer.added', function (data) {
+      that.fetchRaces(0, 20)
+      that.fetchcars(0, 20)
+    })
+    socket.on('car.updated', function (data) {
+      that.fetchcars(0, 20)
+      that.fetchRaces(0, 20)
+    })
+  },
   mounted () {
     this.fetchcars(0, 20)
     this.fetchRaces(0, 20)
@@ -135,7 +148,7 @@ export default {
       for (const race of races) {
         if (race.player_id === this.player1.player_id) {
           this.player1Race = race
-        } else if (race.player_id === this.player2.player_id) {
+        } else {
           this.player2Race = race
         }
       }
