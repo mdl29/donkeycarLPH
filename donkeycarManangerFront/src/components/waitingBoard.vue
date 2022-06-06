@@ -64,7 +64,6 @@ export default {
   created () {
     const that = this
     socket.on('driveWaitingPool.updated', function (data) {
-      console.log('data:', data.drivePlayersWaitingPool)
       that.drivingWaitingQueue = data.drivePlayersWaitingPool
     })
   },

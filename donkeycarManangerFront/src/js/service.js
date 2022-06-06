@@ -192,4 +192,16 @@ export default class DonkeycarManagerService {
     })
     return response.data
   }
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} skip - first player , e.g: 0
+  * @param {int} limit - last player, e.g: 20
+  * @returns {Promise} - all player information
+  */
+  async fetchRaces (skip, limit) {
+    const response = await axios.get(this.apiUrl + '/races/?skip=' + String(skip) + '&limit=' + String(limit))
+    return response.data
+  }
 }

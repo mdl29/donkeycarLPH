@@ -26,7 +26,7 @@
         <p>Vous venez d'être enregistré(e) !!</p>
         <h3> Votre pseudo : {{player.player_pseudo}} </h3>
         <h3> Votre numéro : {{numero}} </h3>
-        <h3> temps d'attente : {{attente}} min </h3>
+        <h3> temps d'attente : {{attente}}</h3>
       </div>
       <template #footer>
         <div class="con-footer">
@@ -66,14 +66,17 @@ export default {
       this.$router.push('/')
     },
     async addUser () {
-      const drivingWaitingQueue = await srv.getDrivingWaitingQueue(true, 0, 20)
-      const allCars = await srv.getCars(0, 5)
-      let nbrpPlayers = drivingWaitingQueue.length / allCars.length
-      this.attente = nbrpPlayers * 15
-      console.log(drivingWaitingQueue.length)
-      console.log(this.attente)
       this.player = await srv.createPlayer(this.pseudo)
       await srv.addDrivingWaitingQueue(this.player.player_id)
+      if (this.player.player_id < 4) {
+        this.attente = '15 minutes'
+      } else if (this.player.player_id >= 4 && this.player.player_id < 8) {
+        this.attente = '30 minutes'
+      } else if (this.player.player_id >= 8 && this.player.player_id < 12) {
+        this.attente = '45 minutes'
+      } else {
+        this.attente = 'plus de 1 heure'
+      }
       this.numero = this.player.player_id
       this.popup = true
     }
