@@ -1,6 +1,6 @@
 <template>
 <vs-row>
-    <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
+      <vs-col v-if="player2.length == 0" vs-type="flex" vs-justify="center" vs-align="center" w="12" class="player-wrapper">
         <h1> Course de {{player1.player_pseudo}} </h1>
          <vs-table class="laps-table">
             <template #thead>
@@ -28,7 +28,35 @@
           <flip-countdown :deadline="makeDate(player1Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
         </div>
     </vs-col>
-    <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
+    <vs-col v-if="player2.length !== 0" vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
+        <h1> Course de {{player1.player_pseudo}} </h1>
+         <vs-table class="laps-table">
+            <template #thead>
+            <vs-tr>
+                <vs-th>
+                tours
+                </vs-th>
+                <vs-th>
+                temps
+                </vs-th>
+            </vs-tr>
+            </template>
+            <template #tbody>
+            <vs-tr :key="i" v-for="(laps,i) in player1Race.laptimers">
+                <vs-td>
+                {{ i + 1}}
+                </vs-td>
+                <vs-td>
+                {{ laps.duration / 1000 }} s
+                </vs-td>
+            </vs-tr>
+            </template>
+        </vs-table>
+        <div class="countdown-wrapper">
+          <flip-countdown :deadline="makeDate('2022-06-06T14:52:00.000Z')" :showDays="false" :showHours="false" ></flip-countdown>
+        </div>
+    </vs-col>
+    <vs-col v-if="player2.length !== 0" vs-type="flex" vs-justify="center" vs-align="center" w="6" class="player-wrapper">
         <h1> Course de {{player2.player_pseudo}} </h1>
         <vs-table class="laps-table">
             <template #thead>
@@ -53,7 +81,7 @@
             </template>
         </vs-table>
         <div class="countdown-wrapper">
-          <flip-countdown :deadline="makeDate(player2Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+          <flip-countdown v-if="player2Race.length !== 0 " :deadline="makeDate(player2Race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
         </div>
     </vs-col>
 </vs-row>
