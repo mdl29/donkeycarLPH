@@ -93,31 +93,6 @@ class Race(RaceUpdate):
         orm_mode = True
 
 
-# ---- Car ----
-class CarBase(BaseModel):
-    name: str
-    ip: str
-    color: str
-
-
-class CarCreate(CarBase):
-    pass
-
-
-class CarUpdate(CarBase):
-    current_stage: Optional[Stage]
-    current_player_id: Optional[int]
-    current_race_id: Optional[str]
-
-
-class Car(CarUpdate):  # As additional nested extended fields
-    player: Optional[Player]
-    race: Optional[Race]
-
-    class Config:
-        orm_mode = True
-
-
 # ---- Worker  ----
 class WorkerType(str, Enum):
     CAR = "CAR"
@@ -144,6 +119,33 @@ class WorkerUpdate(WorkerBase):
 
 
 class Worker(WorkerUpdate):
+
+    class Config:
+        orm_mode = True
+
+
+# ---- Car ----
+class CarBase(BaseModel):
+    name: str
+    ip: str
+    color: str
+    worker_id: int
+
+
+class CarCreate(CarBase):
+    pass
+
+
+class CarUpdate(CarBase):
+    current_stage: Optional[Stage]
+    current_player_id: Optional[int]
+    current_race_id: Optional[str]
+
+
+class Car(CarUpdate):  # As additional nested extended fields
+    player: Optional[Player]
+    race: Optional[Race]
+    worker: Worker
 
     class Config:
         orm_mode = True
