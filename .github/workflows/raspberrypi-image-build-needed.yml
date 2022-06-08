@@ -19,7 +19,7 @@ jobs:
   build:
     # Check the PR if it comes from a fork is a trusted fork or not
     # We also need to check if it's not ourself as pull_request_target is also used for PR coming from origin branches
-    if: ${{ github.event_name != 'pull_request_target' || github.event_name == 'pull_request_target' && ( github.event.pull_request.head.repo.owner.login == 'mdl29' || github.event.pull_request.head.repo.owner.login == 'viandoxdev' || github.event.pull_request.head.repo.owner.login == 'benvii' || github.event.pull_request.head.repo.owner.login == 'yannis-mlgrn' ) }}
+    if: ${{ github.event_name != 'pull_request_target' || github.event_name == 'pull_request_target' && ( github.event.pull_request.head.repo.owner.login == 'mdl29' || github.event.pull_request.head.repo.owner.login == 'viandoxdev' || github.event.pull_request.head.repo.owner.login == 'benvii' || github.event.pull_request.head.repo.owner.login == 'yannis-mlgrn' || github.event.pull_request.head.repo.owner.login == 'ritorizo' ) }}
 
     concurrency: # Run only one workflow by branch, cancel already running ones for new ones
       group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }} # head_ref defined on pull_request and pull_request_target events

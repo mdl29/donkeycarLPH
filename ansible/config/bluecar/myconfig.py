@@ -9,12 +9,15 @@ STEERING_PWM_FREQ = 75          #Frequency for PWM
 STEERING_PWM_INVERTED = False   #If PWM needs to be inverted
 
 THROTTLE_CHANNEL = 13           #channel on the 9685 pwm board 0-15
-THROTTLE_FORWARD_PWM = 750      #pwm value for max forward throttle
+THROTTLE_FORWARD_PWM = 575      #pwm value for max forward throttle max 750
 THROTTLE_STOPPED_PWM = 470      #pwm value for no movement
-THROTTLE_REVERSE_PWM = 370      #pwm value for max reverse throttle
+THROTTLE_REVERSE_PWM = 400      #pwm value for max reverse throttle
 
 THROTTLE_PWM_PIN = 13           #Pin numbering according to Broadcom numbers
 THROTTLE_PWM_FREQ = 75          #Frequency for PWM
 THROTTLE_PWM_INVERTED = False   #If PWM needs to be inverted
 
 AUTO_RECORD_ON_THROTTLE = False #if true, we will record whenever throttle is not zero. if false, you must manually toggle recording with some other trigger. Usually circle button on joystick.
+CONTROLLER_TYPE='custom' # Set the controller to be used to be our custom one ()
+
+LOGGING_LEVEL='DEBUG'
