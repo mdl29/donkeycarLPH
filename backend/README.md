@@ -24,7 +24,11 @@ docker-compose up -d
 
 Pretty easy, just run :
 ```
-donkeycar-manager
+NETWORK_INTERFACE=wlp2s0 donkeycar-manager
 ```
 
 Take a look at the OpenAPI/SwaggerUI at : http://127.0.0.1:8000/docs
+
+### Environment variables
+
+* `NETWORK_INTERFACE` : interface that will be used to find server IP addr, use for ZeroConf. Eg: eth0, ...
