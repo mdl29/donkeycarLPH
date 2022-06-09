@@ -9,6 +9,11 @@ from donkeycarmanager.helpers.logging import setup_logging
 from donkeycarmanager.routers import players, driving_waiting_queue, cars, races, laptimers, workers, jobs
 from donkeycarmanager.services.zero_conf_service import ZeroConfService
 
+from donkeycarmanager import models
+from donkeycarmanager.database import engine
+
+models.Base.metadata.create_all(bind=engine)
+
 # Logging stuff, luanch after uvircorn
 setup_logging()
 if os.environ.get('DONKEYCARMANAGER_LOG_LEVEL') == "DEBUG": # Can't do better as it's started with uvicorn

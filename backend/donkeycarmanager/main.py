@@ -1,11 +1,6 @@
 import os
 import argparse
-
-from donkeycarmanager import models
-from donkeycarmanager.database import engine
 from donkeycarmanager.helpers.logging import setup_logging
-
-models.Base.metadata.create_all(bind=engine)
 
 
 def main():

@@ -20,6 +20,18 @@
             socket.on('laptimer.added', function(data) {
                 console.log("laptimer.added - data:", data)
             });
+            socket.on('jobs.all.updated', function(data){
+               console.log('jobs.all.updated', data)
+            });
+            socket.on('jobs.1.updated', function(data){
+               console.log('jobs.1.updated', data)
+            });
+            socket.on('jobs.2.updated', function(data){
+               console.log('jobs.2.updated', data)
+            });
+            socket.on('jobs.3.updated', function(data){
+               console.log('jobs.3.updated', data)
+            });
         </script>
     </head>
     <body>

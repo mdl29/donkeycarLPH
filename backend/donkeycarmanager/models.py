@@ -107,3 +107,4 @@ class Job(Base):
     parameters = Column(String(800), nullable=True)
 
     worker = relationship("Worker", backref="jobs")
+    player = relationship("Player")
