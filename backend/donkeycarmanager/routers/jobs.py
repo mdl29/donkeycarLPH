@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from donkeycarmanager import schemas
 import donkeycarmanager.crud.jobs as crud
 from donkeycarmanager.dependencies import get_db, get_sio
+from donkeycarmanager.schemas import JobState
 
 router = APIRouter(
     prefix="/jobs",
@@ -22,9 +23,11 @@ async def create_job(job: schemas.JobCreate,
 
 
 @router.get("/", response_model=List[schemas.Job])
-def read_job(by_rank: bool = True, skip: int = 0, limit: int = 100,
-             db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Job:
-    return crud.get_jobs(db, sio=sio, skip=skip, by_rank=by_rank, limit=limit)
+def read_jobs(by_rank: bool = True, skip: int = 0, limit: int = 100,
+              worker_id: Union[None, int] = None,
+              job_state: Union[None, JobState] = None,
+              db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Job:
+    return crud.get_jobs(db, skip=skip, by_rank=by_rank, worker_id=worker_id, job_state=job_state, limit=limit)
 
 
 @router.post("/{job_id}/move_after",

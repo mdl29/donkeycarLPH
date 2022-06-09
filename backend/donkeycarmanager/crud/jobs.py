@@ -9,7 +9,7 @@ from donkeycarmanager import models, schemas
 from donkeycarmanager.helpers.utils import dict_to_attr
 from sqlalchemy import desc, asc, literal_column
 
-from donkeycarmanager.schemas import EventJobQueue
+from donkeycarmanager.schemas import EventJobQueue, JobState
 
 RANKING_STEP = 2000  # How much place by default between 2 players.py in driving waiting queue
 
@@ -55,6 +55,7 @@ def get_job(db: Session, job_id: int) -> schemas.Job:
 
 def get_jobs(db: Session, skip: int = 0, limit: int = 100,
              worker_id: Optional[int] = None,
+             job_state: Optional[JobState] = None,
              by_rank: bool = True) -> List[schemas.Job]:
     query_stm = db.query(models.Job)
 
