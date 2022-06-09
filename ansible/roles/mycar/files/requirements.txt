@@ -3,3 +3,4 @@ requests==2.27.1
 netifaces==0.11.0
 pydantic==1.9.1
 websockets==10.3
+zeroconf==0.38.6

@@ -4,16 +4,24 @@ import requests
 import socket
 import os
 from netifaces import ifaddresses, AF_INET
+from zeroconf import Zeroconf
 
 from .schemas import Car, Worker, CarUpdate, WorkerCreate, WorkerState, WorkerType, CarCreate
 from .worker_heartbeat import WorkerHeartBeat
 
 RES_WORKERS = "workers"
 RES_CARS = "cars"
+ZERO_CONF_TYPE = "_http._tcp.local."
+ZERO_CONF_NAME = "donkeycarmanager"
 
 class CarManager:
-    def __init__(self, api_origin, network_interface: str = "wlan0"):
-        self._api_origin = api_origin
+    def __init__(self, api_origin: Optional[str] = None, network_interface: str = "wlan0"):
+        """
+        :param api_origin:  Optionnal api path, if not given will use zeroconf to find it and use the first found IP.
+            Eg:
+        :param network_interface: Network interface used to determine the car's IP addr.
+        """
+        self._api_origin = api_origin if api_origin else self._find_api_with_zero_conf()
         self._network_interface = network_interface  # Used to find IP addr
         self.worker: Optional[Worker] = None  # Worker associated to this car
         self.car: Car = self._update_or_create_car()  # Car representation of the current car
@@ -22,8 +30,23 @@ class CarManager:
             raise Exception("No worker created for this car")
 
         # Worker heart beat, keep it alive and set it's state to available until job is taken
-        self._worker_heartbeat = WorkerHeartBeat(api_origin=api_origin, worker=self.worker)
+        self._worker_heartbeat = WorkerHeartBeat(api_origin=self._api_origin, worker=self.worker)
         self._worker_heartbeat.start()
+
+    def _find_api_with_zero_conf(self) -> str:
+        """
+        Find API URL using zero conf.
+        :return: The API URL
+        """
+        zeroconf = Zeroconf()
+        url = None
+        try:
+            service = zeroconf.get_service_info(ZERO_CONF_TYPE, f"_{ZERO_CONF_NAME}.{ZERO_CONF_TYPE}")
+            url = f"http://{socket.inet_ntoa(service.addresses[0])}:{service.port}"
+        finally:
+            zeroconf.close()
+
+        return url
 
     def _update_or_create_car(self) -> Car:
         """

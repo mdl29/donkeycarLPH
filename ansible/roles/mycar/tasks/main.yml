@@ -37,7 +37,7 @@
 
 - name: Install custom python submodule
   ansible.builtin.copy:
-    src: custom # TODO add new stuff here
+    src: custom
     dest: /home/pi/mycar/
     owner: pi
     group: pi

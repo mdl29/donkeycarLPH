@@ -64,11 +64,9 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
     V = dk.vehicle.Vehicle()
 
     # Donkeycar manager part
-    donkeycar_manager_host_port = os.environ.get('DONKEYCAR_MANAGER_API_REST')  # eg: http://192.168.1.81:8000
     rpi_network_interface = os.environ.get('RPI_NETWORK_INTERFACE')  # eg: wlan0 or eth0
-    if donkeycar_manager_host_port:
-        manager = CarManager(api_origin=donkeycar_manager_host_port, network_interface=rpi_network_interface)
-        V.add(manager, threaded=True)
+    manager = CarManager(network_interface=rpi_network_interface)
+    V.add(manager, threaded=True)
 
     #Initialize logging before anything else to allow console logging
     if cfg.HAVE_CONSOLE_LOGGING:
