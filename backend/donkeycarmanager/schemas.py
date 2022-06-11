@@ -227,3 +227,10 @@ class EventJobQueue(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class EventJobChanged(BaseModel):
+    job: Job
+
+    class Config:
+        orm_mode = True

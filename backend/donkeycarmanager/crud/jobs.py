@@ -9,44 +9,64 @@ from donkeycarmanager import models, schemas
 from donkeycarmanager.helpers.utils import dict_to_attr
 from sqlalchemy import desc, asc, literal_column
 
-from donkeycarmanager.schemas import EventJobQueue, JobState
+from donkeycarmanager.schemas import EventJobQueue, JobState, EventJobChanged
 
 RANKING_STEP = 2000  # How much place by default between 2 players.py in driving waiting queue
 
 logger = logging.getLogger(__name__)
 
-async def on_job_queue_all_change(db: Session, sio: socketio.AsyncServer,
-                                  jobs_changed: List[models.Job] = []) -> None:
+
+async def on_job_queue_order_changes(db: Session, sio: socketio.AsyncServer,
+                                     jobs_changed: List[models.Job] = []) -> None:
     """
-    Handle executed each time the player driving waiting queue changes.
+    Handle executed each time the job queue changes order changes.
     Sends an event to socket IO with the new list.
     :param db: Database.
     :param sio: Socket IO server.
     :param jobs_changed: List of jobs that were changed, used to specifically notify on cars queues
     """
     logger.debug(
-        "on_job_queue_all_change: going to notify of job changes, number of changed job: %i", len(jobs_changed))
+        "on_job_queue_order_changes: going to notify of job changes, number of changed job: %i", len(jobs_changed))
 
     # Send socket IO event with all queue elements
     db_queue = get_jobs(db=db, by_rank=True)
     event = EventJobQueue(jobs=db_queue)
-    event_json_payload = json.loads(event.json())
+    event_json_payload = json.loads(event.json()) # Workaround to get pydantic deep conversion as dict
     logger.debug('on_job_queue_all_change: emitting "jobs.all.updated" with : %s', event_json_payload)
-    await sio.emit('jobs.all.updated',event_json_payload)  # Workaround to get pydantic deep conversion as dict
+    await sio.emit('jobs.all.updated',event_json_payload)
 
     # Notify all workers gets with all of their jobs
-    jobs_changed_with_workers = filter(lambda j: j.worker_id != None, jobs_changed)
+    jobs_changed_with_workers = filter(lambda j: j.worker_id is not None, jobs_changed)
     job_changed_worker_ids = map(lambda j: j.worker_id, jobs_changed_with_workers)
 
     for worker_id in job_changed_worker_ids:
         if worker_id is not None:
             jobs_by_rank = get_jobs(db, worker_id=worker_id, by_rank=True)
             event = EventJobQueue(jobs=jobs_by_rank)
-            event_json_payload = json.loads(event.json())
+            event_json_payload = json.loads(event.json()) # Workaround to get pydantic deep conversion as dict
             event_name = f'jobs.{worker_id}.updated'
             logger.debug('on_job_queue_all_change: emitting "%s" with : %s', event_name, event)
             await sio.emit(event_name,
-                           event_json_payload)  # Workaround to get pydantic deep conversion as dict
+                           event_json_payload)
+
+
+async def on_job_change_worker_notify(db: Session, sio: socketio.AsyncServer,
+                                      job_changed: models.Job) -> None:
+    """
+    Emit to notify a worker of "one" job change. Shouldn't be used to handle jobs orders.
+    :param db: database
+    :param sio: socketIO
+    :param job_changed: Changed job.
+    """
+    if job_changed.worker_id is None:
+        return
+
+    # Send socket IO event with all queue elements
+    event = EventJobChanged(job=job_changed)
+    event_json_payload = json.loads(event.json())  # Workaround to get pydantic deep conversion as dict
+    event_name = f"one_job.{job_changed.worker_id}.updated"
+    logger.debug('on_one_job_change: emitting "%s" with : %s', event_name, event_json_payload)
+    await sio.emit(event_name, event_json_payload)
 
 
 def get_job(db: Session, job_id: int) -> schemas.Job:
@@ -77,7 +97,9 @@ async def create_job(db: Session, sio: socketio.AsyncServer, job: schemas.Job)->
     db_job = models.Job(**job.dict(), rank=new_rank)
     db.add(db_job)
     db.commit()
-    await on_job_queue_all_change(db=db, sio=sio, jobs_changed=[db_job])  # Notify the queue was changed
+
+    await on_job_change_worker_notify(db=db, sio=sio, job_changed=db_job)
+    await on_job_queue_order_changes(db=db, sio=sio, jobs_changed=[db_job])  # Notify the queue was changed
 
     db.refresh(db_job)
 
@@ -85,12 +107,19 @@ async def create_job(db: Session, sio: socketio.AsyncServer, job: schemas.Job)->
 
 
 async def update_job(db: Session, sio: socketio.AsyncServer, job: schemas.Job) -> schemas.Job:
+    # TODO : fail for non coherent changes, such as :
+    # - change in state from CANCELLING or CANCELLED to waiting
+    # - worker change as the job is running ...
+
     db_job = get_job(db=db, job_id=job.job_id)
     dict_to_attr(db_job, job.dict())
     db.commit()
     db.refresh(db_job)
 
-    await on_job_queue_all_change(db, sio, jobs_changed=[db_job])
+    # We always notify because changed could impact parameters, assigned worker ... so job list on cars need to be
+    # updated to reflect those changes
+    await on_job_queue_order_changes(db, sio, jobs_changed=[db_job])
+    await on_job_change_worker_notify(db=db, sio=sio, job_changed=db_job)
 
     return db_job
 
@@ -127,7 +156,7 @@ async def move_job_after_another_in_queue(db: Session,
         to_move.rank = before_item.rank + RANKING_STEP
 
     db.commit()
-    await on_job_queue_all_change(db, sio, jobs_changed=[to_move])
+    await on_job_queue_order_changes(db, sio, jobs_changed=[to_move])
 
     print(f'Moved {to_move.job_id} from rank {old_rank} to rank {to_move.rank}'
           f'so that he is after {before_item.job_id} ({before_item.rank})')
@@ -167,7 +196,7 @@ async def move_job_before_another_queue(db: Session,
         to_move.rank = after_item.rank // 2  # Let some place behind it and before it
 
     db.commit()
-    await on_job_queue_all_change(db, sio, jobs_changed=[to_move])
+    await on_job_queue_order_changes(db, sio, jobs_changed=[to_move])
 
     print(f'Moved {to_move.job_id} from rank {old_rank} to rank {to_move.rank}'
           f'so that he is after {after_item.job_id} ({after_item.rank})')

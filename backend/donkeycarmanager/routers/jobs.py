@@ -87,9 +87,10 @@ async def move_job_before(
 
 
 @router.put("/{job_id}", response_model=schemas.Job)
-async def update_job(job_id: int, job: schemas.Job,
+async def update_job(job: schemas.JobUpdate,
+                    job_id: int,
                     db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Job:
     db_job = crud.get_job(db, job_id=job_id)
     if db_job is None:
         raise HTTPException(status_code=404, detail="Job not found")
-    return crud.update_job(db, sio=sio, job=job)
+    return await crud.update_job(db, sio=sio, job=job)
