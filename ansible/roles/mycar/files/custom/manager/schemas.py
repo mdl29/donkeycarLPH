@@ -1,6 +1,5 @@
-# This schema file should match the serveur one
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum
 import datetime
 
@@ -163,10 +162,12 @@ class JobState(str, Enum):
 
 
 class JobBase(BaseModel):
-    player_id: int
     worker_type: WorkerType
     name: str
     parameters: Optional[str]
+    state: JobState = Field(default=JobState.WAITING)
+    worker_id: Optional[int]
+    player_id: int
 
 
 class JobCreate(JobBase):
@@ -175,14 +176,14 @@ class JobCreate(JobBase):
 
 class JobUpdate(JobBase):
     job_id: int
-    state: JobState
-    worker_id: int
     created_at: datetime.datetime
     rank: int
+    fail_details: Optional[str]
 
 
 class Job(JobUpdate):
     worker: Worker
+    player: Player
 
     class Config:
         orm_mode = True
@@ -217,6 +218,20 @@ class EventCarRemoved(BaseModel):
 
 class EventLapTimerAdded(BaseModel):
     laptimer: LapTimer
+
+    class Config:
+        orm_mode = True
+
+
+class EventJobQueue(BaseModel):
+    jobs: List[Job]
+
+    class Config:
+        orm_mode = True
+
+
+class EventJobChanged(BaseModel):
+    job: Job
 
     class Config:
         orm_mode = True

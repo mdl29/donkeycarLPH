@@ -14,6 +14,8 @@ Options:
     --myconfig=filename     Specify myconfig file to use. 
                             [default: myconfig.py]
 """
+import logging
+
 from docopt import docopt
 
 
@@ -34,6 +36,9 @@ from custom.manager.car_manager import CarManager
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+# Logging our modules in debug
+logger_custom = logging.getLogger('custom')
+logger_custom.setLevel(logging.DEBUG)
 
 def drive(cfg, model_path=None, use_joystick=False, model_type=None,
           camera_type='single', meta=[]):
@@ -63,10 +68,6 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
     #Initialize car
     V = dk.vehicle.Vehicle()
 
-    # Donkeycar manager part
-    rpi_network_interface = os.environ.get('RPI_NETWORK_INTERFACE')  # eg: wlan0 or eth0
-    manager = CarManager(network_interface=rpi_network_interface)
-    V.add(manager, threaded=True)
 
     #Initialize logging before anything else to allow console logging
     if cfg.HAVE_CONSOLE_LOGGING:
@@ -240,9 +241,14 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                     ctr.js = netwkJs
             V.add(
                 ctr,
-                inputs=['cam/image_array', 'user/mode', 'recording'],
+                inputs=['cam/image_array', 'user/mode', 'recording', 'manager/job_name'],
                 outputs=['user/angle', 'user/throttle', 'user/mode', 'recording'],
                 threaded=True)
+
+            # Donkeycar manager part
+            rpi_network_interface = os.environ.get('RPI_NETWORK_INTERFACE')  # eg: wlan0 or eth0
+            manager = CarManager(network_interface=rpi_network_interface)
+            V.add(manager, inputs=['user/throttle'], outputs=['user/throttle', 'manager/job_name'], threaded=True)
 
 
     #this throttle filter will allow one tap back for esc reverse

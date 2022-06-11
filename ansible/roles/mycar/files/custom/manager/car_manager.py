@@ -1,12 +1,14 @@
-from typing import Optional, NoReturn
+from typing import Optional, NoReturn, List
 
-import requests
+import socketio
 import socket
 import os
 from netifaces import ifaddresses, AF_INET
 from zeroconf import Zeroconf
 
-from .schemas import Car, Worker, CarUpdate, WorkerCreate, WorkerState, WorkerType, CarCreate
+from .car_manager_api_service import CarManagerApiService
+from .job_manager import JobManager
+from .schemas import Car, Worker, WorkerCreate, WorkerState, WorkerType, CarCreate
 from .worker_heartbeat import WorkerHeartBeat
 
 RES_WORKERS = "workers"
@@ -22,6 +24,10 @@ class CarManager:
         :param network_interface: Network interface used to determine the car's IP addr.
         """
         self._api_origin = api_origin if api_origin else self._find_api_with_zero_conf()
+        self._api = CarManagerApiService(self._api_origin)
+        self._sio = socketio.Client()
+        self._sio.connect(self._api_origin, socketio_path='/ws/socket.io')
+
         self._network_interface = network_interface  # Used to find IP addr
         self.worker: Optional[Worker] = None  # Worker associated to this car
         self.car: Car = self._update_or_create_car()  # Car representation of the current car
@@ -33,7 +39,12 @@ class CarManager:
         self._worker_heartbeat = WorkerHeartBeat(api_origin=self._api_origin, worker=self.worker)
         self._worker_heartbeat.start()
 
-    def _find_api_with_zero_conf(self) -> str:
+        # Job managment
+        self._job_manager = JobManager(self._api, self._sio, self.worker)
+        self._job_manager.start()
+
+    @staticmethod
+    def _find_api_with_zero_conf() -> str:
         """
         Find API URL using zero conf.
         :return: The API URL
@@ -48,6 +59,13 @@ class CarManager:
 
         return url
 
+    @staticmethod
+    def get_car_name() -> str:
+        """
+        :return: Current car name.
+        """
+        return socket.gethostname()
+
     def _update_or_create_car(self) -> Car:
         """
         Create car matching the name or update it, as car always have a worker associated it will also create the worker.
@@ -58,24 +76,18 @@ class CarManager:
                           'ip': ifaddresses(self._network_interface)[AF_INET][0]['addr'],
                           'color': os.environ.get('CONTROLLER_LED_COLOR')}
 
-        cars_url = f"{self._api_origin}/{RES_CARS}/"
-        workers_url = f"{self._api_origin}/{RES_WORKERS}/"
-        car_rest_url = f"{cars_url}{self.get_car_name()}"
-
-        resp = requests.get(car_rest_url)
-        if resp.status_code == 200:  # Need to update the car with current details
-            api_car_refreshed = Car.parse_obj({**resp.json(), **current_car_basic_details})  # Override API car props to update them
+        existing_car = self._api.get_car(car_name)
+        if existing_car is not None:  # Need to update the car with current details
+            api_car_refreshed = Car.parse_obj({**existing_car.dict(), **current_car_basic_details})  # Override API car props to update them
             self.worker = api_car_refreshed.worker
 
-            car_update = CarUpdate.parse_obj(api_car_refreshed)
-            return Car.parse_obj(requests.put(car_rest_url, json=car_update.dict()).json())
+            return self._api.update_car(api_car_refreshed)
         else:  # No existing car, so no worker need to create one also
-            body = WorkerCreate(type=WorkerType.CAR, state=WorkerState.STOPPED)
-            worker_resp = requests.post(workers_url, json=body.dict())
-            self.worker = Worker.parse_obj(worker_resp.json())
+            worker_create = WorkerCreate(type=WorkerType.CAR, state=WorkerState.STOPPED)
+            self.worker = self._api.create_worker(worker_create)
 
             car = CarCreate(**current_car_basic_details, worker_id=self.worker.worker_id)
-            return Car.parse_obj(requests.post(cars_url, json=car.dict()).json())
+            return self._api.create_car(car)
 
     def update_worker_state(self, state: WorkerState) -> NoReturn:
         """
@@ -83,20 +95,19 @@ class CarManager:
         :param state: Current state
         """
         self.worker.state = state
-        requests.put(f"{self._api_origin}/{RES_WORKERS}/{self.worker.worker_id}",
-                            json=self.worker.json())
-
-    def get_car_name(self) -> str:
-        """
-        :return: Current car name.
-        """
-        return socket.gethostname()
+        self._api.update_worker(self.worker)
 
     def update(self):
         return
 
-    def run_threaded(self):
-        return
+    def run_threaded(self, user_throttle=None) -> List[bool]:
+        """
+        :param user_throttle: User throttle value
+        :return: [manager/enable_controller_throttle, ..]
+            user/throttle
+            manager/job_name
+        """
+        return self._job_manager.run_threaded_current_job(user_throttle=user_throttle)
 
     def run(self):
         return self.run_threaded()

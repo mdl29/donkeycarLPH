@@ -139,7 +139,7 @@ class MyJoystickController(JoystickController):
         else:
             self.js._led_control.stop_led_flash()
 
-    def run_threaded(self, img_arr=None, mode=None, recording=None):
+    def run_threaded(self, img_arr=None, mode=None, recording=None, manager_job_name = None):
         """
         :param img_arr: current camera image or None
         :param mode: default user/mode
@@ -160,5 +160,8 @@ class MyJoystickController(JoystickController):
         other_parts_recording_changed = other_parts_recording_before != other_parts_recording_after
         if controller_recording_changed or other_parts_recording_changed: # Internal or external mutation sate
             self._on_recording_change()
+
+        if manager_job_name:
+            print('manager_job_name from joystick: ', manager_job_name)
 
         return outputs
