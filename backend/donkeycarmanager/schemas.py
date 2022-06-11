@@ -178,6 +178,7 @@ class JobUpdate(JobBase):
     job_id: int
     created_at: datetime.datetime
     rank: int
+    fail_details: Optional[str]
 
 
 class Job(JobUpdate):

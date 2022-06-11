@@ -106,5 +106,7 @@ class Job(Base):
     rank = Column(Integer, nullable=False, unique=True, index=True)
     parameters = Column(String(800), nullable=True)
 
+    fail_details = Column(String(1100), nullable=True)
+
     worker = relationship("Worker", backref="jobs")
     player = relationship("Player")

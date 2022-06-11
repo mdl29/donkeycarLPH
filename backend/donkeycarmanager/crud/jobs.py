@@ -85,6 +85,9 @@ def get_jobs(db: Session, skip: int = 0, limit: int = 100,
     if worker_id:
         query_stm = query_stm.filter(models.Job.worker_id == worker_id)
 
+    if job_state:
+        query_stm = query_stm.filter(models.Job.state == job_state)
+
     return query_stm.offset(skip).limit(limit).all()
 
 
