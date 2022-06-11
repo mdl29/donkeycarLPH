@@ -108,7 +108,7 @@ export default {
     player2: [],
     player1Race: [],
     player2Race: [],
-    cars: []
+    cars: [],
   }),
   created () {
     const that = this
@@ -172,6 +172,7 @@ export default {
     }
   }
 }
+
 </script>
 <style>
 .countdown-wrapper{
