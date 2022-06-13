@@ -20,7 +20,9 @@ async def create_laptimer(db: Session, sio: socketio.AsyncServer, laptimer: sche
     db.add(db_laptimer)
     db.commit()
     db.refresh(db_laptimer)
+
     await emitters.on_laptimer_added(sio=sio, laptimer=db_laptimer)
+
     return db_laptimer
 
 

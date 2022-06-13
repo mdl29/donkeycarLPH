@@ -20,7 +20,9 @@ async def create_car(db: Session, sio: socketio.AsyncServer, car: schemas.CarCre
     db.add(db_car)
     db.commit()
     db.refresh(db_car)
+
     await emitters.on_car_added(sio=sio, car=db_car)
+
     return db_car
 
 
@@ -29,7 +31,9 @@ async def update_car(db: Session, sio: socketio.AsyncServer, car: schemas.CarUpd
     dict_to_attr(db_car, car.dict())
     db.commit()
     db.refresh(db_car)
+
     await emitters.on_car_updated(sio=sio, car=db_car)
+
     return db_car
 
 
@@ -37,4 +41,5 @@ async def delete_car(db: Session, sio: socketio.AsyncServer, car_name: str) -> N
     db_car = get_car(db=db, name=car_name)
     db.delete(db_car)
     db.commit()
+
     await emitters.on_car_removed(sio=sio, car_name=car_name)

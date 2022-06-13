@@ -247,6 +247,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
 
             # Donkeycar manager part
             rpi_network_interface = os.environ.get('RPI_NETWORK_INTERFACE')  # eg: wlan0 or eth0
+            rpi_network_interface = rpi_network_interface if rpi_network_interface else "wlan0"
             manager = CarManager(network_interface=rpi_network_interface)
             V.add(manager, inputs=['user/throttle'], outputs=['user/throttle', 'manager/job_name'], threaded=True)
 

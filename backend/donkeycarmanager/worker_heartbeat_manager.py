@@ -1,28 +1,24 @@
-from typing import Mapping, Dict
-
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import models
-from donkeycarmanager.dependencies import get_db
-from donkeycarmanager.schemas import Worker, WorkerState
+from donkeycarmanager.schemas import WorkerState
+from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 
 
 class WorkerHeartbeatManager:
     def __init__(self):
-        # self.active_connections: Dict[int, WebSocket] = {}  # Map worker_id to their websocket
-        self.db = None
+        pass
 
-    async def connect(self, websocket: WebSocket, worker: models.Worker, db: Session):
-        self.db = db  # Ugly didn't find better to handle injection
+    async def connect(self, websocket: WebSocket, worker: models.Worker, db: Session, job_sched: AsyncJobScheduler):
         websocket.donkeycar_worker = worker  # Ugly but didn't find better
         await websocket.accept()
         worker.state = WorkerState.AVAILABLE
-        self.db.commit()
+        db.commit()
         print(f"Worker connected : {worker.worker_id}")
-        # self.active_connections[worker.worker_id] = websocket
+        job_sched.on_worker_changed(worker)
 
-    def disconnect(self, websocket: WebSocket):
+    def disconnect(self, websocket: WebSocket, db: Session, job_sched: AsyncJobScheduler):
         """
         Called when websocket is disconnected.
         :param websocket:
@@ -31,6 +27,6 @@ class WorkerHeartbeatManager:
         """
         worker: models.Worker = websocket.donkeycar_worker
         worker.state = WorkerState.STOPPED
-        self.db.commit()
+        db.commit()
         print(f"Worker disconnected : {worker.worker_id}")
-        # self.active_connections.pop(worker.worker_id)
+        job_sched.on_worker_changed(worker)

@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from donkeycarmanager.dependencies import get_db, sm, get_sio
+from donkeycarmanager.dependencies import get_db, sm, get_sio, get_job_scheduler
 from donkeycarmanager.helpers.logging import setup_logging
 from donkeycarmanager.routers import players, driving_waiting_queue, cars, races, laptimers, workers, jobs
 from donkeycarmanager.services.zero_conf_service import ZeroConfService
@@ -35,9 +35,9 @@ interface_name = os.environ.get(NETWORK_INTERFACE_ENV_VAR_NAME)
 server_zeroconf = ZeroConfService(app_port=APP_PORT, network_interface_name=interface_name)
 
 app = FastAPI(
-    dependencies=[Depends(get_db), Depends(get_sio)],
+    dependencies=[Depends(get_db), Depends(get_sio), Depends(get_job_scheduler)],
     openapi_tags=open_api_tags_metadata,
-    on_startup=[server_zeroconf.start],
+    on_startup=[server_zeroconf.start, get_job_scheduler().start],
     on_shutdown=[server_zeroconf.stop])
 app.add_middleware(
     CORSMiddleware,

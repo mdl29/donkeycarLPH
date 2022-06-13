@@ -182,7 +182,7 @@ class JobUpdate(JobBase):
 
 
 class Job(JobUpdate):
-    worker: Worker
+    worker: Optional[Worker]
     player: Player
 
     class Config:
