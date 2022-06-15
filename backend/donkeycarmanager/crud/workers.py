@@ -14,11 +14,11 @@ def create_worker(db: Session, worker: schemas.Worker) -> schemas.Worker:
     return db_worker
 
 
-def update_worker(db: Session, worker: schemas.Worker, job_sched: AsyncJobScheduler) -> schemas.Worker:
+async def update_worker(db: Session, worker: schemas.Worker, job_sched: AsyncJobScheduler) -> schemas.Worker:
     db_worker = get_worker(db=db, worker_id=worker.worker_id)
     dict_to_attr(db_worker, worker.dict())
     db.commit()
     db.refresh(db_worker)
 
-    job_sched.on_worker_changed(worker)
+    await job_sched.on_worker_changed(worker)
     return db_worker

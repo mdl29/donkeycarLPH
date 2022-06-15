@@ -9,12 +9,21 @@ from sqlalchemy.orm import Session
 from donkeycarmanager import models, schemas
 from donkeycarmanager.crud.jobs_read import get_jobs, get_job, on_job_change_worker_notify, on_job_queue_order_changes
 from donkeycarmanager.helpers.utils import dict_to_attr
-from donkeycarmanager.schemas import EventJobQueue, EventJobChanged
+from donkeycarmanager.schemas import EventJobQueue, EventJobChanged, JobState
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 
 RANKING_STEP = 2000  # How much place by default between 2 players.py in driving waiting queue
 
 logger = logging.getLogger(__name__)
+
+
+async def on_job_update(db: Session, sio: socketio.AsyncServer, job_sched: AsyncJobScheduler,
+                        job_changed: models.Job):
+    # We always notify because changed could impact parameters, assigned worker ... so job list on cars need to be
+    # updated to reflect those changes
+    await on_job_queue_order_changes(db, sio, jobs_changed=[job_changed])
+    await on_job_change_worker_notify(db=db, sio=sio, job_changed=job_changed)
+    await job_sched.on_job_changed(job=job_changed)
 
 
 async def create_job(db: Session, sio: socketio.AsyncServer, job_sched: AsyncJobScheduler,
@@ -32,7 +41,7 @@ async def create_job(db: Session, sio: socketio.AsyncServer, job_sched: AsyncJob
     await on_job_change_worker_notify(db=db, sio=sio, job_changed=db_job)
     await on_job_queue_order_changes(db=db, sio=sio, jobs_changed=[db_job])  # Notify the queue was changed
 
-    job_sched.on_job_changed(db_job)
+    await job_sched.on_job_changed(db_job)
 
     return db_job
 
@@ -48,11 +57,18 @@ async def update_job(db: Session, sio: socketio.AsyncServer, job_sched: AsyncJob
     db.commit()
     db.refresh(db_job)
 
-    # We always notify because changed could impact parameters, assigned worker ... so job list on cars need to be
-    # updated to reflect those changes
-    await on_job_queue_order_changes(db, sio, jobs_changed=[db_job])
-    await on_job_change_worker_notify(db=db, sio=sio, job_changed=db_job)
-    job_sched.on_job_changed(job=db_job)
+    await on_job_update(db, sio, job_sched, db_job)
+
+    return db_job
+
+
+async def update_job_state(db: Session, sio: socketio.AsyncServer, job_sched: AsyncJobScheduler,
+                           job_id: int, job_state: JobState) -> schemas.Job:
+    db_job = get_job(db=db, job_id=job_id)
+    db_job.state = job_state
+    db.commit()
+
+    await on_job_update(db, sio, job_sched, db_job)
 
     return db_job
 

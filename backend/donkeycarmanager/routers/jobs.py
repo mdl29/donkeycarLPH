@@ -109,3 +109,34 @@ async def update_job(job: schemas.JobUpdate,
     if db_job is None:
         raise HTTPException(status_code=404, detail="Job not found")
     return await crud.update_job(db, sio=sio, job_sched=job_sched, job=job)
+
+
+async def check_and_update_job_state(job_id: int, job_state: JobState,
+                     db: Session, sio: socketio.AsyncServer,
+                     job_sched: AsyncJobScheduler) -> schemas.Job:
+    db_job = crud.get_job(db, job_id=job_id)
+    if db_job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    return await crud.update_job_state(db, sio, job_sched, job_id, job_state)
+
+
+@router.get("/{job_id}/pause", response_model=schemas.Job)
+async def update_job_resuming(job_id: int,
+                            db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio),
+                            job_sched: AsyncJobScheduler = Depends(get_job_scheduler)) -> schemas.Job:
+    return await check_and_update_job_state(job_id, JobState.PAUSING, db, sio, job_sched)
+
+
+@router.get("/{job_id}/resume", response_model=schemas.Job)
+async def update_job_resuming(job_id: int,
+                            db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio),
+                            job_sched: AsyncJobScheduler = Depends(get_job_scheduler)) -> schemas.Job:
+    return await check_and_update_job_state(job_id, JobState.RESUMING, db, sio, job_sched)
+
+
+@router.get("/{job_id}/cancel", response_model=schemas.Job)
+async def update_job_cancelling(job_id: int,
+                            db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio),
+                            job_sched: AsyncJobScheduler = Depends(get_job_scheduler)) -> schemas.Job:
+    return await check_and_update_job_state(job_id, JobState.CANCELLING, db, sio, job_sched)

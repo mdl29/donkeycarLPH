@@ -4,9 +4,9 @@ from typing import Dict, List
 
 import socketio
 from sqlalchemy.orm import Session
-from asyncio import Event
 
-from donkeycarmanager.helpers.async_cond_event import AsyncCondEvents, AsyncCondEventsOperator
+from donkeycarmanager.helpers.conditional_events import AsyncConditionalEvents, AsyncCondEventsOperator
+from donkeycarmanager.helpers.registable_event import AsyncRegistableEvent
 from donkeycarmanager.models import Job, Worker
 from donkeycarmanager.schemas import WorkerState, WorkerType, JobState
 
@@ -23,44 +23,44 @@ class AsyncJobScheduler:
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
         # Events for each type of jobs waiting for a specific worker_type
-        self.job_waiting_events_by_type: Dict[str, Event] = {}  # Keys are worker_type.name
+        self.job_waiting_events_by_type: Dict[str, AsyncRegistableEvent] = {}  # Keys are worker_type.name
         # Events for all available worker for each worker_type
-        self.worker_available_events_by_type: Dict[str, Event] = {}  # Keys are worker_type.name
+        self.worker_available_events_by_type: Dict[str, AsyncRegistableEvent] = {}  # Keys are worker_type.name
 
         # Combo of job available and worker for each worker_type
-        self.compatible_job_and_worker_events: Dict[str, AsyncCondEvents] = {}  # Keys are worker_type.name
+        self.compatible_job_and_worker_events: Dict[str, AsyncConditionalEvents] = {}  # Keys are worker_type.name
         for worker_type in WorkerType:
-            job_waiting_event = Event()
-            worker_available_event = Event()
+            job_waiting_event = AsyncRegistableEvent()
+            worker_available_event = AsyncRegistableEvent()
             self.job_waiting_events_by_type[worker_type] = job_waiting_event
             self.worker_available_events_by_type[worker_type] = worker_available_event
 
             self.compatible_job_and_worker_events[worker_type] =\
-                AsyncCondEvents([job_waiting_event, worker_available_event], operator=AsyncCondEventsOperator.AND)
+                AsyncConditionalEvents([job_waiting_event, worker_available_event], operator=AsyncCondEventsOperator.AND)
 
         # Any compatible job and worker, of all worker_type
         self.a_compatible_job_and_worker_any_event =\
-            AsyncCondEvents(self.compatible_job_and_worker_events.values(), operator=AsyncCondEventsOperator.OR)
+            AsyncConditionalEvents(self.compatible_job_and_worker_events.values(), operator=AsyncCondEventsOperator.OR)
 
-    def on_job_changed(self, job: Job):
+    async def on_job_changed(self, job: Job):
         """
         A maybe new waiting job is here \o/ will notify if needed.
         :param job: job
         """
         if job.state == JobState.WAITING and job.worker_id is None:
             self.logger.debug('job_waiting_events_by_type set for worker type: %s', job.worker_type)
-            self.job_waiting_events_by_type[job.worker_type].set()
+            await self.job_waiting_events_by_type[job.worker_type].set()
 
-    def on_worker_changed(self, worker: Worker):
+    async def on_worker_changed(self, worker: Worker):
         """
         A new worker is in available state.
         :param worker: worker
         """
         if self.is_available_worker(worker):
             self.logger.debug('worker_available_events_by_type set for worker type: %s', worker.type)
-            self.worker_available_events_by_type[worker.type].set()
+            await self.worker_available_events_by_type[worker.type].set()
 
-    def refresh_waiting_jobs_by_types(self):
+    async def refresh_waiting_jobs_by_types(self):
         """
         For all worker_types set event when a job is available.
         """
@@ -68,7 +68,7 @@ class AsyncJobScheduler:
             jobs = self.waiting_jobs_by_worker_type(worker_type)
 
             if len(jobs) > 0:  # We have WAITING jobs for this worker type
-                self.job_waiting_events_by_type[worker_type].set()
+                await self.job_waiting_events_by_type[worker_type].set()
 
     def waiting_jobs_by_worker_type(self, worker_type: WorkerType) -> List[Job]:
         """
@@ -79,7 +79,7 @@ class AsyncJobScheduler:
         return crudJobs.get_jobs(self._db, limit=1, by_rank=True,
                                  no_worker=True, worker_type=worker_type, job_state=JobState.WAITING)
 
-    def refresh_available_workers_by_types(self):
+    async def refresh_available_workers_by_types(self):
         """
         For all worker_types set event when worker is available.
         """
@@ -87,7 +87,7 @@ class AsyncJobScheduler:
             workers = self.available_workers(worker_type)
 
             if len(workers) > 0:
-                self.worker_available_events_by_type[worker_type].set()
+                await self.worker_available_events_by_type[worker_type].set()
 
     def available_workers(self, worker_type: WorkerType) -> List[Worker]:
         """
@@ -129,14 +129,14 @@ class AsyncJobScheduler:
         while True:
             self.a_compatible_job_and_worker_any_event.clear()
 
-            self.refresh_waiting_jobs_by_types()  # Fetch waiting job that might pop during our last job scheduling
-            self.refresh_available_workers_by_types()  # Fetch available workers
+            await self.refresh_waiting_jobs_by_types()  # Fetch waiting job that might pop during our last job scheduling
+            await self.refresh_available_workers_by_types()  # Fetch available workers
 
             await self.a_compatible_job_and_worker_any_event.wait()
 
             # We need to find the matching jobs and workers by worker_type
             for worker_type in WorkerType:
-                if self.compatible_job_and_worker_events[worker_type].is_set():
+                if await self.compatible_job_and_worker_events[worker_type].is_set():
                     jobs = self.waiting_jobs_by_worker_type(worker_type)
                     workers = self.available_workers(worker_type)
 
