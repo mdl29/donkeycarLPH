@@ -153,12 +153,15 @@ class Car(CarUpdate):  # As additional nested extended fields
 
 # ---- Worker  ----
 class JobState(str, Enum):
-    WAITING = "WAITING"
-    RUNNING = "RUNNING"
-    CANCELLING = "CANCELLING"
-    CANCELLED = "CANCELLED"
-    FAILED = "FAILED"
-    SUCCEED = "SUCCEED"
+    WAITING = "WAITING"  # Job is waiting, ready to be processed
+    RUNNING = "RUNNING"  # Job is currently running
+    PAUSING = "PAUSING"  # Someone is asking the worker to pause the job ASAP
+    PAUSED = "PAUSED"    # The job is actually paused, pausing completed
+    RESUMING = "RESUMING"  # Someone is asking the worker to resume ASAP (start a pausing job), will then become RUNNING
+    CANCELLING = "CANCELLING"  # Someone is asking the worker to cancel the job ASAP, will then become CANCELLED
+    CANCELLED = "CANCELLED"  # Job is effectively CANCELLED, final state
+    FAILED = "FAILED"  # Job is effectively finished and failed, final state
+    SUCCEED = "SUCCEED"  # Job is effectively finished with success, final state
 
 
 class JobBase(BaseModel):
@@ -182,7 +185,7 @@ class JobUpdate(JobBase):
 
 
 class Job(JobUpdate):
-    worker: Worker
+    worker: Optional[Worker]
     player: Player
 
     class Config:

@@ -161,7 +161,4 @@ class MyJoystickController(JoystickController):
         if controller_recording_changed or other_parts_recording_changed: # Internal or external mutation sate
             self._on_recording_change()
 
-        if manager_job_name:
-            print('manager_job_name from joystick: ', manager_job_name)
-
         return outputs

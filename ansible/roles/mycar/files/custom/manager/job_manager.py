@@ -7,10 +7,12 @@ import logging
 
 from custom.manager.car_manager_api_service import CarManagerApiService
 from .jobs.job_drive import JobDrive
-from .schemas import JobState, Worker, Job as JobModel, EventJobChanged, EventJobQueue
+from .schemas import JobState, Worker, Job as JobModel, EventJobChanged, EventJobQueue, WorkerState
 from .jobs.job import Job as JobRun
 
 # Match job name with job runnable instance
+from ..helpers.RegistableEvents import RegistableEvent
+
 JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
     'DRIVE': JobDrive
 }
@@ -31,7 +33,7 @@ class JobManager(threading.Thread):
         self._sio = sio
         self.worker = worker
         self.waiting_jobs_queue: List[JobModel] = []
-        self.waiting_jobs_queue_changed = threading.Event()
+        self.waiting_jobs_queue_changed = RegistableEvent()
         self.current_running_job: Optional[JobRun] = None
 
         event_jobs = f'jobs.{worker.worker_id}.updated'
@@ -43,12 +45,22 @@ class JobManager(threading.Thread):
 
     def one_job_changed(self, sio_message: Dict):
         """
-        Event handler when a job for this worker as changed.
+        Event handler when a job for this worker as changed, might also be a new job assigned to this worker.
         :param sio_message: Socket IO message
         """
         self.logger.debug('on_job_changed')
         job_changed_event:EventJobChanged = EventJobChanged.parse_obj(sio_message)
         job = job_changed_event.job
+
+        if job.state == JobState.WAITING:
+            self.waiting_jobs_queue_changed.set()  # Tell we have new stuff
+            return
+
+        if job.state == JobState.PAUSING and self.current_running_job is not None:
+            self.current_running_job.pause()
+
+        if job.state == JobState.RESUMING and self.current_running_job is not None:
+            self.current_running_job.resume()
 
         # Not a cancelation, we have nothing to do
         # Qeued job parameter change, on_jobs_order_changed will refresh it
@@ -122,8 +134,17 @@ class JobManager(threading.Thread):
         job_run_instance = job_run_class(parameters=parameters, job_data=job, api=self._api, sio=self._sio)
         return job_run_instance
 
+    def set_worker_state(self, worker_state: WorkerState):
+        """
+        Update the current worker state.
+        :param worker_state: state
+        """
+        self.worker.state = worker_state
+        self._api.update_worker(worker=self.worker)
+
     def run(self):
         for job in self.next_job():
+            self.set_worker_state(WorkerState.BUSY)
             job_run = self.init_job_run(job)
             self.current_running_job = job_run
 
@@ -141,6 +162,7 @@ class JobManager(threading.Thread):
 
             self._api.update_job(job)
             self.current_running_job = None
+            self.set_worker_state(WorkerState.AVAILABLE)
 
     def run_threaded_current_job(self, user_throttle: None):
         """
