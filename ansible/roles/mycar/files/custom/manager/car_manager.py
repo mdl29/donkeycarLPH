@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, NoReturn, List
 
 import socketio
@@ -15,6 +16,12 @@ RES_WORKERS = "workers"
 RES_CARS = "cars"
 ZERO_CONF_TYPE = "_http._tcp.local."
 ZERO_CONF_NAME = "donkeycarmanager"
+ZERO_CONF_MAX_TRY = 15  # Will try 15 times to find server IP
+
+
+class ManagerNoApiFoundException(Exception):
+    pass
+
 
 class CarManager:
     def __init__(self, api_origin: Optional[str] = None, network_interface: str = "wlan0"):
@@ -23,7 +30,10 @@ class CarManager:
             Eg:
         :param network_interface: Network interface used to determine the car's IP addr.
         """
+        self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
+
         self._api_origin = api_origin if api_origin else self._find_api_with_zero_conf()
+
         self._api = CarManagerApiService(self._api_origin)
         self._sio = socketio.Client()
         self._sio.connect(self._api_origin, socketio_path='/ws/socket.io')
@@ -35,12 +45,17 @@ class CarManager:
         if self.worker is None:
             raise Exception("No worker created for this car")
 
+        # Cleaning all past pending job (running, pausing, paused, cancelling ..)
+        nb_cleaned_jobs = self._api.worker_clean(self.worker, 'Car restarted')
+        self.logger.debug(
+            'Cleaned/failled : %i jobs that were in strange state, with "Car restarted" reason', nb_cleaned_jobs)
+
         # Worker heart beat, keep it alive and set it's state to available until job is taken
         self._worker_heartbeat = WorkerHeartBeat(api_origin=self._api_origin, worker=self.worker)
         self._worker_heartbeat.start()
 
         # Job managment
-        self._job_manager = JobManager(self._api, self._sio, self.worker)
+        self._job_manager = JobManager(self._api, self._sio, self.worker, self.car)
         self._job_manager.start()
 
     @staticmethod
@@ -50,14 +65,26 @@ class CarManager:
         :return: The API URL
         """
         zeroconf = Zeroconf()
+        logger = logging.getLogger(CarManager.__module__ + "." + CarManager.__class__.__name__)
         url = None
-        try:
-            service = zeroconf.get_service_info(ZERO_CONF_TYPE, f"_{ZERO_CONF_NAME}.{ZERO_CONF_TYPE}")
-            url = f"http://{socket.inet_ntoa(service.addresses[0])}:{service.port}"
-        finally:
-            zeroconf.close()
 
-        return url
+        nb_remaining_try = ZERO_CONF_MAX_TRY
+
+        while nb_remaining_try > 0:
+            logger.debug('Trying to find API using zeroconf, remaining try : %i', nb_remaining_try)
+            try:
+                service = zeroconf.get_service_info(ZERO_CONF_TYPE, f"_{ZERO_CONF_NAME}.{ZERO_CONF_TYPE}")
+
+                if service is not None:  # API found
+                    url = f"http://{socket.inet_ntoa(service.addresses[0])}:{service.port}"
+                    logger.debug('Found API IP at : %s ', url)
+                    return url
+            finally:
+                zeroconf.close()
+
+            nb_remaining_try -= 1
+
+        raise ManagerNoApiFoundException("Can't find the API using zero conf")
 
     @staticmethod
     def get_car_name() -> str:

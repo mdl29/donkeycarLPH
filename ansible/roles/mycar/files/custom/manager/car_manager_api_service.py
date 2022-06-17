@@ -1,10 +1,12 @@
 import typing
+import logging
 import json
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, List
 
 import pydantic
 
-from .schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job
+from .schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
+    MassiveUpdateDeleteResult
 import requests
 from datetime import date, datetime
 
@@ -25,6 +27,7 @@ class CarManagerApiService:
         :param api_origin:  Optionnal api path, if not given will use zeroconf to find it and use the first found IP.
         """
         self._api_origin = api_origin
+        self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
     @staticmethod
     def json_serial(obj):
@@ -140,7 +143,7 @@ class CarManagerApiService:
         :param car: updated car.
         :return: The update car.
         """
-        self._update_resource(car.name, car, RES_CARS, Car, "car")
+        return self._update_resource(car.name, car, RES_CARS, Car, "car")
 
     def create_worker(self, worker: WorkerCreate) -> Worker:
         """
@@ -156,21 +159,21 @@ class CarManagerApiService:
         :param worker: updated worker.
         :return: The update worker.
         """
-        self._update_resource(worker.worker_id, worker, RES_WORKERS, Worker, "worker")
+        return self._update_resource(worker.worker_id, worker, RES_WORKERS, Worker, "worker")
 
-    def get_jobs(self, worker: Worker, job_state: Optional[JobState]):
+    def get_jobs(self, worker: Worker, job_states: Optional[List[JobState]]):
         """
         Fetch worker jobs with filer
         :param worker:
-        :param job_state:
+        :param job_states: All job stated wanted (OR operation is used)
         :return: The job list.
         """
         filters = {
             'worker_id': worker.worker_id
         }
 
-        if job_state is not None:
-            filters['job_state'] = job_state.value
+        if job_states is not None:
+            filters['job_states'] = job_states
 
         return self._get_resources(RES_JOBS, Job, "job", filters)
 
@@ -181,3 +184,22 @@ class CarManagerApiService:
         :return: The updated job.
         """
         return self._update_resource(job.job_id, job, RES_JOBS, Job, "job")
+
+    def worker_clean(self, worker: Worker, fail_details: str) -> int:
+        """
+        Clean all job of a worker (Running, Pausing, Paused, Cancelling...)
+        Will set their state to fail with a fail_details.
+        Use case : the worker start after reboot or fail, it clean it's jobs.
+        :param worker: Worker whose jobs are going to be cleaned.
+        :param fail_details: Reason why we are cleaning it.
+        :return: Number of cleaned / modified job
+        """
+        self.logger.debug('Cleaning jobs for worker : %i', worker.worker_id)
+        resp = requests.post(f"{self._api_origin}/{RES_WORKERS}/{worker.worker_id}/clean",
+                            data=self._json_dumps({ 'fail_details': fail_details }),
+                            headers={'Content-Type': 'application/json'})
+        if resp.status_code == 200:
+            return MassiveUpdateDeleteResult.parse_obj(resp.json()).nb_affected_items
+        else:
+            raise CarManagerApiError(f"Unable to clean worker with ID : {worker.worker_id},"
+                                     f" got status : {resp.status_code} with message : {resp.text}")

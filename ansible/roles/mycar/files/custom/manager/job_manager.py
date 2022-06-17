@@ -7,7 +7,7 @@ import logging
 
 from custom.manager.car_manager_api_service import CarManagerApiService
 from .jobs.job_drive import JobDrive
-from .schemas import JobState, Worker, Job as JobModel, EventJobChanged, EventJobQueue, WorkerState
+from .schemas import JobState, Worker, Job as JobModel, EventJobChanged, WorkerState, Car
 from .jobs.job import Job as JobRun
 
 # Match job name with job runnable instance
@@ -19,7 +19,7 @@ JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
 
 class JobManager(threading.Thread):
 
-    def __init__(self, api: CarManagerApiService, sio: socketio.Client, worker: Worker):
+    def __init__(self, api: CarManagerApiService, sio: socketio.Client, worker: Worker, car: Car):
         """
         :param api: API manager instance.
         :param sio: Socket IO client.
@@ -32,6 +32,8 @@ class JobManager(threading.Thread):
         self._api = api
         self._sio = sio
         self.worker = worker
+        self.car = car
+
         self.waiting_jobs_queue: List[JobModel] = []
         self.waiting_jobs_queue_changed = RegistableEvent()
         self.current_running_job: Optional[JobRun] = None
@@ -142,16 +144,32 @@ class JobManager(threading.Thread):
         self.worker.state = worker_state
         self._api.update_worker(worker=self.worker)
 
+    def set_current_player(self, player_id: Optional[int]):
+        """
+        Set car current player/
+        :param player_id: Current job player id
+        """
+        self.car.current_player_id = player_id
+        self._api.update_car(car=self.car)
+
+    def set_current_stage(self, car_stage: Optional[str]):
+        """
+        Set current car stage.
+        :param car_stage: Name of the current running job.
+        """
+        self.car.current_stage = car_stage
+        self._api.update_car(self.car)
+
     def run(self):
         for job in self.next_job():
             self.set_worker_state(WorkerState.BUSY)
             job_run = self.init_job_run(job)
             self.current_running_job = job_run
+            self.set_current_player(job.player_id)
+            self.set_current_stage(job.name)
 
             # Start the job
             job_run.start()
-            job.state = JobState.RUNNING
-            self._api.update_job(job)
 
             # Job ended
             job_run.join()
@@ -162,6 +180,8 @@ class JobManager(threading.Thread):
 
             self._api.update_job(job)
             self.current_running_job = None
+            self.set_current_player(None)
+            self.set_current_stage(None)
             self.set_worker_state(WorkerState.AVAILABLE)
 
     def run_threaded_current_job(self, user_throttle: None):

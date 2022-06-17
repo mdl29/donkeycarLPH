@@ -86,6 +86,9 @@ class Job(Thread):
                 while True: # could be infinite resuming
                     self.logger.info("Job[job_id: %i] of name '%s' is run (was_resumed=%r)",
                                      self.get_id(), self.job_data.name, was_resumed)
+
+                    self.job_data.state = JobState.RUNNING
+                    self.api.update_job(self.job_data)
                     self.run_job(resumed=was_resumed)
 
                     # Was cancelled we quit
