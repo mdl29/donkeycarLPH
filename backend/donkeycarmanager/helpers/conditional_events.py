@@ -30,9 +30,9 @@ class AsyncConditionalEvents(AsyncRegistableEvent):
             await self.on_event_changed(self)  # Set initial flag state
             self._is_inited = True
 
-    def _remove_listeners(self):
+    async def _remove_listeners(self):
         for event in self._events:
-            event.remove_listener(self.on_event_changed)
+            await event.remove_listener(self.on_event_changed)
 
     async def on_event_changed(self, event: AsyncRegistableEvent):
         """
@@ -59,11 +59,8 @@ class AsyncConditionalEvents(AsyncRegistableEvent):
         await self._defer_init()
         return await super(AsyncConditionalEvents, self).is_set()
 
-    def __enter__(self):
+    async def __aenter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._remove_listeners()
-
-    def __del__(self):
-        self._remove_listeners()
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self._remove_listeners()

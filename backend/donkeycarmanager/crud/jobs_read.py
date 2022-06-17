@@ -73,7 +73,7 @@ def get_jobs(db: Session, skip: int = 0, limit: int = 100,
              worker_id: Optional[int] = None,
              no_worker: Optional[bool] = None,
              worker_type: Optional[WorkerType] = None,
-             job_state: Optional[JobState] = None,
+             job_states: Optional[List[JobState]] = None,
              by_rank: bool = True) -> List[schemas.Job]:
     query_stm = db.query(models.Job)
 
@@ -89,7 +89,7 @@ def get_jobs(db: Session, skip: int = 0, limit: int = 100,
     if worker_type:
         query_stm = query_stm.filter(models.Job.worker_type == worker_type)
 
-    if job_state:
-        query_stm = query_stm.filter(models.Job.state == job_state)
+    if job_states:
+        query_stm = query_stm.filter(models.Job.state.in_(job_states))
 
     return query_stm.offset(skip).limit(limit).all()

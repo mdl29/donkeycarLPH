@@ -4,6 +4,10 @@ from enum import Enum
 import datetime
 
 
+class MassiveUpdateDeleteResult(BaseModel):
+    nb_affected_items: int
+
+
 class PlayerBase(BaseModel):
     player_pseudo: str
     # See pydantic documentation here : https://pydantic-docs.helpmanual.io/usage/types/#datetime-types

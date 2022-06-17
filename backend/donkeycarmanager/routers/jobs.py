@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 import socketio
-from fastapi import APIRouter, HTTPException, Depends, Body
+from fastapi import APIRouter, HTTPException, Depends, Body, Query
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import schemas
@@ -37,11 +37,12 @@ def read_jobs(by_rank: bool = True, skip: int = 0, limit: int = 100,
               worker_id: Union[None, int] = None,
               no_worker: Union[None, bool] = None,
               worker_type: Union[None, WorkerType] = None,
-              job_state: Union[None, JobState] = None,
-              db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Job:
+              job_states: Union[None, List[JobState]] = Query(default=None,
+                                                             description="If multiple state, will use OR operator"),
+              db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio)) -> List[schemas.Job]:
     return crud.get_jobs(db, skip=skip, by_rank=by_rank,
                          worker_id=worker_id, no_worker=no_worker, worker_type=worker_type,
-                         job_state=job_state, limit=limit)
+                         job_states=job_states, limit=limit)
 
 
 @router.post("/{job_id}/move_after",
@@ -121,21 +122,21 @@ async def check_and_update_job_state(job_id: int, job_state: JobState,
     return await crud.update_job_state(db, sio, job_sched, job_id, job_state)
 
 
-@router.get("/{job_id}/pause", response_model=schemas.Job)
+@router.post("/{job_id}/pause", response_model=schemas.Job)
 async def update_job_resuming(job_id: int,
                             db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio),
                             job_sched: AsyncJobScheduler = Depends(get_job_scheduler)) -> schemas.Job:
     return await check_and_update_job_state(job_id, JobState.PAUSING, db, sio, job_sched)
 
 
-@router.get("/{job_id}/resume", response_model=schemas.Job)
+@router.post("/{job_id}/resume", response_model=schemas.Job)
 async def update_job_resuming(job_id: int,
                             db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio),
                             job_sched: AsyncJobScheduler = Depends(get_job_scheduler)) -> schemas.Job:
     return await check_and_update_job_state(job_id, JobState.RESUMING, db, sio, job_sched)
 
 
-@router.get("/{job_id}/cancel", response_model=schemas.Job)
+@router.post("/{job_id}/cancel", response_model=schemas.Job)
 async def update_job_cancelling(job_id: int,
                             db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio),
                             job_sched: AsyncJobScheduler = Depends(get_job_scheduler)) -> schemas.Job:

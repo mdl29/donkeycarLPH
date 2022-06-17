@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Body
 from sqlalchemy.orm import Session
 from starlette.websockets import WebSocketDisconnect, WebSocket
 
@@ -45,6 +45,19 @@ async def update_worker(worker_id: int, worker: schemas.WorkerUpdate,
     if db_worker is None:
         raise HTTPException(status_code=404, detail="Race not found")
     return await crud.update_worker(db, job_sched=job_sched, worker=worker)
+
+@router.post("/{worker_id}/clean",
+             response_model=schemas.MassiveUpdateDeleteResult,
+             description="Fail all running and paused jobs, could be used at worker startup")
+async def clean_worker(worker_id: int,
+                       fail_details: str = Body(
+                           default=...,
+                           embed=True,
+                           description="Details that will be set on all job"),
+                       db: Session = Depends(get_db))\
+        -> schemas.MassiveUpdateDeleteResult:
+    nb_affected_row = crud.clean_jobs(db=db, worker_id=worker_id, fail_details=fail_details)
+    return schemas.MassiveUpdateDeleteResult(nb_affected_items=nb_affected_row)
 
 
 heartbeat_manager = WorkerHeartbeatManager(db=db)
