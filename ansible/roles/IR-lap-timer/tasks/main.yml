@@ -6,6 +6,16 @@
     owner: root
     group: root
 
+- name: Add IR module activation in rc.local
+  become: yes
+  blockinfile:
+    path: /etc/rc.local
+    block: |
+      printf "My IP address is %s\n" "$_IP"
+      fi
+      ir-keytable -a /etc/rc_maps.cfg -s rc0
+      exit 0
+
 - name: Install ir-keytable
   become: yes
   apt:
