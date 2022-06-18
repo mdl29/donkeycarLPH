@@ -22,3 +22,6 @@ services:
   ntp:
     image: donkey/ntp
     build: ./ntp
+    restart: always
+    ports:
+      - 123:123/udp
