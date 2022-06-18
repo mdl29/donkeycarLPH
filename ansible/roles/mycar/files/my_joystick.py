@@ -139,7 +139,7 @@ class MyJoystickController(JoystickController):
         else:
             self.js._led_control.stop_led_flash()
 
-    def run_threaded(self, img_arr=None, mode=None, recording=None):
+    def run_threaded(self, img_arr=None, mode=None, recording=None, manager_job_name = None):
         """
         :param img_arr: current camera image or None
         :param mode: default user/mode

@@ -14,6 +14,7 @@
     group: pi
 
 - name: Install donkeycar service for launch manage.py start at startup
+  become: yes
   ansible.builtin.copy:
     src: donkeycar.service
     dest: /etc/systemd/system/donkeycar.service
@@ -42,3 +43,25 @@
     owner: pi
     group: pi
     mode: u=r,g=rw,o=rw
+
+- name: Install CarManager requirements
+  become: yes
+  become_user: pi
+  copy:
+    src: requirements.txt
+    dest: /home/pi/mycar/requirements.txt
+
+- name: Install custom manage.py
+  become: yes
+  become_user: pi
+  copy:
+    src: manage.py
+    dest: /home/pi/mycar/manage.py
+
+- name: Install CarManager part dependencies
+  become: yes
+  become_user: pi
+  pip:
+    requirements: /home/pi/mycar/requirements.txt
+    virtualenv: /home/pi/venv/
+    virtualenv_command: /usr/bin/python3 -m venv

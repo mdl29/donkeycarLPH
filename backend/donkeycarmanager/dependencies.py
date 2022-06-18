@@ -4,14 +4,15 @@ import socketio
 
 from donkeycarmanager.database import SessionLocal
 from donkeycarmanager.helpers.socker_io_manager import SocketIOManager
+from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 
+db = SessionLocal()
 
 def get_db():
     """
     Open the database session.
     :return: The SQL Alchemy database
     """
-    db = SessionLocal()
     try:
         yield db
     finally:
@@ -27,3 +28,15 @@ def get_sio() -> socketio.AsyncServer:
     :return:
     """
     return sm.getSocketIO()
+
+
+job_scheduler = AsyncJobScheduler(db, get_sio())
+# Is started as FastAPI start, where we have access to the asyncIO loop used by fastAPI
+
+
+def get_job_scheduler() -> AsyncJobScheduler:
+    """
+    Returns the job_scheduler singleton
+    :return:
+    """
+    return job_scheduler

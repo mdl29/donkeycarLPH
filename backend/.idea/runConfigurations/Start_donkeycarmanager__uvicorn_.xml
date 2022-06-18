@@ -4,7 +4,9 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
+      <env name="NETWORK_INTERFACE" value="wlp2s0" />
       <env name="PYTHONUNBUFFERED" value="1" />
+      <env name="DONKEYCARMANAGER_LOG_LEVEL" value="DEBUG" />
     </envs>
     <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -13,9 +15,9 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="uvicorn" />
-    <option name="PARAMETERS" value="donkeycarmanager.main:app --reload" />
+    <option name="PARAMETERS" value="donkeycarmanager.app:app --reload --host 0.0.0.0 --ws-ping-interval 1 --ws-ping-timeout 2 --timeout-keep-alive 2" />
     <option name="SHOW_COMMAND_LINE" value="false" />
-    <option name="EMULATE_TERMINAL" value="false" />
+    <option name="EMULATE_TERMINAL" value="true" />
     <option name="MODULE_MODE" value="true" />
     <option name="REDIRECT_INPUT" value="false" />
     <option name="INPUT_FILE" value="" />

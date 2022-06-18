@@ -47,18 +47,28 @@ class Race(Base):
     laptimers = relationship("LapTimer", backref="race")
 
 
+class Worker(Base):
+    __tablename__ = "worker"
+
+    worker_id = Column(Integer, nullable=False, primary_key=True, autoincrement=True)
+    type = Column(String(40), nullable=False)
+    state = Column(String(40), nullable=False)
+
+
 class Car(Base):
     __tablename__ = "car"
 
     name = Column(String, nullable=False, primary_key=True)
     ip = Column(String, nullable=False)
     color = Column(String, nullable=False)
+    worker_id = Column(Integer, ForeignKey(Worker.worker_id), nullable=False)
     current_stage = Column(String, nullable=True)
     current_player_id = Column(Integer, ForeignKey(Player.player_id), nullable=True)
     current_race_id = Column(Integer, ForeignKey(Race.race_id), nullable=True)
 
     player = relationship("Player")
     race = relationship("Race")
+    worker = relationship("Worker")
 
 
 class LapTimer(Base):
@@ -77,3 +87,26 @@ class LapTimer(Base):
         default=datetime.datetime.utcnow
     )
     race_id = Column(Integer, ForeignKey(Race.race_id), nullable=False)
+
+
+class Job(Base):
+    __tablename__ = "job"
+
+    job_id = Column(Integer, nullable=False, primary_key=True, autoincrement=True)
+    player_id = Column(Integer, ForeignKey(Player.player_id), nullable=True)
+    worker_id = Column(Integer, ForeignKey(Worker.worker_id), nullable=True)
+    worker_type = Column(String(40), nullable=False)
+    state = Column(String(40), nullable=False)
+    name = Column(String(40), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.datetime.utcnow
+    )
+    rank = Column(Integer, nullable=False, unique=True, index=True)
+    parameters = Column(String(800), nullable=True)
+
+    fail_details = Column(String(1100), nullable=True)
+
+    worker = relationship("Worker", backref="jobs")
+    player = relationship("Player")
