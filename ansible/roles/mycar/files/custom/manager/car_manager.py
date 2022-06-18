@@ -79,6 +79,10 @@ class CarManager:
                     url = f"http://{socket.inet_ntoa(service.addresses[0])}:{service.port}"
                     logger.debug('Found API IP at : %s ', url)
                     return url
+            except Exception as e:
+                if nb_remaining_try - 1 <= 0: # last try display error
+                    logger.error('Last attempt using zeroconf got the following error : %s')
+                    logger.exception(e)
             finally:
                 zeroconf.close()
 
