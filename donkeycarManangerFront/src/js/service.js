@@ -174,7 +174,7 @@ export default class DonkeycarManagerService {
   /**
    *
    * @async
-   * @augments ScratchyService
+   * @augments donkeycarManagerService
    * @param {Array} Car - current car
    * @param {string} stage - current stage
    * @param {int} playerId - id of player in car
@@ -202,6 +202,25 @@ export default class DonkeycarManagerService {
   */
   async fetchRaces (skip, limit) {
     const response = await axios.get(this.apiUrl + '/races/?skip=' + String(skip) + '&limit=' + String(limit))
+    return response.data
+  }
+
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} playerId - id of the player
+  * @returns {Promise} - all player information
+  */
+  async addJobs (playerId) {
+    const response = await axios.post(this.apiUrl + '/jobs', {
+      'worker_type': 'CAR',
+      'name': 'DRIVE',
+      'player_id': playerId,
+      'parameters': "{ 'drive_time' : 300 }",
+      'state': 'WAITING',
+      'worker_id': null
+    })
     return response.data
   }
 }

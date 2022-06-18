@@ -68,6 +68,7 @@ export default {
     async addUser () {
       this.player = await srv.createPlayer(this.pseudo)
       await srv.addDrivingWaitingQueue(this.player.player_id)
+      await srv.addJobs(this.player.player_id)
       if (this.player.player_id < 4) {
         this.attente = '15 minutes'
       } else if (this.player.player_id >= 4 && this.player.player_id < 8) {

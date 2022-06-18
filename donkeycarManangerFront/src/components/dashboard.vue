@@ -6,20 +6,17 @@
           <img class="logo" src="../assets/donkeycar.png">
         </template>
         <vs-sidebar-item id="home">
-          <template #icon>
-            <i class='bx bx-home'></i>
-          </template>
           HOME
         </vs-sidebar-item>
         <vs-sidebar-item id="cars">
-          <template #icon>
-            <i class='bx bx-grid-alt'></i>
-          </template>
           CARS
         </vs-sidebar-item>
         <vs-sidebar-item id="waitingList">
+          WAITING LIST
+        </vs-sidebar-item>
+          <vs-sidebar-item id="jobs">
           <template #icon>
-            <i class='bx bxs-music'></i>
+            🚀
           </template>
           WAITING LIST
         </vs-sidebar-item>
