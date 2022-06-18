@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 get_manager() {
 	avahi-browse -r -t _http._tcp | awk -F'[] []' '/_donkeycarmanager/ { getline; getline; getline; print $7; end }'
@@ -6,7 +6,8 @@ get_manager() {
 
 MANAGER="$(get_manager)"
 count="0"
-while [ -z "$MANAGER" ] || [ "$count" -gt "15" ]; do
+while [ -z "$MANAGER" ] && [ "$count" -lt "16" ]; do
+	logger "Failed to get donkeycar manager's ip, retrying ($((count + 1)))"
 	sleep 1
 	MANAGER="$(get_manager)"
 	((count++))
@@ -17,9 +18,11 @@ if [ "$count" -gt "15" ]; then
 	exit 1
 fi
 
+logger "Got donkeycar manager ip: $MANAGER"
+
 {
 	echo "[Time]"
 	echo "NTP=$MANAGER:123"
 } > /etc/systemd/timesyncd.conf
 
-timedatectl set-nntp true
+timedatectl set-ntp true

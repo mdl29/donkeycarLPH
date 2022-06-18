@@ -5,3 +5,6 @@ Wants=network-online.target
 [Service]
 ExecStart=/usr/bin/config-timesync.sh
 RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
