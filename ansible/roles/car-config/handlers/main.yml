@@ -4,3 +4,8 @@
     name: car-config
     daemon_reload: yes
     enabled: yes
+- name: Start donkey-ntp service
+  systemd:
+    name: donkey-ntp
+    daemon_reload: yes
+    enabled: yes

@@ -21,3 +21,20 @@
     group: root
   notify:
     - Start car-config service
+
+- name: Install timesync script
+  copy:
+    src: config-timesync.sh
+    dest: /usr/bin/config-timesync.sh
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
+- name: Install timesync service file
+  copy:
+    src: donkey-ntp.service
+    dest: /etc/systemd/system/donkey-ntp.service
+    owner: root
+    group: root
+  notify:
+    - Start donkey-ntp service
