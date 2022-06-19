@@ -22,7 +22,7 @@
         <template #tbody>
           <vs-tr v-for="(DrivingContent,i) in drivingWaitingQueue" v-bind:key="DrivingContent.rank">
             <vs-td>
-              {{ i }}
+              {{ i + 1 }}
             </vs-td>
             <vs-td>
               {{ DrivingContent.player.player_pseudo }}
