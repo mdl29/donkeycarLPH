@@ -1,0 +1,14 @@
+---
+- name: modifie config.txt to take charge IR
+  lineinfile:
+    dest: /boot/config.txt
+    line: dtoverlay=gpio-ir,gpio_pin=17
+    owner: root
+    group: root
+
+- name: Install ir-keytable
+  become: yes
+  apt:
+    pkg:
+      - ir-keytable
+    state: latest

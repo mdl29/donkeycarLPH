@@ -19,7 +19,7 @@ jobs:
   build:
     # Check the PR if it comes from a fork is a trusted fork or not
     # We also need to check if it's not ourself as pull_request_target is also used for PR coming from origin branches
-    if: ${{ github.event_name != 'pull_request_target' || github.event_name == 'pull_request_target' && ( github.event.pull_request.head.repo.owner.login == 'mdl29' || github.event.pull_request.head.repo.owner.login == 'viandoxdev' || github.event.pull_request.head.repo.owner.login == 'benvii' || github.event.pull_request.head.repo.owner.login == 'yannis-mlgrn' ) }}
+    if: ${{ github.event_name != 'pull_request_target' || github.event_name == 'pull_request_target' && ( github.event.pull_request.head.repo.owner.login == 'mdl29' || github.event.pull_request.head.repo.owner.login == 'viandoxdev' || github.event.pull_request.head.repo.owner.login == 'benvii' || github.event.pull_request.head.repo.owner.login == 'yannis-mlgrn' || github.event.pull_request.head.repo.owner.login == 'ritorizo' ) }}
 
     concurrency: # Run only one workflow by branch, cancel already running ones for new ones
       group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }} # head_ref defined on pull_request and pull_request_target events
@@ -52,7 +52,7 @@ jobs:
           sudo tar zcvf "packer/output-raspbian/$IMAGE_FILENAME.tar.gz" "packer/output-raspbian/$IMAGE_FILENAME"
           sudo rm "packer/output-raspbian/$IMAGE_FILENAME"
         env:
-          IMAGE_FILENAME: '${{ github.event.pull_request.head.sha || github.sha }}-${{ github.head_ref || github.ref }}.img'
+          IMAGE_FILENAME: '${{ github.event.pull_request.head.sha || github.sha }}-${{ github.head_ref || github.ref_name }}.img'
       - name: Upload result to S3  # Upload the build to S3
         uses: jakejarvis/s3-sync-action@master
         env:
