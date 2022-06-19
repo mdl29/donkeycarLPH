@@ -22,6 +22,14 @@
   notify:
     - Start car-config service
 
+- name: Remove NTP service as we use timesync instead
+  become: yes
+  apt:
+    state: absent
+    pkg:
+    - ntp
+    - ntpdate
+
 - name: Install timesync script
   copy:
     src: config-timesync.sh
