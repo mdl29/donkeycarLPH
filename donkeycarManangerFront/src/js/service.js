@@ -209,4 +209,27 @@ export default class DonkeycarManagerService {
     })
     return response.data
   }
+
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} player - id of the player
+  * @returns {Promise} - all player information
+  */
+  async removeJobs (player) {
+    const response = await axios.put(this.apiUrl + '/jobs/' + String(player.player_id), {
+      'worker_type': player.worker_type,
+      'name': player.name,
+      'parameters': player.parameters,
+      'state': 'CANCELLED',
+      'worker_id': player.worker_id,
+      'player_id': player.player_id,
+      'job_id': player.job_id,
+      'created_at': player.created_at,
+      'rank': player.rank,
+      'fail_details': player.fail_details
+    })
+    return response.data
+  }
 }

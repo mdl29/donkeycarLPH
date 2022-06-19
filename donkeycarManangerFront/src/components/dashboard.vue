@@ -73,7 +73,7 @@
                       </vs-button>
                     </vs-col>
                     <vs-col vs-justify="center" vs-align="center" w="2">
-                      <vs-button border danger>
+                      <vs-button border danger @click="removeJobs(DrivingContent)">
                         Remove this player
                       </vs-button>
                     </vs-col>
@@ -281,6 +281,9 @@ export default {
       }
       await srv.updateCar(car, newStatus, carPlayer)
       this.parampopup = false
+    },
+    async removeJobs (player) {
+      await srv.removeJobs(player)
     }
   }
 }
