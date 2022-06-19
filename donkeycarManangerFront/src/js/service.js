@@ -81,7 +81,7 @@ export default class DonkeycarManagerService {
   * @returns {Promise} - all player information
   */
   async getDrivingWaitingQueue (rank, skip, limit) {
-    const response = await axios.get(this.apiUrl + '/drivingWaitingQueue/?by_rank=' + rank + '&skip=' + String(skip) + '&limit=' + String(limit))
+    const response = await axios.get(this.apiUrl + '/jobs/?by_rank=' + rank + '&skip=' + String(skip) + '&limit=' + String(limit) + '&no_worker=true&worker_type=CAR&job_states=WAITING')
     return response.data
   }
   /**
@@ -102,26 +102,12 @@ export default class DonkeycarManagerService {
   * @async
   * @augments donkeycarManagerService
   * @param {int} playerId - id of the player
-  * @returns {Promise} - all player information
-  */
-  async addDrivingWaitingQueue (playerId) {
-    const response = await axios.post(this.apiUrl + '/drivingWaitingQueue', {
-      'player_id': playerId
-    })
-    return response.data
-  }
-
-  /**
-  *
-  * @async
-  * @augments donkeycarManagerService
-  * @param {int} playerId - id of the player
   * @param {int} afterId - id of previous player
   * @returns {Promise} - all player information
   */
   async moveAfter (playerId, afterId) {
-    const response = await axios.post(this.apiUrl + '/drivingWaitingQueue/' + String(playerId) + '/move_after', {
-      'after_player_id': afterId
+    const response = await axios.post(this.apiUrl + '/jobs/' + String(playerId) + '/move_after', {
+      'after_job_id': afterId
     })
     return response.data
   }
@@ -135,8 +121,8 @@ export default class DonkeycarManagerService {
   * @returns {Promise} - all player information
   */
   async moveBefore (playerId, beforeId) {
-    const response = await axios.post(this.apiUrl + '/drivingWaitingQueue/' + String(playerId) + '/move_before', {
-      'before_player_id': beforeId
+    const response = await axios.post(this.apiUrl + '/jobs/' + String(playerId) + '/move_before', {
+      'before_job_id': beforeId
     })
     return response.data
   }

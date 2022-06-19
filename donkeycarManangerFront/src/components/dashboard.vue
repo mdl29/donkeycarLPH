@@ -42,7 +42,7 @@
               username
             </vs-th>
             <vs-th>
-              Id
+              Job ID
             </vs-th>
             <vs-th>
               created ago
@@ -58,7 +58,7 @@
             {{ DrivingContent.player.player_pseudo }}
             </vs-td>
             <vs-td>
-              <p class="id-text"> {{ DrivingContent.player_id }} </p>
+              <p class="id-text"> {{ DrivingContent.job_id }} </p>
             </vs-td>
             <vs-td>
              <svg xmlns="http://www.w3.org/2000/svg" width="35" height="24" style="fill: rgba(255, 183, 3, 1);transform: ;msFilter:;"><path d="m20.145 8.27 1.563-1.563-1.414-1.414L18.586 7c-1.05-.63-2.274-1-3.586-1-3.859 0-7 3.14-7 7s3.141 7 7 7 7-3.14 7-7a6.966 6.966 0 0 0-1.855-4.73zM15 18c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"></path><path d="M14 10h2v4h-2zm-1-7h4v2h-4zM3 8h4v2H3zm0 8h4v2H3zm-1-4h3.99v2H2z"></path></svg> {{getISOFromNow(DrivingContent.player.register_datetime)}}
@@ -68,7 +68,7 @@
                 <div class="button-wrapper" >
                   <vs-row>
                     <vs-col vs-justify="center" vs-align="center" w="2">
-                      <vs-button color="#7d33ff" relief @click="paramPlayerDialog = true; playerSpec = DrivingContent.player; parPlayerPseudo = DrivingContent.player.player_pseudo">
+                      <vs-button color="#7d33ff" relief @click="paramPlayerDialog = true; playerSpec = DrivingContent; parPlayerPseudo = DrivingContent.player.player_pseudo">
                         Player parameters
                       </vs-button>
                     </vs-col>
@@ -175,13 +175,13 @@
       <vs-dialog v-model="paramPlayerDialog">
         <template #header>
           <h4 class="not-margin">
-            Welcome to <b>{{playerSpec.player_pseudo}}</b> parameters
+            Welcome to <b>{{playerSpec.player.player_pseudo}}</b> parameters
           </h4>
         </template>
         <div class="con-form">
           <vs-input class="param-input" label="Pseudo" v-model="parPlayerPseudo"/>
-          <vs-input class="param-input" label="move before :" v-model="moveBeforeInput" placeholder="player id" />
-          <vs-input class="param-input" label="move after :" v-model="moveAfterInput" placeholder="player id"/>
+          <vs-input class="param-input" label="move before :" v-model="moveBeforeInput" placeholder="jobs id" />
+          <vs-input class="param-input" label="move after :" v-model="moveAfterInput" placeholder="jobs id"/>
         </div>
 
         <template #footer>
@@ -264,11 +264,11 @@ export default {
         await srv.updatePlayerPseudo(currentplayer, this.parPlayerPseudo)
       }
       if (this.moveBeforeInput !== '') {
-        await srv.moveBefore(currentplayer.player_id, this.moveBeforeInput)
+        await srv.moveBefore(currentplayer.job_id, this.moveBeforeInput)
         this.moveBeforeInput = ''
       }
       if (this.moveAfterInput !== '') {
-        await srv.moveAfter(currentplayer.player_id, this.moveAfterInput)
+        await srv.moveAfter(currentplayer.job_id, this.moveAfterInput)
         this.moveAfterInput = ''
       }
     },
