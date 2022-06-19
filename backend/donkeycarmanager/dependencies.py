@@ -1,10 +1,12 @@
 # All project global dependencies
 
 import socketio
+from fastapi import Depends
 
 from donkeycarmanager.database import SessionLocal
 from donkeycarmanager.helpers.socker_io_manager import SocketIOManager
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
+from donkeycarmanager.worker_heartbeat_manager import WorkerHeartbeatManager
 
 db = SessionLocal()
 
@@ -31,12 +33,23 @@ def get_sio() -> socketio.AsyncServer:
 
 
 job_scheduler = AsyncJobScheduler(db, get_sio())
-# Is started as FastAPI start, where we have access to the asyncIO loop used by fastAPI
 
 
 def get_job_scheduler() -> AsyncJobScheduler:
     """
     Returns the job_scheduler singleton
+    :param db: Database, injected
+    :param sio: SocketIO, injected
     :return:
     """
     return job_scheduler
+
+
+def get_heartbeat_manager(db: SessionLocal = Depends(get_db)) -> WorkerHeartbeatManager:
+    """
+    Returns heartbeat manager.
+    :param db: Database, injected
+    :return: The hearbeat manager.
+    """
+    heartbeat_manager = WorkerHeartbeatManager(db=db)
+    yield heartbeat_manager

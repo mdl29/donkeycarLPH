@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from donkeycarmanager.dependencies import get_db, sm, get_sio, get_job_scheduler
 from donkeycarmanager.helpers.logging import setup_logging
 from donkeycarmanager.routers import players, driving_waiting_queue, cars, races, laptimers, workers, jobs
+from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 from donkeycarmanager.services.zero_conf_service import ZeroConfService
 
 from donkeycarmanager import models
