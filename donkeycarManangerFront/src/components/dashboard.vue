@@ -8,14 +8,14 @@
         <vs-sidebar-item id="home">
           HOME
         </vs-sidebar-item>
-        <vs-sidebar-item id="cars">
-          CARS
-        </vs-sidebar-item>
         <vs-sidebar-item id="waitingList">
           WAITING LIST
         </vs-sidebar-item>
-          <vs-sidebar-item id="jobs">
-          JOBS PARAMETERS
+        <vs-sidebar-item id="cars">
+          CARS
+        </vs-sidebar-item>
+        <vs-sidebar-item id="jobs">
+          MONITORING
         </vs-sidebar-item>
       </vs-sidebar>
     </div>
