@@ -9,12 +9,14 @@
 - name: Add IR module activation in rc.local
   become: yes
   blockinfile:
+    firstmatch: yes
+    insertbefore: *regex*
+    regexp: exit 0
     path: /etc/rc.local
     block: |
       printf "My IP address is %s\n" "$_IP"
       fi
       ir-keytable -a /etc/rc_maps.cfg -s rc0
-      exit 0
 
 - name: Install ir-keytable
   become: yes
