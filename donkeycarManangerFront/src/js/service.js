@@ -174,7 +174,8 @@ export default class DonkeycarManagerService {
       current_stage: stage,
       current_player_id: playerID,
       current_race_id: car.current_race_id,
-      race: car.race
+      race: car.race,
+      worker_id: car.worker_id
     })
     return response.data
   }
