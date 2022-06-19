@@ -22,27 +22,26 @@
   notify:
     - Start car-config service
 
-- name: Remove NTP service as we use timesync instead
+- name: Use NTP service
   become: yes
   apt:
-    state: absent
+    state: latest
     pkg:
     - ntp
-    - ntpdate
 
-- name: Install timesync script
+- name: Install Ntp pre-start script
   copy:
-    src: config-timesync.sh
-    dest: /usr/bin/config-timesync.sh
+    src: config-ntp.sh
+    dest: /usr/bin/config-ntp.sh
     owner: root
     group: root
     mode: u=rwx,g=rx,o=rx
 
-- name: Install timesync service file
+- name: Install NTP with pre-start service file
   copy:
-    src: donkey-ntp.service
-    dest: /etc/systemd/system/donkey-ntp.service
+    src: ntp.service
+    dest: /lib/systemd/system/ntp.service
     owner: root
     group: root
   notify:
-    - Start donkey-ntp service
+    - Start ntp service

@@ -20,9 +20,6 @@ fi
 
 logger "Got donkeycar manager ip: $MANAGER"
 
-{
-	echo "[Time]"
-	echo "NTP=$MANAGER:123"
-} > /etc/systemd/timesyncd.conf
+sed -i "/^server/ s/.*/server $MANAGER prefer iburst/g" /etc/ntp.conf
 
-timedatectl set-ntp true
+timedatectl set-timezone Europe/Paris
