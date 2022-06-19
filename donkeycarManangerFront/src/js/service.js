@@ -222,7 +222,7 @@ export default class DonkeycarManagerService {
       'worker_type': player.worker_type,
       'name': player.name,
       'parameters': player.parameters,
-      'state': 'CANCELLED',
+      'state': 'CANCELLING',
       'worker_id': player.worker_id,
       'player_id': player.player_id,
       'job_id': player.job_id,
@@ -230,6 +230,46 @@ export default class DonkeycarManagerService {
       'rank': player.rank,
       'fail_details': player.fail_details
     })
+    return response.data
+  }
+  async pauseJobs (player) {
+    const response = await axios.put(this.apiUrl + '/jobs/' + String(player.player_id), {
+      'worker_type': player.worker_type,
+      'name': player.name,
+      'parameters': player.parameters,
+      'state': 'PAUSING',
+      'worker_id': player.worker_id,
+      'player_id': player.player_id,
+      'job_id': player.job_id,
+      'created_at': player.created_at,
+      'rank': player.rank,
+      'fail_details': player.fail_details
+    })
+    return response.data
+  }
+  async resumeJobs (player) {
+    const response = await axios.put(this.apiUrl + '/jobs/' + String(player.player_id), {
+      'worker_type': player.worker_type,
+      'name': player.name,
+      'parameters': player.parameters,
+      'state': 'RESUMING',
+      'worker_id': player.worker_id,
+      'player_id': player.player_id,
+      'job_id': player.job_id,
+      'created_at': player.created_at,
+      'rank': player.rank,
+      'fail_details': player.fail_details
+    })
+    return response.data
+  }
+  /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @returns {Promise} - all player information
+  */
+  async getRunningJobs () {
+    const response = await axios.get(this.apiUrl + '/jobs/?by_rank=true&skip=0&limit=100&job_states=RUNNING&job_states=PAUSING&job_states=PAUSED&job_states=RESUMING&job_states=CANCELLING')
     return response.data
   }
 }

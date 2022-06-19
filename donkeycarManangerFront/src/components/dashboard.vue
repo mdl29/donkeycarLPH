@@ -15,10 +15,7 @@
           WAITING LIST
         </vs-sidebar-item>
           <vs-sidebar-item id="jobs">
-          <template #icon>
-            🚀
-          </template>
-          WAITING LIST
+          JOBS PARAMETERS
         </vs-sidebar-item>
       </vs-sidebar>
     </div>
@@ -125,6 +122,74 @@
         </vs-card>
         </h4>
      </div>
+     <div class="table-wrapper" v-if="active === 'jobs'">
+      <h1 class="title-dash"> Donkeycar Dashboard </h1>
+      <vs-table vs-align="center">
+        <template #header>
+          <vs-input v-model="search" border placeholder="Search" />
+        </template>
+        <template #thead>
+          <vs-tr>
+            <vs-th>
+              Player Pseudo
+            </vs-th>
+            <vs-th>
+              Donkeycar
+            </vs-th>
+            <vs-th sort @click="runningJobs = $vs.sortData($event ,runningJobs, 'player_id')">
+              Job Id
+            </vs-th>
+            <vs-th sort @click="runningJobs = $vs.sortData($event ,runningJobs, 'state')">
+              State
+            </vs-th>
+            <vs-th sort @click="runningJobs = $vs.sortData($event ,runningJobs, 'name')">
+              Worker Name
+            </vs-th>
+            <vs-th style="width='30px';" vs-align="center">
+              Options
+            </vs-th>
+          </vs-tr>
+        </template>
+        <template #tbody>
+          <vs-tr :key="jobs.rank" :data="jobs" v-for="jobs in $vs.getSearch(runningJobs, search)" >
+            <vs-td>
+              {{ jobs.player.player_pseudo }}
+            </vs-td>
+            <vs-td>
+            <vs-button :color="'#'+getCarColor(jobs.worker_id)"> {{ getCarName(jobs.worker_id) }} </vs-button>
+            </vs-td>
+            <vs-td>
+            {{ jobs.job_id }}
+            </vs-td>
+            <vs-td>
+              <vs-button color="#00b4d8" v-if="jobs.state === 'RUNNING'" > 🎮 Drive </vs-button>
+              <vs-button loading warn v-if="jobs.state === 'PAUSING'"  > ⏸ Pause </vs-button>
+              <vs-button loading success v-if="jobs.state === 'RESUMING'" > ▶️ Resuming </vs-button>
+              <vs-button loading danger v-if="jobs.state === 'CANCELLING'" > 🚫 Cancelling </vs-button>
+              <vs-button warn v-if="jobs.state === 'PAUSED'" > ⏸ Pause </vs-button>
+            </vs-td>
+            <vs-td>
+              {{ jobs.name }}
+            </vs-td>
+            <vs-td>
+              <vs-row>
+                <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
+                  <vs-button warn v-if="jobs.state !== 'PAUSING' && jobs.state !== 'PAUSED' && jobs.state !== 'RESUMING' && jobs.state !== 'CANCELLING'" @click="pauseJobs(jobs)" > Pause </vs-button>
+                  <vs-button warn loading v-if="jobs.state === 'PAUSING'" > Pause </vs-button>
+                  <vs-button warn disabled v-if="jobs.state === 'CANCELLING'" > Pause </vs-button>
+                  <vs-button success loading v-if="jobs.state === 'RESUMING'" > Resume </vs-button>
+                  <vs-button success v-if="jobs.state === 'PAUSED'" @click="resumeJobs(jobs)" > Resume </vs-button>
+                </vs-col>
+                <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
+                  <vs-button danger v-if="jobs.state !== 'CANCELLING'" @click="removeJobs(jobs)">Cancel </vs-button>
+                  <vs-button loading danger v-if="jobs.state === 'CANCELLING'" > Cancel </vs-button>
+                </vs-col>
+              </vs-row>
+            </vs-td>
+          </vs-tr>
+        </template>
+      </vs-table>
+      </div>
       <vs-dialog v-model="parampopup" style="display:flex;">
         <template #header>
           <h4 class="not-margin">
@@ -221,18 +286,20 @@ export default {
     active: 'home',
     drivingWaitingQueue: [],
     allPlayers: [],
-    donkeycars: []
+    donkeycars: [],
+    runningJobs: [],
+    search: ''
   }),
   mounted () {
     this.fetchDrivingQueue()
+    this.getJobs()
     this.fetchcars(0, 4)
     this.getAllPlayers()
   },
   created () {
     const that = this
-    socket.on('driveWaitingPool.updated', function (data) {
-      that.drivingWaitingQueue = data.drivePlayersWaitingPool
-      that.getAllPlayers()
+    socket.on('jobs.all.updated', function (data) {
+      that.runningJobs = that.getJobs()
     })
     socket.on('car.updated', function (data) {
       that.donkeycars = that.fetchcars(0, 4)
@@ -250,7 +317,7 @@ export default {
       this.drivingWaitingQueue = await srv.getDrivingWaitingQueue(true, 0, 20)
     },
     async fetchcars (skip, limit) {
-      this.donkeycars = await srv.getCars(skip, limit)
+      this.donkeycars = await srv.getCars(0, 4)
     },
     getISOFromNow (iso) {
       const date = new Date(iso)
@@ -282,8 +349,36 @@ export default {
       await srv.updateCar(car, newStatus, carPlayer)
       this.parampopup = false
     },
+    async fetchCars (skip, limit) {
+      this.donkeycars = await srv.getCars(skip, limit)
+    },
     async removeJobs (player) {
       await srv.removeJobs(player)
+    },
+    async getJobs () {
+      this.runningJobs = await srv.getRunningJobs()
+    },
+    async resumeJobs (player) {
+      await srv.resumeJobs(player)
+    },
+    async pauseJobs (player) {
+      await srv.pauseJobs(player)
+    },
+    getCarName (id) {
+      for (const car of this.donkeycars) {
+        if (car.worker_id === id) {
+          return car.name
+        }
+      }
+      return 'unknow car'
+    },
+    getCarColor (id) {
+      for (const car of this.donkeycars) {
+        if (car.worker_id === id) {
+          return car.color
+        }
+      }
+      return 'unknow car'
     }
   }
 }
@@ -302,8 +397,8 @@ export default {
   float: right;
 }
 .center-box{
-  text-align: center ;
-  align-items: center ;
+  text-align: center !important;
+  align-items: center !important;
   display:block;
 }
 .title-dash{
