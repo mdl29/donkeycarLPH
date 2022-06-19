@@ -29,6 +29,14 @@
     pkg:
     - ntp
 
+- name: Install Ntp configuration
+  copy:
+    src: ntp.conf
+    dest: /etc/ntp.conf
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
 - name: Install Ntp pre-start script
   copy:
     src: config-ntp.sh
