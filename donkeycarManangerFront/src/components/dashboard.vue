@@ -1,5 +1,6 @@
 <template>
 <div>
+    <vue-ins-progress-bar></vue-ins-progress-bar>
     <div class="hidden">
       <vs-sidebar absolute v-model="active" open class="slide-bar">
         <template #logo>
@@ -292,14 +293,20 @@ export default {
     this.getJobs()
     this.fetchcars(0, 4)
     this.getAllPlayers()
+    this.$insProgress.finish()
   },
   created () {
     const that = this
+    that.$insProgress.start()
     socket.on('jobs.all.updated', function (data) {
+      that.$insProgress.start()
       that.runningJobs = that.getJobs()
+      that.$insProgress.finish()
     })
     socket.on('car.updated', function (data) {
+      that.$insProgress.start()
       that.donkeycars = that.fetchcars(0, 4)
+      that.$insProgress.finish()
     })
   },
   methods: {

@@ -5,10 +5,19 @@ import App from './App'
 import router from './router'
 import Vuesax from 'vuesax'
 import 'vuesax/dist/vuesax.css'
+import VueInsProgressBar from 'vue-ins-progress-bar'
+
+const options = {
+  position: 'fixed',
+  show: true,
+  height: '3px'
+}
 
 Vue.use(Vuesax, {
   // options here
 })
+
+Vue.use(VueInsProgressBar, options)
 
 Vue.config.productionTip = false
 
