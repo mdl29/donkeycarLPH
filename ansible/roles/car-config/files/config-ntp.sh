@@ -22,4 +22,4 @@ logger "Got donkeycar manager ip: $MANAGER"
 
 sed -i "/^server/ s/.*/server $MANAGER prefer iburst/g" /etc/ntp.conf
 
-timedatectl set-timezone Europe/Paris
+logger "Set ntp config."
