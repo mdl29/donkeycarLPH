@@ -8,11 +8,10 @@
 
 - name: Add IR module activation in rc.local
   become: yes
-  blockinfile:
+  lineinfile:
     dest: /etc/rc.local
     insertbefore: '^exit 0'
-    block: |
-      ir-keytable -a /etc/rc_maps.cfg -s rc0
+    line: ir-keytable -v -p nec
 
 - name: Install ir-keytable
   become: yes
