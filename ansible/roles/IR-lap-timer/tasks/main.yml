@@ -12,8 +12,6 @@
     dest: /etc/rc.local
     insertbefore: '^exit 0'
     block: |
-      printf "My IP address is %s\n" "$_IP"
-      fi
       ir-keytable -a /etc/rc_maps.cfg -s rc0
 
 - name: Install ir-keytable
