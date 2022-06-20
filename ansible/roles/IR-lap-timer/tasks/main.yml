@@ -10,8 +10,7 @@
   become: yes
   blockinfile:
     firstmatch: yes
-    insertbefore: *regex*
-    regexp: exit 0
+    insertbefore: exit 0
     path: /etc/rc.local
     block: |
       printf "My IP address is %s\n" "$_IP"
