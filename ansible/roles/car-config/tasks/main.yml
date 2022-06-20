@@ -45,6 +45,10 @@
     group: root
     mode: u=rwx,g=rx,o=rx
 
+- name: Set timezone
+  community.general.timezone:
+    name: Europe/Paris
+
 - name: Install NTP with pre-start service file
   copy:
     src: ntp.service
