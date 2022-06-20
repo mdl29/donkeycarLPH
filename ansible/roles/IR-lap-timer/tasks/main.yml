@@ -9,9 +9,8 @@
 - name: Add IR module activation in rc.local
   become: yes
   blockinfile:
-    firstmatch: yes
-    insertbefore: exit 0
-    path: /etc/rc.local
+    dest: /etc/rc.local
+    insertbefore: '^exit 0'
     block: |
       printf "My IP address is %s\n" "$_IP"
       fi
