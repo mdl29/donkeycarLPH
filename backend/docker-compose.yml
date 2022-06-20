@@ -18,3 +18,10 @@ services:
     restart: always
     ports:
       - 8080:8080
+
+  ntp:
+    image: donkey/ntp
+    build: ./ntp
+    restart: always
+    ports:
+      - 123:123/udp

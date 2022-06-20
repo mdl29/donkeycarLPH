@@ -21,3 +21,39 @@
     group: root
   notify:
     - Start car-config service
+
+- name: Use NTP service
+  become: yes
+  apt:
+    state: latest
+    pkg:
+    - ntp
+
+- name: Install Ntp configuration
+  copy:
+    src: ntp.conf
+    dest: /etc/ntp.conf
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
+- name: Install Ntp pre-start script
+  copy:
+    src: config-ntp.sh
+    dest: /usr/bin/config-ntp.sh
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
+- name: Set timezone
+  community.general.timezone:
+    name: Europe/Paris
+
+- name: Install NTP with pre-start service file
+  copy:
+    src: ntp.service
+    dest: /lib/systemd/system/ntp.service
+    owner: root
+    group: root
+  notify:
+    - Start ntp service

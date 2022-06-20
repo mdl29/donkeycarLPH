@@ -19,7 +19,7 @@ python setup.py install
 
 Starting postgres database :
 ```
-docker-compose up -d
+ docker-compose up -d --build
 ```
 
 Pretty easy, just run :
