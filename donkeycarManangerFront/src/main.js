@@ -10,7 +10,7 @@ import VueInsProgressBar from 'vue-ins-progress-bar'
 const options = {
   position: 'fixed',
   show: true,
-  height: '3px'
+  height: '4px'
 }
 
 Vue.use(Vuesax, {
