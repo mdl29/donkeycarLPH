@@ -1,5 +1,6 @@
 import threading
-from typing import NoReturn, List, Optional, Iterable, Dict, Type
+from datetime import datetime
+from typing import NoReturn, List, Optional, Iterable, Dict, Type, Tuple
 
 import socketio
 import json
@@ -133,7 +134,7 @@ class JobManager(threading.Thread):
             self.logger.error('Parsing json parameters for job_id: %s, FAILED with the following exception :')
             self.logger.exception(e)
 
-        job_run_instance = job_run_class(parameters=parameters, job_data=job, api=self._api, sio=self._sio)
+        job_run_instance = job_run_class(parameters=parameters, job_data=job, api=self._api, sio=self._sio, car=self.car)
         return job_run_instance
 
     def set_worker_state(self, worker_state: WorkerState):
@@ -184,13 +185,29 @@ class JobManager(threading.Thread):
             self.set_current_stage(None)
             self.set_worker_state(WorkerState.AVAILABLE)
 
-    def run_threaded_current_job(self, user_throttle: None):
+    def run_threaded_current_job(self,
+                                 user_throttle: None,
+                                 laptimer_current_start_lap_datetime: Optional[datetime] = None,
+                                 laptimer_current_lap_duration: Optional[int] = None,
+                                 laptimer_last_lap_start_datetime: Optional[datetime] = None,
+                                 laptimer_last_lap_duration: Optional[int] = None,
+                                 laptimer_last_lap_end_date_time: Optional[datetime] = None,
+                                 laptimer_laps_total: Optional[int] = None) -> Tuple[float, str, bool]:
         """
         See donkeycar CarManager part for details.
         """
 
         if self.current_running_job is not None:
-            return self.current_running_job.run_threaded(user_throttle)
+            res = self.current_running_job.run_threaded(
+                user_throttle,
+                laptimer_current_start_lap_datetime,
+                laptimer_current_lap_duration,
+                laptimer_last_lap_start_datetime,
+                laptimer_last_lap_duration,
+                laptimer_last_lap_end_date_time,
+                laptimer_laps_total
+            )
+            return res
 
 
-        return 0.0, 'NO_JOB'
+        return 0.0, 'NO_JOB', True

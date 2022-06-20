@@ -31,6 +31,7 @@ from donkeycar.parts.file_watcher import FileWatcher
 from donkeycar.parts.launch import AiLaunch
 from donkeycar.utils import *
 
+from custom.irlaptimer import IrLapTimerPart
 from custom.manager.car_manager import CarManager, ManagerNoApiFoundException
 
 logger = logging.getLogger(__name__)
@@ -245,15 +246,46 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                 outputs=['user/angle', 'user/throttle', 'user/mode', 'recording'],
                 threaded=True)
 
+            # IR Lap timer
+            ir_lap_timer = IrLapTimerPart()
+            V.add(
+                ir_lap_timer,
+                inputs=['laptimer/reset_all'],
+                outputs=[
+                    'laptimer/current_start_lap_datetime',
+                    'laptimer/current_lap_duration',
+                    'laptimer/last_lap_start_datetime',
+                    'laptimer/last_lap_duration',
+                    'laptimer/last_lap_end_date_time',
+                    'laptimer/laps_total'
+                ]
+            )
+
             # Donkeycar manager part
             rpi_network_interface = os.environ.get('RPI_NETWORK_INTERFACE')  # eg: wlan0 or eth0
             rpi_network_interface = rpi_network_interface if rpi_network_interface else "wlan0"
+
             try:
                 manager = CarManager(network_interface=rpi_network_interface)
-                V.add(manager, inputs=['user/throttle'], outputs=['user/throttle', 'manager/job_name'], threaded=True)
+                V.add(
+                    manager,
+                    inputs=[
+                        'user/throttle',
+                        'laptimer/current_start_lap_datetime',
+                        'laptimer/current_lap_duration',
+                        'laptimer/last_lap_start_datetime',
+                        'laptimer/last_lap_duration',
+                        'laptimer/last_lap_end_date_time',
+                        'laptimer/laps_total'
+                    ],
+                    outputs=[
+                        'user/throttle',
+                        'manager/job_name',
+                        'laptimer/reset_all'
+                    ], threaded=True)
             except ManagerNoApiFoundException:
-                logger.error('CarManager API not found, can\'t use manager part wont be added, car will run in standalone mode')
-
+                logger.error(
+                    'CarManager API not found, can\'t use manager part wont be added, car will run in standalone mode')
 
 
     #this throttle filter will allow one tap back for esc reverse

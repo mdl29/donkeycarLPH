@@ -7,7 +7,7 @@ from abc import abstractmethod
 from threading import Thread
 from typing import Dict, NoReturn, Optional
 
-from ..schemas import Job as JobModel, JobState
+from ..schemas import Job as JobModel, JobState, Car
 from custom.manager.car_manager_api_service import CarManagerApiService
 from ...helpers.conditional_events import ConditionalEvents, CondEventsOperator
 from ...helpers.RegistableEvents import RegistableEvent
@@ -16,7 +16,7 @@ from ...helpers.RegistableEvents import RegistableEvent
 class Job(Thread):
 
     def __init__(self, parameters: Dict[str, any],
-                 job_data: JobModel,
+                 job_data: JobModel, car: Car,
                  api: CarManagerApiService, sio: socketio.Client):
         """
         Init a job
@@ -34,6 +34,7 @@ class Job(Thread):
 
         self.parameters = parameters
         self.job_data: JobModel = job_data
+        self.car = car
         self.api = api
         self.sio = sio
 

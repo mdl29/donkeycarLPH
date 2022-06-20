@@ -1,11 +1,13 @@
 import logging
 import threading
+from datetime import datetime
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, Optional
 
 from custom.helpers.conditional_events import ConditionalEvents, CondEventsOperator
 from custom.helpers.RegistableEvents import RegistableEvent
 from custom.manager.jobs.job import Job
+from custom.manager.race_service import RaceService
 
 DEFAULT_DRIVE_TIME_SEC = 4*60 # Default drive time is 4min
 
@@ -20,6 +22,9 @@ class JobDriveStage(int, Enum):
     # This stage comes after USER_NOT_CONFIRMED
     USER_CONFIRMED = 1
 
+    # user start moving and drive session fully started
+    USER_DRIVING = 2
+
 
 class JobDrive(Job):
 
@@ -31,16 +36,32 @@ class JobDrive(Job):
 
         self.drive_stage: JobDriveStage = JobDriveStage.USER_NOT_CONFIRMED
 
+        self.race_service = RaceService(self.api, self.job_data.player, car=self.car)
+
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
-    def run_threaded(self, user_throttle=None) -> Tuple[float, str]:
+    def run_threaded(self,
+                     user_throttle=None,
+                     laptimer_current_start_lap_datetime: Optional[datetime] = None,
+                     laptimer_current_lap_duration: Optional[int] = None,
+                     laptimer_last_lap_start_datetime: Optional[datetime] = None,
+                     laptimer_last_lap_duration: Optional[int] = None,
+                     laptimer_last_lap_end_date_time: Optional[datetime] = None,
+                     laptimer_laps_total: Optional[int] = None
+                     ) -> Tuple[float, str, bool]:
         """
         Part run_threaded call.
         :param user_throttle: The user throttle, 0 when not moving.
-        :return: [user_throttle, job_name]
+        :return: [
+            user_throttle,
+            job_name,
+            laptimer_reset_all
+            ]
         """
+        laptimer_reset_all = True
+
         if self.drive_stage == JobDriveStage.USER_NOT_CONFIRMED: # user not confirmed yet
-            return 0.0, 'DRIVE'
+            return 0.0, 'DRIVE', laptimer_reset_all
 
         if user_throttle > 0.0:
             if not self.user_start_moving.isSet(): # Logging only first time
@@ -48,7 +69,18 @@ class JobDrive(Job):
             self.user_start_moving.set()
 
         self.state_returned.set()
-        return user_throttle if self.controller_can_move else 0.0, 'DRIVE'
+
+        if self.drive_stage == JobDriveStage.USER_DRIVING:
+            laptimer_reset_all = self.race_service.handle_laptimer_outputs(
+                laptimer_current_start_lap_datetime,
+                laptimer_current_lap_duration,
+                laptimer_last_lap_start_datetime,
+                laptimer_last_lap_duration,
+                laptimer_last_lap_end_date_time,
+                laptimer_laps_total
+            )
+
+        return user_throttle if self.controller_can_move else 0.0, 'DRIVE', laptimer_reset_all
 
     def set_move(self, user_can_move: bool) -> threading.Event:
         """
@@ -92,6 +124,7 @@ class JobDrive(Job):
                 return
 
             if self.user_start_moving.isSet():
+                self.drive_stage = JobDriveStage.USER_DRIVING
                 self.logger.debug('[job_id: %i] User starts moving, starting the time counter for drive: %i sec',
                             self.get_id(),
                             drive_time)
