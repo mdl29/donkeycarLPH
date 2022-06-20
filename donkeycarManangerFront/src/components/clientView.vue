@@ -204,18 +204,10 @@ export default {
       }
     },
     makeDate (myDate) {
-      const days = myDate.slice(0, 10)
-      const time = myDate.slice(11, 19)
-      if ((parseInt(time.slice(3, 5)) + 5) < 60) {
-        const newTime = time.slice(0, 3) + String(parseInt(time.slice(3, 5)) + 5) + time.slice(5, 8)
-        console.log(days + ' ' + newTime)
-        return days + ' ' + newTime
-      } else {
-        const newminutes = String(parseInt(time.slice(3, 5)) - 55)
-        const hours = String(parseInt(time.slice(0, 2)) + 1)
-        console.log(days + ' ' + hours + ':' + newminutes + ':' + time.slice(6, 9))
-        return days + ' ' + hours + ':' + newminutes + ':' + time.slice(6, 9)
-      }
+      const date = new Date(myDate)
+      const trueDate = String(date.getFullYear()) + '-' + String(date.getMonth() + 1) + '-' + String(date.getDate()) + ' ' + String(date.getHours()) + ':' + String(date.getMinutes() + 5) + ':' + String(date.getSeconds())
+      console.log(trueDate)
+      return trueDate
     }
   }
 }
