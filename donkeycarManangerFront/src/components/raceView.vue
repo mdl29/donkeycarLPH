@@ -90,7 +90,6 @@
 </template>
 <script>
 import DonkeycarManagerService from '@/js/service.js'
-import FlipCountdown from 'vue2-flip-countdown'
 
 const { io } = require('socket.io-client')
 const moment = require('moment')
@@ -154,7 +153,6 @@ export default {
       }
     },
     makeDate (myDate) {
-      console.log(myDate)
       const days = myDate.slice(0, 10)
       const time = myDate.slice(11, 19)
       if ((parseInt(time.slice(3, 5)) + 5) < 60) {
@@ -164,9 +162,6 @@ export default {
       } else {
         const newminutes = String(parseInt(time.slice(3, 5)) - 55)
         const hours = String(parseInt(time.slice(0, 2)) + 1)
-        console.log(newminutes)
-        console.log(hours)
-        console.log(days + ' ' + hours + ':' + newminutes + ':' + time.slice(6, 9))
         return days + ' ' + hours + ':' + newminutes + ':' + time.slice(6, 9)
       }
     }

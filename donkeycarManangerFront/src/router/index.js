@@ -4,7 +4,7 @@ import home from '@/components/home'
 import register from '@/components/register'
 import waitingBoard from '@/components/waitingBoard'
 import dashboard from '@/components/dashboard'
-import raceView from '@/components/raceView'
+import clientView from '@/components/clientView'
 
 Vue.use(Router)
 
@@ -31,8 +31,8 @@ export default new Router({
       component: dashboard
     },
     {
-      path: '/race/',
-      component: raceView,
+      path: '/client/',
+      component: clientView,
       props: true
     }
   ]
