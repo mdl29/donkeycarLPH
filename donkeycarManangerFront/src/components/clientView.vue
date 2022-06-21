@@ -9,7 +9,7 @@
                 <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
                 <h1> {{ job1[0].player.player_pseudo}}</h1>
                 <div>
-                    <vs-table class="">
+                    <vs-table class="table-head">
                         <template #thead>
                         <vs-tr>
                             <vs-th>
@@ -31,6 +31,7 @@
                         </vs-tr>
                         </template>
                     </vs-table>
+                    <h4 v-if="car1.race.laptimers !== []" class="best-score-text">Meilleur temps : {{getBestScore(car1.race.laptimers)}}s</h4>
                 </div>
               <div class="video-wrapper">
                 <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
@@ -65,6 +66,7 @@
                         </template>
                     </vs-table>
                 </div>
+                <h4 v-if="car2.race.laptimers !== []" class="best-score-text">Meilleur temps : {{getBestScore(car2.race.laptimers)}}s</h4>
                 <div class="video-wrapper">
                   <img id='mpeg-image' class='img-responsive' :src="'http://'+ car2.ip + ':8787/video'"/>
                 </div>
@@ -224,6 +226,17 @@ export default {
       const trueDate = String(date.getFullYear()) + '-' + String(date.getMonth() + 1) + '-' + String(date.getDate()) + ' ' + String(date.getHours()) + ':' + String(date.getMinutes() + 5) + ':' + String(date.getSeconds())
       console.log(trueDate)
       return trueDate
+    },
+    getBestScore (laptimers) {
+      let durations = []
+      for (const lap of laptimers) {
+        durations.push(lap.duration)
+        console.log(lap.duration)
+      }
+      console.log(durations)
+      const bestScore = Math.min.apply(Math, durations)
+      console.log(bestScore / 1000)
+      return bestScore / 1000
     }
   }
 }
@@ -232,6 +245,11 @@ export default {
 .no-laptimer-text{
  padding-top: 20px;
  font-size: 25px;
+ animation: grow-animation 1s linear infinite;
+}
+
+.best-score-text{
+ font-size: 15px;
  animation: grow-animation 1s linear infinite;
 }
 
