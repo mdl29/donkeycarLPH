@@ -9,7 +9,7 @@
                 <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
                 <h1> {{ job1[0].player.player_pseudo}}</h1>
                 <div>
-                    <vs-table>
+                    <vs-table class="">
                         <template #thead>
                         <vs-tr>
                             <vs-th>
@@ -42,7 +42,7 @@
                 <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
                 <h1> {{ job2[0].player.player_pseudo}}</h1>
                 <div>
-                    <vs-table>
+                    <vs-table class="table-head">
                         <template #thead>
                         <vs-tr>
                             <vs-th>
@@ -236,17 +236,16 @@ export default {
 }
 
 .flip-countdown {
-padding-top: 25px;
+  padding-top: 25px;
 }
 
 .waiting-table{
-    text-align: left !important;
-    width: 100%;
+  text-align: left !important;
+  width: 100%;
 }
 
 .table-head{
-    align-items: center !important;
-    text-align: center !important;
+  text-align: left !important;
 }
 
 @keyframes grow-animation {
@@ -262,5 +261,9 @@ padding-top: 25px;
   padding-top: 15px;
   height: 300px;
   width: 90%;
+}
+#mpeg-image{
+  width:100%;
+  height:100%;
 }
 </style>
