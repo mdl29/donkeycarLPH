@@ -6,6 +6,13 @@
     owner: root
     group: root
 
+- name: Add IR module activation in rc.local
+  become: yes
+  lineinfile:
+    dest: /etc/rc.local
+    insertbefore: '^exit 0'
+    line: ir-keytable -v -p nec
+
 - name: Install ir-keytable
   become: yes
   apt:

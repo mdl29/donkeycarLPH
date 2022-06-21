@@ -4,3 +4,9 @@
     name: car-config
     daemon_reload: yes
     enabled: yes
+    
+- name: Start ntp service
+  systemd:
+    name: ntp
+    daemon_reload: yes
+    enabled: yes
