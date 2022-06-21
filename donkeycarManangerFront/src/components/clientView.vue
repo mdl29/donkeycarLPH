@@ -1,4 +1,5 @@
 <template>
+<div>
 <div style="height: 600px; padding-top: 0px;">
     <div style="height: 82%; margin-top: 0px;">
         <!-- If have two players-->
@@ -30,7 +31,6 @@
                         </vs-tr>
                         </template>
                     </vs-table>
-                    <flip-countdown class="flip-countdown" :deadline="makeDate(car1.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
                 </div>
             </vs-col>
 
@@ -61,7 +61,6 @@
                         </vs-tr>
                         </template>
                     </vs-table>
-                    <flip-countdown class="flip-countdown" :deadline="makeDate(car2.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
                 </div>
             </vs-col>
 
@@ -71,7 +70,6 @@
                 <h1> {{ job1[0].player.player_pseudo}}</h1>
                 <div class="no-laptimer-wrapper">
                     <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
-                    <flip-countdown class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
                 </div>
             </vs-col>
 
@@ -81,41 +79,53 @@
                 <h1> {{ job2[0].player.player_pseudo}}</h1>
                 <div class="no-laptimer-wrapper">
                     <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
-                    <flip-countdown class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
                 </div>
             </vs-col>
         </vs-row>
     </div>
-    <div style="height: 18%; margin-bottom: 0px;" >
-      <vs-table class="waiting-table">
-        <template #thead>
-        <vs-tr>
-            <vs-th>
-            Ordre
-            </vs-th>
-            <vs-th>
-            Pseudo
-            </vs-th>
-            <vs-th>
-            Passage estimé
-            </vs-th>
-        </vs-tr>
-        </template>
-        <template #tbody>
-        <vs-tr  v-for="(player,i) in waitingList" v-bind:key="player.rank">
-            <vs-td>
-             {{i + 1}}
-            </vs-td>
-            <vs-td>
-            {{player.player.player_pseudo}}
-            </vs-td>
-            <vs-td>
-             {{fetchEstimatedPassage(i+1)}}
-            </vs-td>
-        </vs-tr>
-        </template>
-      </vs-table>
-    </div>
+  </div>
+  <div style="height: 18%; margin-bottom: 0px;" >
+      <vs-row>
+      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" >
+        <flip-countdown v-if="car1.race !== null" class="flip-countdown" :deadline="makeDate(car1.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+        <flip-countdown  v-if="car1.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
+      </vs-col>
+      <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="4">
+        <vs-table class="waiting-table">
+          <template #thead>
+          <vs-tr>
+              <vs-th>
+              Ordre
+              </vs-th>
+              <vs-th>
+              Pseudo
+              </vs-th>
+              <vs-th>
+              Passage estimé
+              </vs-th>
+          </vs-tr>
+          </template>
+          <template #tbody>
+          <vs-tr  v-for="(player,i) in waitingList" v-bind:key="player.rank">
+              <vs-td>
+              {{i + 1}}
+              </vs-td>
+              <vs-td>
+              {{player.player.player_pseudo}}
+              </vs-td>
+              <vs-td>
+              {{fetchEstimatedPassage(i+1)}}
+              </vs-td>
+          </vs-tr>
+          </template>
+        </vs-table>
+      </vs-col>
+      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" >
+        <flip-countdown v-if="car2.race !== null" class="flip-countdown" :deadline="makeDate(car2.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+        <flip-countdown  v-if="car2.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
+      </vs-col>
+    </vs-row>
+  </div>
 </div>
 </template>
 <script>
@@ -224,9 +234,8 @@ padding-top: 25px;
 }
 
 .waiting-table{
-    text-align: center;
-    padding-left: 30%;
-    padding-right: 30%;
+    text-align: left !important;
+    width: 100%;
 }
 
 .table-head{
