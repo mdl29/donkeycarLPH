@@ -1,7 +1,6 @@
 import os
 import logging
 
-from donkeycarmanager.routers.workers import heartbeat_manager
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,7 +15,6 @@ from donkeycarmanager import models
 from donkeycarmanager.database import engine
 
 models.Base.metadata.create_all(bind=engine)
-heartbeat_manager.defered_init_after_db_created(db=db)
 
 # Logging stuff, luanch after uvircorn
 setup_logging()

@@ -8,13 +8,8 @@ from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 
 
 class WorkerHeartbeatManager:
-    def __init__(self):
+    def __init__(self, db: Session):
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
-
-    def defered_init_after_db_created(self, db: Session):
-        """
-        Run after db is inited
-        """
 
         # Ensure every worker is stopped, before handling heartbeat
         db.query(models.Worker).update({models.Worker.state: WorkerState.STOPPED})
