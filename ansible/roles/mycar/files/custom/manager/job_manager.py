@@ -145,29 +145,18 @@ class JobManager(threading.Thread):
         self.worker.state = worker_state
         self._api.update_worker(worker=self.worker)
 
-    def set_current_player(self, player_id: Optional[int]):
-        """
-        Set car current player/
-        :param player_id: Current job player id
-        """
-        self.car.current_player_id = player_id
-        self._api.update_car(car=self.car)
-
-    def set_current_stage(self, car_stage: Optional[str]):
-        """
-        Set current car stage.
-        :param car_stage: Name of the current running job.
-        """
-        self.car.current_stage = car_stage
-        self._api.update_car(self.car)
 
     def run(self):
         for job in self.next_job():
             self.set_worker_state(WorkerState.BUSY)
             job_run = self.init_job_run(job)
             self.current_running_job = job_run
-            self.set_current_player(job.player_id)
-            self.set_current_stage(job.name)
+
+            # Handeling car state
+            self.car.current_player_id = job.player_id
+            self.car.current_stage = job.name
+            self.car.current_race_id = None
+            self._api.update_car(self.car)
 
             # Start the job
             job_run.start()
@@ -180,9 +169,13 @@ class JobManager(threading.Thread):
                 job.fail_details = job_run.final_job_fail_details
 
             self._api.update_job(job)
-            self.current_running_job = None
-            self.set_current_player(None)
-            self.set_current_stage(None)
+
+            # Handeling car state
+            self.car.current_player_id = None
+            self.car.current_stage = None
+            self.car.current_race_id = None
+            self._api.update_car(self.car)
+
             self.set_worker_state(WorkerState.AVAILABLE)
 
     def run_threaded_current_job(self,

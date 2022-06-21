@@ -79,6 +79,7 @@ class RaceBase(BaseModel):
     stage: Stage
     car_name: str
     start_datetime: datetime.datetime
+    max_duration: int = Field(default=5*60) # default 5 min
 
 
 class RaceCreate(RaceBase):

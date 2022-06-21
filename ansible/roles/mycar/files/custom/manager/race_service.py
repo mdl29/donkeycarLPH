@@ -8,16 +8,18 @@ from custom.manager.schemas import Player, Car, RaceCreate, Race, LapTimerCreate
 
 class RaceService:
 
-    def __init__(self, api: CarManagerApiService, player: Player, car: Car):
+    def __init__(self, api: CarManagerApiService, player: Player, car: Car, max_duration: int):
         """
         :param api:
         :param player:
         :param car:
+        :param max_duration: Max race duration in sec, purely indicative.
         """
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
         self._api = api
         self.car = car
         self.player = player
+        self.max_duration = max_duration
 
         self.race: Optional[Race] = None
         self.last_lap_end_date: Optional[datetime] = None
@@ -38,7 +40,8 @@ class RaceService:
                     player_id=self.player.player_id,
                     stage=self.car.current_stage,
                     car_name=self.car.name,
-                    start_datetime=start
+                    start_datetime=start,
+                    max_duration=self.max_duration
                 )
             )
             self.car.current_race_id = self.race.race_id

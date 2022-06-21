@@ -9,7 +9,7 @@ from custom.helpers.RegistableEvents import RegistableEvent
 from custom.manager.jobs.job import Job
 from custom.manager.race_service import RaceService
 
-DEFAULT_DRIVE_TIME_SEC = 4*60 # Default drive time is 4min
+DEFAULT_DRIVE_TIME_SEC = 5*60 # Default drive time is 4min
 
 class JobDriveStage(int, Enum):
     # Stages orders USER_NOT_CONFIRMED > USER_DRIVING
@@ -36,7 +36,9 @@ class JobDrive(Job):
 
         self.drive_stage: JobDriveStage = JobDriveStage.USER_NOT_CONFIRMED
 
-        self.race_service = RaceService(self.api, self.job_data.player, car=self.car)
+        self.drive_time = self.parameters["drive_time"] if "drive_time" in self.parameters else DEFAULT_DRIVE_TIME_SEC
+
+        self.race_service = RaceService(self.api, self.job_data.player, car=self.car, max_duration=self.drive_time)
 
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
@@ -93,7 +95,6 @@ class JobDrive(Job):
         return self.state_returned
 
     def run_job(self, resumed: bool = False) -> None:
-        drive_time = self.parameters["drive_time"] if "drive_time" in self.parameters else DEFAULT_DRIVE_TIME_SEC
 
         # Update stage based on resuming and current stage
         if resumed and self.drive_stage == JobDriveStage.USER_NOT_CONFIRMED:
@@ -111,7 +112,7 @@ class JobDrive(Job):
 
         # Here we know user is confirmed
         if self.drive_stage == JobDriveStage.USER_CONFIRMED:
-            self.logger.debug("[job_id: %i] start, waiting for user to move to start the drive counter of %i seconds", self.get_id(), drive_time)
+            self.logger.debug("[job_id: %i] start, waiting for user to move to start the drive counter of %i seconds", self.get_id(), self.drive_time)
             self.set_move(True)
 
             with ConditionalEvents([self.event_cancelled, self.user_start_moving, self.event_paused], operator=CondEventsOperator.OR) as start_pause_or_cancelled:
@@ -127,9 +128,9 @@ class JobDrive(Job):
                 self.drive_stage = JobDriveStage.USER_DRIVING
                 self.logger.debug('[job_id: %i] User starts moving, starting the time counter for drive: %i sec',
                             self.get_id(),
-                            drive_time)
+                            self.drive_time)
 
-                self.event_cancelled.wait(timeout=drive_time)
+                self.event_cancelled.wait(timeout=self.drive_time)
                 if self.event_cancelled.isSet(): # Cancelled before have finished is run :(
                     self.logger.warning('[job_id: %i] Drive canceled before having time to finish it', self.get_id())
                     return
