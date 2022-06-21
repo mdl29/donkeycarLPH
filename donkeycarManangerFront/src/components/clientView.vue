@@ -32,6 +32,9 @@
                         </template>
                     </vs-table>
                 </div>
+              <div class="video-wrapper">
+                <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
+              </div>
             </vs-col>
 
             <!-- If player2 have a race-->
@@ -61,6 +64,9 @@
                         </vs-tr>
                         </template>
                     </vs-table>
+                </div>
+                <div class="video-wrapper">
+                  <img id='mpeg-image' class='img-responsive' :src="'http://'+ car2.ip + ':8787/video'"/>
                 </div>
             </vs-col>
 
@@ -251,5 +257,10 @@ padding-top: 25px;
 
 .car-name-button{
     float: right;
+}
+.video-wrapper{
+  padding-top: 15px;
+  height: 300px;
+  width: 90%;
 }
 </style>
