@@ -1,10 +1,12 @@
 import os
 import logging
+
+from donkeycarmanager.routers.workers import heartbeat_manager
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from donkeycarmanager.dependencies import get_db, sm, get_sio, get_job_scheduler
+from donkeycarmanager.dependencies import get_db, sm, get_sio, get_job_scheduler, db
 from donkeycarmanager.helpers.logging import setup_logging
 from donkeycarmanager.routers import players, driving_waiting_queue, cars, races, laptimers, workers, jobs
 from donkeycarmanager.services.zero_conf_service import ZeroConfService
@@ -13,6 +15,7 @@ from donkeycarmanager import models
 from donkeycarmanager.database import engine
 
 models.Base.metadata.create_all(bind=engine)
+heartbeat_manager.defered_init_after_db_created(db=db)
 
 # Logging stuff, luanch after uvircorn
 setup_logging()

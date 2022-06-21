@@ -60,7 +60,7 @@ async def clean_worker(worker_id: int,
     return schemas.MassiveUpdateDeleteResult(nb_affected_items=nb_affected_row)
 
 
-heartbeat_manager = WorkerHeartbeatManager(db=db)
+heartbeat_manager = WorkerHeartbeatManager()
 
 
 @router.websocket("/workers/{worker_id}/wsHeartbeat")  # Set full path here as it doesn't work in route workers

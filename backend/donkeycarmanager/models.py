@@ -42,6 +42,7 @@ class Race(Base):
         nullable=False,
         default=datetime.datetime.utcnow
     )
+    max_duration = Column(Integer, nullable=False, default=5*60)  # Maximum race duration in ms
 
     player = relationship("Player")
     laptimers = relationship("LapTimer", backref="race")
