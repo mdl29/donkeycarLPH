@@ -4,12 +4,28 @@
     <div style="height: 82%; margin-top: 0px;">
         <!-- If have two players-->
         <vs-row>
-            <!-- Player 1 -->
-            <div v-if="car1.length === [] && job2 === []">
-               <h1> En attente d'un nouveau joueur</h1>
-            </div>
             <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper" >
-              <div v-if="car1.race !== null && car1 !== [] && job1 !== []">
+            <!-- Player 1 -->
+            <div v-if="car1 === undefined || job1[0] === undefined">
+              <h1> Player 1</h1>
+               <div class="attente-text">
+                <span style="--i:1">E</span>
+                <span style="--i:2">N</span>
+                <span style="--i:3"> </span>
+                <span style="--i:4"> </span>
+                <span style="--i:5">A</span>
+                <span style="--i:6">T</span>
+                <span style="--i:7">T</span>
+                <span style="--i:8">E</span>
+                <span style="--i:9">N</span>
+                <span style="--i:10">T</span>
+                <span style="--i:11">E</span>
+                <span style="--i:12">.</span>
+                <span style="--i:13">.</span>
+                <span style="--i:14">.</span>
+              </div>
+            </div>
+              <div v-if="car1 !== undefined && job1[0] !== undefined">
                 <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
                 <h1> {{ job1[0].player.player_pseudo}}</h1>
                 <div>
@@ -37,9 +53,9 @@
                     </vs-table>
                     <h4 v-if="car1.race.laptimers !== []" class="best-score-text">Meilleur temps : {{getBestScore(car1.race.laptimers)}}s</h4>
                 </div>
-              <div class="video-wrapper">
-                <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
-              </div>
+                  <div class="video-wrapper">
+                  <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
+                </div>
             </div>
             <div v-if="car1.race === null && job1 !== []">
                 <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
@@ -50,12 +66,28 @@
             </div>
             </vs-col>
 
-            <!-- Player 2 -->
-              <div v-if="car2 === [] && job2 === []">
-                <h1> En attente d'un nouveau joueur</h1>
+            <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper">
+              <!-- Player 2 -->
+              <div v-if="car2 === undefined || job2[0] === undefined">
+                <h1> Player 2</h1>
+                  <div class="attente-text">
+                  <span style="--i:1">E</span>
+                  <span style="--i:2">N</span>
+                  <span style="--i:3"> </span>
+                  <span style="--i:4"> </span>
+                  <span style="--i:5">A</span>
+                  <span style="--i:6">T</span>
+                  <span style="--i:7">T</span>
+                  <span style="--i:8">E</span>
+                  <span style="--i:9">N</span>
+                  <span style="--i:10">T</span>
+                  <span style="--i:11">E</span>
+                  <span style="--i:12">.</span>
+                  <span style="--i:13">.</span>
+                  <span style="--i:14">.</span>
+               </div>
               </div>
-            <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper" v-if="car2.race !== null && car2 !== []">
-              <div>
+              <div v-if="car2 !== undefined && job2[0] !== undefined">
                 <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
                 <h1> {{ job2[0].player.player_pseudo}}</h1>
                 <div>
@@ -88,25 +120,24 @@
                 </div>
               </div>
 
-              <div v-if="car2.race === null && job2 !== []" >
+              <div v-if="car2.race === null && job2 !== undefined" >
                 <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
                 <h1> {{ job2[0].player.player_pseudo}}</h1>
                 <div class="no-laptimer-wrapper">
                     <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
                 </div>
               </div>
-
             </vs-col>
         </vs-row>
     </div>
   </div>
   <div style="height: 18%; margin-bottom: 0px;" >
       <vs-row>
-      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car1.race !== []" >
-        <flip-countdown v-if="car1.race !== null" class="flip-countdown" :deadline="makeDate(car1.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car1 !== undefined || car1.race != undefined">
+        <flip-countdown v-if="car1.race !== null && car1.race !== undefined && car1.race.start_datetime !== undefined" class="flip-countdown" :deadline="makeDate(car1.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
         <flip-countdown  v-if="car1.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
       </vs-col>
-      <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="4">
+      <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="waitingList !== undefined || waitingList !== []">
         <vs-table class="waiting-table">
           <template #thead>
           <vs-tr>
@@ -136,14 +167,8 @@
           </template>
         </vs-table>
       </vs-col>
-      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car2 === []" >
-          <p> </p>
-      </vs-col>
-      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car1 === []" >
-          <p> </p>
-      </vs-col>
-      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" >
-        <flip-countdown v-if="car2.race !== null" class="flip-countdown" :deadline="makeDate(car2.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
+      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car2 !== undefined">
+        <flip-countdown v-if="car2.race !== null && car2.race !== undefined && car2.race.start_datetime !== undefined" class="flip-countdown" :deadline="makeDate(car2.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
         <flip-countdown  v-if="car2.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
       </vs-col>
     </vs-row>
@@ -305,5 +330,23 @@ export default {
 #mpeg-image{
   width:100%;
   height:100%;
+}
+.attente-text {
+  margin-top: 40%;
+  position: relative;
+}
+.attente-text span {
+  position: relative;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 50px;
+  text-transform: uppercase;
+  animation: flip 5s infinite;
+  animation-delay: calc(.2s * var(--i))
+}
+@keyframes flip {
+  0%,80% {
+    transform: rotateY(360deg)
+  }
 }
 </style>
