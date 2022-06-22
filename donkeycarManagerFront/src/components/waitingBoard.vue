@@ -73,7 +73,7 @@ export default {
   created () {
     const that = this
     socket.on('jobs.all.updated', function (data) {
-      that.drivingWaitingQueue = data.jobs
+      that.drivingWaitingQueue = that.fetchDrivingQueue()
     })
     this.interval = setInterval(() => {
       that.timestamps = that.drivingWaitingQueue.map(c => getISOFromNow(c.player.register_datetime))
