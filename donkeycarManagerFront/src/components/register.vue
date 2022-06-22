@@ -3,18 +3,11 @@
     <h1 class="title-header"> Devenir pilote en accédant à la liste d'attente </h1>
     <div class="inputs-wrapper">
       <vs-row align="center" justify="center">
-          <vs-input class="input" color="#7d33ff" shadow border type="text"  v-model="pseudo" label-placeholder="Pseudo" style="padding:20px" required="required">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(84, 83, 83, 1);transform: ;msFilter:;"><path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z"></path></svg>
-            </template>
-            <template v-if="pseudoBlank == true " #message-danger>
-              veuillez choisir un pseudo
-            </template>
-          </vs-input>
+        <input type="text" placeholder="Entrez votre pseudo" id="input-form" required="required" v-model="pseudo">
       </vs-row>
       <vs-row>
-        <vs-col  align="center" justify="center" w="12">
-          <vs-button class="submit-btn" circle color="warn" gradient @click="check()"> S'enregistrer </vs-button>
+        <vs-col style="padding-top: 70px;" align="center" justify="center" w="12">
+        <vs-button class="submit-btn" circle color="warn" gradient @click="check()"> S'enregistrer </vs-button>
         </vs-col>
       </vs-row>
     </div>
@@ -87,11 +80,31 @@ export default {
 .submit-btn{
   font-size:20px;
   font-weight: bold;
-  height:50px;
-  width:170px;
+  height:80px;
+  width:275px;
+  font-size: 35px;
 }
 .inputs-wrapper{
     padding:50px;
     height: 60px;
+}
+input::placeholder{
+   text-align: center;
+}
+
+#input-form{
+  text-align: center;
+  width: 100%;
+  height: 80px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  box-sizing: border-box;
+  font-weight: bold;
+  font-size: 45px;
+}
+#label-form{
+  margin-left: 0px;
 }
 </style>
