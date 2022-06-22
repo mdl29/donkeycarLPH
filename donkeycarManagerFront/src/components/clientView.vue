@@ -5,8 +5,11 @@
         <!-- If have two players-->
         <vs-row>
             <!-- Player 1 -->
+            <div v-if="car1.length === [] && job2 === []">
+               <h1> En attente d'un nouveau joueur</h1>
+            </div>
             <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper" >
-              <div v-if="car1.race !== null && car1 !== []">
+              <div v-if="car1.race !== null && car1 !== [] && job1 !== []">
                 <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
                 <h1> {{ job1[0].player.player_pseudo}}</h1>
                 <div>
@@ -38,19 +41,19 @@
                 <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
               </div>
             </div>
-            <div v-if="car1.race === null">
+            <div v-if="car1.race === null && job1 !== []">
                 <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
                 <h1> {{ job1[0].player.player_pseudo}}</h1>
                 <div class="no-laptimer-wrapper">
                     <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
                 </div>
             </div>
-            <div v-if="car1 === []">
-               <h1> En attente d'un nouveau joueur</h1>
-            </div>
             </vs-col>
 
             <!-- Player 2 -->
+              <div v-if="car2 === [] && job2 === []">
+                <h1> En attente d'un nouveau joueur</h1>
+              </div>
             <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper" v-if="car2.race !== null && car2 !== []">
               <div>
                 <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
@@ -85,7 +88,7 @@
                 </div>
               </div>
 
-              <div v-if="car2.race === null" >
+              <div v-if="car2.race === null && job2 !== []" >
                 <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
                 <h1> {{ job2[0].player.player_pseudo}}</h1>
                 <div class="no-laptimer-wrapper">
@@ -93,16 +96,13 @@
                 </div>
               </div>
 
-              <div v-if="car2 === []">
-                <h1> En attente d'un nouveau joueur</h1>
-              </div>
             </vs-col>
         </vs-row>
     </div>
   </div>
   <div style="height: 18%; margin-bottom: 0px;" >
       <vs-row>
-      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car1 !== []" >
+      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car1.race !== []" >
         <flip-countdown v-if="car1.race !== null" class="flip-countdown" :deadline="makeDate(car1.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
         <flip-countdown  v-if="car1.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
       </vs-col>
@@ -169,7 +169,8 @@ export default {
     job2: [],
     player1Race: [],
     player2Race: [],
-    waitingList: []
+    waitingList: [],
+    attente: []
 
   }),
   mounted () {
@@ -197,13 +198,18 @@ export default {
       const cars = await srv.getCars(skip, limit)
       this.cars = cars
       for (const car of cars) {
-        if (car.current_stage !== 'MAINTENANCE') {
+        if (car.current_stage !== 'MAINTENANCE' && car.worker.state === 'AVAILABLE') {
           if (this.car1.length === 0) {
             this.car1 = car
             this.job1 = await srv.getJobCar(car.worker_id)
-          } else {
+          } else if (this.car1.length !== 0) {
             this.car2 = car
             this.job2 = await srv.getJobCar(car.worker_id)
+          } else {
+            this.car1 = []
+            this.car2 = []
+            this.job1 = []
+            this.job2 = []
           }
         }
       }

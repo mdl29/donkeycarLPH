@@ -45,8 +45,13 @@ export default {
     pseudoBlank: false,
     telBlank: false,
     numero: 0,
-    attente: 0
+    attente: '',
+    waitingList: []
   }),
+  created () {
+    const that = this
+    that.fetchDrivingQueue()
+  },
   methods: {
     check () {
       if (this.pseudo === '') {
@@ -61,17 +66,23 @@ export default {
     async addUser () {
       this.player = await srv.createPlayer(this.pseudo)
       await srv.addJobs(this.player.player_id)
-      if (this.player.player_id < 4) {
+      console.log(this.waitingList.length)
+      if (this.waitingList.length < 2) {
+        this.attente = 'Maintenant'
+      } else if (this.waitingList.length >= 2 && this.waitingList.length < 4) {
         this.attente = '15 minutes'
-      } else if (this.player.player_id >= 4 && this.player.player_id < 8) {
+      } else if (this.waitingList.length >= 4 && this.waitingList.length < 8) {
         this.attente = '30 minutes'
-      } else if (this.player.player_id >= 8 && this.player.player_id < 12) {
+      } else if (this.waitingList.length >= 8 && this.waitingList.length < 12) {
         this.attente = '45 minutes'
-      } else {
+      } else if (this.waitingList.length >= 12) {
         this.attente = 'plus de 1 heure'
       }
       this.numero = this.player.player_id
       this.popup = true
+    },
+    async fetchDrivingQueue () {
+      this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
     }
   }
 }
