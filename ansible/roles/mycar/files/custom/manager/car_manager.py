@@ -1,5 +1,6 @@
 import logging
-from typing import Optional, NoReturn, List
+from datetime import datetime
+from typing import Optional, NoReturn, List, Tuple
 
 import socketio
 import socket
@@ -131,14 +132,32 @@ class CarManager:
     def update(self):
         return
 
-    def run_threaded(self, user_throttle=None) -> List[bool]:
+    def run_threaded(self,
+                     user_throttle=None,
+                     laptimer_current_start_lap_datetime: Optional[datetime] = None,
+                     laptimer_current_lap_duration: Optional[int] = None,
+                     laptimer_last_lap_start_datetime: Optional[datetime]=None,
+                     laptimer_last_lap_duration: Optional[int] = None,
+                     laptimer_last_lap_end_date_time: Optional[datetime] = None,
+                     laptimer_laps_total: Optional[int]=None
+                     ) -> Tuple[float, str, bool]:
         """
         :param user_throttle: User throttle value
         :return: [manager/enable_controller_throttle, ..]
             user/throttle
             manager/job_name
+            laptimer/reset_all
         """
-        return self._job_manager.run_threaded_current_job(user_throttle=user_throttle)
+        res = self._job_manager.run_threaded_current_job(
+            user_throttle,
+            laptimer_current_start_lap_datetime,
+            laptimer_current_lap_duration,
+            laptimer_last_lap_start_datetime,
+            laptimer_last_lap_duration,
+            laptimer_last_lap_end_date_time,
+            laptimer_laps_total
+        )
+        return res
 
     def run(self):
         return self.run_threaded()

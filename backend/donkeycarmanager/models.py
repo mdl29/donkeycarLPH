@@ -27,7 +27,7 @@ class DrivingWaitingQueue(Base):
         default=datetime.datetime.utcnow
     )
 
-    player = relationship("Player")
+    player = relationship("Player", lazy='subquery')
 
 
 class Race(Base):
@@ -42,9 +42,10 @@ class Race(Base):
         nullable=False,
         default=datetime.datetime.utcnow
     )
+    max_duration = Column(Integer, nullable=False, default=5*60)  # Maximum race duration in ms
 
-    player = relationship("Player")
-    laptimers = relationship("LapTimer", backref="race")
+    player = relationship("Player", lazy='subquery')
+    laptimers = relationship("LapTimer", backref="race", lazy='subquery')
 
 
 class Worker(Base):
@@ -66,9 +67,9 @@ class Car(Base):
     current_player_id = Column(Integer, ForeignKey(Player.player_id), nullable=True)
     current_race_id = Column(Integer, ForeignKey(Race.race_id), nullable=True)
 
-    player = relationship("Player")
-    race = relationship("Race")
-    worker = relationship("Worker")
+    player = relationship("Player", lazy='subquery')
+    race = relationship("Race", lazy='subquery')
+    worker = relationship("Worker", lazy='subquery')
 
 
 class LapTimer(Base):
@@ -108,5 +109,5 @@ class Job(Base):
 
     fail_details = Column(String(1100), nullable=True)
 
-    worker = relationship("Worker", backref="jobs")
-    player = relationship("Player")
+    worker = relationship("Worker", backref="jobs", lazy='subquery')
+    player = relationship("Player", lazy='subquery')

@@ -6,13 +6,15 @@ from typing import Optional, Union, Dict, List
 import pydantic
 
 from .schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
-    MassiveUpdateDeleteResult
+    MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate
 import requests
 from datetime import date, datetime
 
 RES_WORKERS = "workers"
 RES_CARS = "cars"
 RES_JOBS = "jobs"
+RES_RACES = "races"
+RES_LAPTIMERS = "laptimers"
 
 T = pydantic.BaseModel
 
@@ -203,3 +205,27 @@ class CarManagerApiService:
         else:
             raise CarManagerApiError(f"Unable to clean worker with ID : {worker.worker_id},"
                                      f" got status : {resp.status_code} with message : {resp.text}")
+
+    def create_race(self, race: RaceCreate) -> Race:
+        """
+        Create a race.
+        :param race:
+        :return: Created race.
+        """
+        return self._create_resource(race, RES_RACES, Race, "race")
+
+    def create_laptimer(self, laptimer: LapTimerCreate) -> LapTimer:
+        """
+        Create a lap timer.
+        :param laptimer:
+        :return: Created laptimer.
+        """
+        return self._create_resource(laptimer, RES_LAPTIMERS, LapTimer, "laptimer")
+
+    def update_laptimer(self, laptimer: LapTimerUpdate) -> LapTimer:
+        """
+        Create a lap timer.
+        :param laptimer:
+        :return: Created laptimer.
+        """
+        return self._update_resource(laptimer, RES_LAPTIMERS, LapTimer, "laptimer")
