@@ -4,7 +4,7 @@
     <div style="height: 82%; margin-top: 0px;">
         <!-- If have two players-->
         <vs-row>
-            <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper" >
+            <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot1-wrapper" >
             <!-- Player 1 -->
             <div v-if="car1 === undefined || job1[0] === undefined || car1.current_race_id === null">
               <h1> Player 1</h1>
@@ -155,7 +155,7 @@
               Pseudo
               </vs-th>
               <vs-th>
-              Passage estimé
+              Attente estimée
               </vs-th>
           </vs-tr>
           </template>
@@ -168,7 +168,9 @@
               {{player.player.player_pseudo}}
               </vs-td>
               <vs-td>
-              {{fetchEstimatedPassage(i+1)}}
+               <p v-if=" i+1 <= 2"> 15 minutes</p>
+               <p v-if=" i+1 > 2 && i+1 <= 4"> 30 minutes</p>
+               <p v-if=" i+1 > 4 && i+1 <= 4"> 45 minutes</p>
               </vs-td>
           </vs-tr>
           </template>
@@ -311,7 +313,8 @@ export default {
 
 .waiting-table{
   text-align: left !important;
-  width: 100%;
+  width: 110%;
+  height: 100%;
 }
 
 .table-head{
@@ -355,5 +358,8 @@ export default {
   0%,80% {
     transform: rotateY(360deg)
   }
+}
+.pilot1-wrapper {
+  border-right: 2.5px dashed grey;
 }
 </style>
