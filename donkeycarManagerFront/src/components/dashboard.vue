@@ -235,6 +235,7 @@
           </div>
         </template>
       </vs-dialog>
+      <!--
       <vs-dialog v-model="paramPlayerDialog">
         <template #header>
           <h4 class="not-margin">
@@ -255,6 +256,7 @@
           </div>
         </template>
       </vs-dialog>
+      -->
 </div>
 </template>
 <script>

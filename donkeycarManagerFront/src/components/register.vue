@@ -66,7 +66,6 @@ export default {
     async addUser () {
       this.player = await srv.createPlayer(this.pseudo)
       await srv.addJobs(this.player.player_id)
-      console.log(this.waitingList.length)
       if (this.waitingList.length < 2) {
         this.attente = 'Maintenant'
       } else if (this.waitingList.length >= 2 && this.waitingList.length < 4) {

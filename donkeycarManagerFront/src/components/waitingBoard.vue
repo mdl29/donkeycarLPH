@@ -1,7 +1,7 @@
 <template>
 <div>
     <h1> Liste d'attente</h1>
-    <div class="table-wrapper">
+    <div class="table-wrapper" v-if=" drivingWaitingQueue !== undefined ">
       <vs-table>
         <template #thead>
           <vs-tr>

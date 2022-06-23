@@ -6,7 +6,7 @@
         <vs-row>
             <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper" >
             <!-- Player 1 -->
-            <div v-if="car1 === undefined || job1[0] === undefined">
+            <div v-if="car1 === undefined || job1[0] === undefined || car1.current_race_id === null">
               <h1> Player 1</h1>
                <div class="attente-text">
                 <span style="--i:1">E</span>
@@ -23,110 +23,117 @@
                 <span style="--i:12">.</span>
                 <span style="--i:13">.</span>
                 <span style="--i:14">.</span>
+               </div>
+            </div>
+            <div v-if="car1 !== undefined && job1[0] !== undefined && car1.current_race_id !== null ">
+              <div v-if="car1.race.laptimers.length !== 0">
+                  <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
+                  <h1 v-if="job1[0].player.player_pseudo !== undefined"> {{ job1[0].player.player_pseudo}}</h1>
+                  <h1 v-if="job1[0].player.player_pseudo === undefined"> Unknow player</h1>
+                  <div>
+                      <vs-table class="table-head"  v-if="car1.race !== null && car1.race.laptimers !== undefined" >
+                          <template #thead>
+                          <vs-tr>
+                              <vs-th>
+                              Tours
+                              </vs-th>
+                              <vs-th>
+                              Temps
+                              </vs-th>
+                          </vs-tr>
+                          </template>
+                          <template #tbody>
+                          <vs-tr v-for="(lap,i) in car1.race.laptimers" v-bind:key="i">
+                              <vs-td>
+                                  {{i+1}}
+                              </vs-td>
+                              <vs-td>
+                                  {{lap.duration/1000}} s
+                              </vs-td>
+                          </vs-tr>
+                          </template>
+                      </vs-table>
+                      <h4 v-if=" car1.race !== null && car1.race.laptimers !== [] && car1.race.laptimers !== undefined " class="best-score-text">Meilleur temps : {{getBestScore(car1.race.laptimers)}}s</h4>
+                  </div>
+                    <div class="video-wrapper">
+                    <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
+                  </div>
+              </div>
+              <div v-if="car1.race.laptimers.length === 0" >
+                  <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
+                  <h1 v-if="job1[0].player.player_pseudo !== undefined"> {{ job1[0].player.player_pseudo}}</h1>
+                  <h1 v-if="job1[0].player.player_pseudo === undefined"> Unknow player</h1>
+                  <div class="no-laptimer-wrapper">
+                      <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
               </div>
             </div>
-              <div v-if="car1 !== undefined && job1[0] !== undefined">
-                <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
-                <h1> {{ job1[0].player.player_pseudo}}</h1>
-                <div>
-                    <vs-table class="table-head">
-                        <template #thead>
-                        <vs-tr>
-                            <vs-th>
-                            Tours
-                            </vs-th>
-                            <vs-th>
-                            Temps
-                            </vs-th>
-                        </vs-tr>
-                        </template>
-                        <template #tbody>
-                        <vs-tr v-for="(lap,i) in car1.race.laptimers" v-bind:key="i">
-                            <vs-td>
-                                {{i+1}}
-                            </vs-td>
-                            <vs-td>
-                                {{lap.duration/1000}} s
-                            </vs-td>
-                        </vs-tr>
-                        </template>
-                    </vs-table>
-                    <h4 v-if="car1.race.laptimers !== []" class="best-score-text">Meilleur temps : {{getBestScore(car1.race.laptimers)}}s</h4>
-                </div>
-                  <div class="video-wrapper">
-                  <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
-                </div>
-            </div>
-            <div v-if="car1.race === null && job1 !== []">
-                <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
-                <h1> {{ job1[0].player.player_pseudo}}</h1>
-                <div class="no-laptimer-wrapper">
-                    <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
-                </div>
             </div>
             </vs-col>
 
             <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6" class="pilot-wrapper">
               <!-- Player 2 -->
-              <div v-if="car2 === undefined || job2[0] === undefined">
-                <h1> Player 2</h1>
-                  <div class="attente-text">
-                  <span style="--i:1">E</span>
-                  <span style="--i:2">N</span>
-                  <span style="--i:3"> </span>
-                  <span style="--i:4"> </span>
-                  <span style="--i:5">A</span>
-                  <span style="--i:6">T</span>
-                  <span style="--i:7">T</span>
-                  <span style="--i:8">E</span>
-                  <span style="--i:9">N</span>
-                  <span style="--i:10">T</span>
-                  <span style="--i:11">E</span>
-                  <span style="--i:12">.</span>
-                  <span style="--i:13">.</span>
-                  <span style="--i:14">.</span>
+              <div v-if="car2 === undefined || job2[0] === undefined || car1.current_race_id === null">
+              <h1> Player 2</h1>
+               <div class="attente-text">
+                <span style="--i:1">E</span>
+                <span style="--i:2">N</span>
+                <span style="--i:3"> </span>
+                <span style="--i:4"> </span>
+                <span style="--i:5">A</span>
+                <span style="--i:6">T</span>
+                <span style="--i:7">T</span>
+                <span style="--i:8">E</span>
+                <span style="--i:9">N</span>
+                <span style="--i:10">T</span>
+                <span style="--i:11">E</span>
+                <span style="--i:12">.</span>
+                <span style="--i:13">.</span>
+                <span style="--i:14">.</span>
                </div>
+            </div>
+            <div v-if="car2 !== undefined && job2[0] !== undefined && car2.current_race_id !== null ">
+              <div v-if="car2.race.laptimers.length !== 0">
+                  <vs-button  size="xl" :color="'#'+car1.color" class="car-name-button"> {{car1.name}}</vs-button>
+                  <h1 v-if="job2[0].player.player_pseudo !== undefined"> {{ job2[0].player.player_pseudo}}</h1>
+                  <h1 v-if="job2[0].player.player_pseudo === undefined"> Unknow player</h1>
+                  <div>
+                      <vs-table class="table-head"  v-if="car2.race !== null && car2.race.laptimers !== undefined" >
+                          <template #thead>
+                          <vs-tr>
+                              <vs-th>
+                              Tours
+                              </vs-th>
+                              <vs-th>
+                              Temps
+                              </vs-th>
+                          </vs-tr>
+                          </template>
+                          <template #tbody>
+                          <vs-tr v-for="(lap,i) in car2.race.laptimers" v-bind:key="i">
+                              <vs-td>
+                                  {{i+1}}
+                              </vs-td>
+                              <vs-td>
+                                  {{lap.duration/1000}} s
+                              </vs-td>
+                          </vs-tr>
+                          </template>
+                      </vs-table>
+                      <h4 v-if=" car2.race !== null && car2.race.laptimers !== [] && car2.race.laptimers !== undefined " class="best-score-text">Meilleur temps : {{getBestScore(car2.race.laptimers)}}s</h4>
+                  </div>
+                    <div class="video-wrapper">
+                    <img id='mpeg-image' class='img-responsive' :src="'http://'+ car1.ip + ':8787/video'"/>
+                  </div>
               </div>
-              <div v-if="car2 !== undefined && job2[0] !== undefined">
-                <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
-                <h1> {{ job2[0].player.player_pseudo}}</h1>
-                <div>
-                    <vs-table class="table-head">
-                        <template #thead>
-                        <vs-tr>
-                            <vs-th>
-                            Tours
-                            </vs-th>
-                            <vs-th>
-                            Temps
-                            </vs-th>
-                        </vs-tr>
-                        </template>
-                        <template #tbody>
-                        <vs-tr v-for="(lap,i) in car2.race.laptimers" v-bind:key="i">
-                            <vs-td>
-                                {{i+1}}
-                            </vs-td>
-                            <vs-td>
-                                {{lap.duration/1000}} s
-                            </vs-td>
-                        </vs-tr>
-                        </template>
-                    </vs-table>
-                </div>
-                <h4 v-if="car2.race.laptimers !== []" class="best-score-text">Meilleur temps : {{getBestScore(car2.race.laptimers)}}s</h4>
-                <div class="video-wrapper">
-                  <img id='mpeg-image' class='img-responsive' :src="'http://'+ car2.ip + ':8787/video'"/>
-                </div>
+              <div v-if="car2.race.laptimers.length === 0" >
+                  <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
+                  <h1 v-if="job2[0].player.player_pseudo !== undefined"> {{ job2[0].player.player_pseudo}}</h1>
+                  <h1 v-if="job2[0].player.player_pseudo === undefined"> Unknow player</h1>
+                  <div class="no-laptimer-wrapper">
+                      <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
               </div>
-
-              <div v-if="car2.race === null && job2 !== undefined" >
-                <vs-button  size="xl" :color="'#'+car2.color" class="car-name-button"> {{car2.name}}</vs-button>
-                <h1> {{ job2[0].player.player_pseudo}}</h1>
-                <div class="no-laptimer-wrapper">
-                    <h3 class='no-laptimer-text'> Veuillez avancer pour lancer la course</h3>
-                </div>
-              </div>
+            </div>
+            </div>
             </vs-col>
         </vs-row>
     </div>
@@ -138,7 +145,7 @@
         <flip-countdown  v-if="car1.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
       </vs-col>
       <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="waitingList !== undefined || waitingList !== []">
-        <vs-table class="waiting-table">
+        <vs-table class="waiting-table" v-if="waitingList !== undefined">
           <template #thead>
           <vs-tr>
               <vs-th>
@@ -288,7 +295,7 @@ export default {
 </script>
 <style>
 .no-laptimer-text{
- padding-top: 20px;
+ margin-top: 40%;
  font-size: 25px;
  animation: grow-animation 1s linear infinite;
 }
