@@ -137,7 +137,7 @@ class CarManagerApiService:
         :param car: Car details
         :return: The create car
         """
-        self._create_resource(car, RES_CARS, Car, "car")
+        return self._create_resource(car, RES_CARS, Car, "car")
 
     def update_car(self, car: CarUpdate) -> Car:
         """
