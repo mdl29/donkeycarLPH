@@ -7,7 +7,7 @@ from starlette.websockets import WebSocketDisconnect, WebSocket
 from donkeycarmanager import schemas
 import donkeycarmanager.crud.workers as crud
 from donkeycarmanager.crud.workers_read import get_worker, get_workers
-from donkeycarmanager.dependencies import get_db, get_job_scheduler, db, get_heartbeat_manager
+from donkeycarmanager.dependencies import get_db, get_job_scheduler, get_heartbeat_manager
 from donkeycarmanager.schemas import WorkerState, WorkerType
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 from donkeycarmanager.worker_heartbeat_manager import WorkerHeartbeatManager

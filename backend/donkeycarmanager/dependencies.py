@@ -8,13 +8,13 @@ from donkeycarmanager.helpers.socker_io_manager import SocketIOManager
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 from donkeycarmanager.worker_heartbeat_manager import WorkerHeartbeatManager
 
-db = SessionLocal()
 
 def get_db():
     """
     Open the database session.
     :return: The SQL Alchemy database
     """
+    db = SessionLocal()
     try:
         yield db
     finally:
@@ -32,10 +32,10 @@ def get_sio() -> socketio.AsyncServer:
     return sm.getSocketIO()
 
 
-job_scheduler = AsyncJobScheduler(db, get_sio())
+job_scheduler = AsyncJobScheduler(SessionLocal(), get_sio())
 
 
-def get_job_scheduler() -> AsyncJobScheduler:
+def get_job_scheduler(db: SessionLocal = Depends(get_db)) -> AsyncJobScheduler:
     """
     Returns the job_scheduler singleton
     :param db: Database, injected
