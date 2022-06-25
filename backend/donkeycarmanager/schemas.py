@@ -243,3 +243,11 @@ class EventJobChanged(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class EventWorkerChanged(BaseModel):
+    worker: Worker
+
+    class Config:
+        orm_mode = True
+

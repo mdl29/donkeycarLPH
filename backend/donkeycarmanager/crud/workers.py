@@ -1,8 +1,10 @@
+import socketio
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import models, schemas
 from donkeycarmanager.crud.workers_read import get_worker
+from donkeycarmanager.emitters.workers import on_worker_update
 from donkeycarmanager.helpers.utils import dict_to_attr
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 
@@ -15,13 +17,14 @@ def create_worker(db: Session, worker: schemas.Worker) -> schemas.Worker:
     return db_worker
 
 
-async def update_worker(db: Session, worker: schemas.Worker, job_sched: AsyncJobScheduler) -> schemas.Worker:
+async def update_worker(db: Session, sio: socketio.AsyncServer, worker: schemas.Worker, job_sched: AsyncJobScheduler) -> schemas.Worker:
     db_worker = get_worker(db=db, worker_id=worker.worker_id)
     dict_to_attr(db_worker, worker.dict())
     db.commit()
     db.refresh(db_worker)
 
     await job_sched.on_worker_changed(worker)
+    await on_worker_update(sio=sio, worker=db_worker)
     return db_worker
 
 def clean_jobs(db: Session, worker_id: str, fail_details: str):
