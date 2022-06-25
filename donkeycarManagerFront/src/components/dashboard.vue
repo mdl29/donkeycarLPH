@@ -320,6 +320,11 @@ export default {
       that.donkeycars = that.fetchcars(0, 4)
       that.$insProgress.finish()
     })
+    socket.on('car.added', function (data) {
+      that.$insProgress.start()
+      that.donkeycars = that.fetchcars(0, 4)
+      that.$insProgress.finish()
+    })
     this.interval = setInterval(() => {
       that.timestamps = that.drivingWaitingQueue.map(c => getISOFromNow(c.player.register_datetime))
     }, 3000)

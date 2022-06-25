@@ -204,7 +204,7 @@ export default class DonkeycarManagerService {
       'worker_type': 'CAR',
       'name': 'DRIVE',
       'player_id': playerId,
-      'parameters': "{ 'drive_time' : 300 }",
+      'parameters': '{ "drive_time" : 300 }',
       'state': 'WAITING',
       'worker_id': null
     })
