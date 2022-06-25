@@ -112,7 +112,7 @@ class JobDrive(Job):
 
         # Here we know user is confirmed
         if self.drive_stage == JobDriveStage.USER_CONFIRMED:
-            self.logger.debug("[job_id: %i] start, waiting for user to move to start the drive counter of %i seconds", self.get_id(), self.drive_time)
+            self.logger.debug("[job_id: %i] start, waiting for user to move", self.get_id())
             self.set_move(True)
 
             with ConditionalEvents([self.event_cancelled, self.user_start_moving, self.event_paused], operator=CondEventsOperator.OR) as start_pause_or_cancelled:
@@ -126,10 +126,16 @@ class JobDrive(Job):
 
             if self.user_start_moving.isSet():
                 self.drive_stage = JobDriveStage.USER_DRIVING
-                self.logger.debug('[job_id: %i] User starts moving, starting the time counter for drive: %i sec',
-                            self.get_id(),
-                            self.drive_time)
+                self.logger.debug("[job_id: %i] user start moving", self.get_id())
 
+                with ConditionalEvents([self.event_cancelled, self.race_service.event_race_started], operator=CondEventsOperator.OR) as canceled_or_new_lap:
+                    self.logger.debug('[job_id: %i] Waiting for race started or cancelled, before starting drive countdown',
+                                      self.get_id())
+                    canceled_or_new_lap.wait()
+
+                self.logger.debug('[job_id: %i] User cross the start line (or cancelled job), race started, starting the time counter for drive: %i sec',
+                                  self.get_id(),
+                                  self.drive_time)
                 self.event_cancelled.wait(timeout=self.drive_time)
                 if self.event_cancelled.isSet(): # Cancelled before have finished is run :(
                     self.logger.warning('[job_id: %i] Drive canceled before having time to finish it', self.get_id())

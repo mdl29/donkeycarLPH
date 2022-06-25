@@ -1,7 +1,8 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Optional, NoReturn, List
 
+from custom.helpers.RegistableEvents import RegistableEvent
 from custom.manager.car_manager_api_service import CarManagerApiService
 from custom.manager.schemas import Player, Car, RaceCreate, Race, LapTimerCreate, LapTimer
 
@@ -27,6 +28,7 @@ class RaceService:
         self.is_ended = False
 
         self.laptimers: List[LapTimer] = []
+        self.event_race_started = RegistableEvent() # Set every time a new lap is added
 
     def lazy_create_race(self, start: datetime) -> NoReturn:
         """
@@ -35,6 +37,7 @@ class RaceService:
         """
 
         if self.race is None:
+            self.event_race_started.set()
             self.race = self._api.create_race(
                 RaceCreate(
                     player_id=self.player.player_id,
@@ -79,6 +82,18 @@ class RaceService:
 
         # New lap ended
         if laptimer_last_lap_end_date_time is not None and self.last_lap_end_date !=  laptimer_last_lap_end_date_time:
+
+            if laptimer_last_lap_start_datetime is None or laptimer_last_lap_end_date_time is None:
+                self.logger.error('One of the following is None and shouldn\'t be, laptimer_last_lap_start_datetime: %s, laptimer_last_lap_end_date_time: %s',
+                                  laptimer_last_lap_start_datetime, laptimer_last_lap_end_date_time)
+                return False
+
+            if laptimer_last_lap_duration is None:  # Shouldn't happen but we have strangely seen it already
+                self.logger.warning('laptimer_last_lap_duration was None, had to recalculate it, it should be done by the part')
+                laptimer_last_lap_duration = (datetime.now(timezone.utc) - self.timer.current_start_lap_date) / timedelta(
+                    milliseconds=1)
+                self.logger.warning('laptimer_last_lap_duration is now : %i ms', laptimer_last_lap_duration)
+
             self.last_lap_end_date = laptimer_last_lap_end_date_time
             laptimer =  self._api.create_laptimer(LapTimerCreate(
                 race_id=self.race.race_id,
