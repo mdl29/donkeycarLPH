@@ -3,8 +3,10 @@ import logging
 from typing import Dict, List
 
 import socketio
+from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
+from donkeycarmanager.emitters.jobs_without_job_sched import on_job_update_without_sched, on_job_change_worker_notify
 from donkeycarmanager.helpers.conditional_events import AsyncConditionalEvents, AsyncCondEventsOperator
 from donkeycarmanager.helpers.registable_event import AsyncRegistableEvent
 from donkeycarmanager.models import Job, Worker
@@ -50,6 +52,18 @@ class AsyncJobScheduler:
         if job.state == JobState.WAITING and job.worker_id is None:
             self.logger.debug('job_waiting_events_by_type set for worker type: %s', job.worker_type)
             await self.job_waiting_events_by_type[job.worker_type].set()
+            return
+
+        if job.state == JobState.CANCELLING and job.worker_id is None:
+            self.logger.debug('Ask to cancel a job that as no worker,' +
+                              'passing from CANCELLING state to CANCELLED directly, job_id: %i', job.job_id)
+            db_job_event = inspect(job).session  # We need to use the same DB instance as the one attached to this job
+            db_job_event.refresh(job)
+            job.state = JobState.CANCELLED
+            db_job_event.commit()
+            await on_job_update_without_sched(db_job_event, self._sio, job)
+            return
+
 
     async def on_worker_changed(self, worker: Worker):
         """
@@ -151,7 +165,7 @@ class AsyncJobScheduler:
 
                             self.logger.debug('Assigning worker_id: %i to job_id: %i, of type : %s',
                                               worker.worker_id, job.job_id, worker_type)
-                            await crudJobs.on_job_change_worker_notify(self._db, self._sio, job_changed=job) # TODO find a way to call it inside the thread
+                            await on_job_change_worker_notify(self._db, self._sio, job_changed=job) # TODO find a way to call it inside the thread
                         else:
                             break  # No more jobs
 
