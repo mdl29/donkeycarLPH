@@ -1,29 +1,21 @@
-import json
 import logging
-from typing import List, Optional
+from typing import Optional
 
 import socketio
 from sqlalchemy import desc, asc
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import models, schemas
-from donkeycarmanager.crud.jobs_read import get_jobs, get_job, on_job_change_worker_notify, on_job_queue_order_changes
+from donkeycarmanager.crud.jobs_read import get_job, on_job_queue_order_changes
+from donkeycarmanager.emitters.jobs import on_job_update
+from donkeycarmanager.emitters.jobs_without_job_sched import on_job_change_worker_notify
 from donkeycarmanager.helpers.utils import dict_to_attr
-from donkeycarmanager.schemas import EventJobQueue, EventJobChanged, JobState
+from donkeycarmanager.schemas import JobState
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 
 RANKING_STEP = 2000  # How much place by default between 2 players.py in driving waiting queue
 
 logger = logging.getLogger(__name__)
-
-
-async def on_job_update(db: Session, sio: socketio.AsyncServer, job_sched: AsyncJobScheduler,
-                        job_changed: models.Job):
-    # We always notify because changed could impact parameters, assigned worker ... so job list on cars need to be
-    # updated to reflect those changes
-    await on_job_queue_order_changes(db, sio, jobs_changed=[job_changed])
-    await on_job_change_worker_notify(db=db, sio=sio, job_changed=job_changed)
-    await job_sched.on_job_changed(job=job_changed)
 
 
 async def create_job(db: Session, sio: socketio.AsyncServer, job_sched: AsyncJobScheduler,

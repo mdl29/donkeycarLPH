@@ -12,6 +12,7 @@ from donkeycarmanager.schemas import JobState, WorkerType, EventJobQueue, EventJ
 
 logger = logging.getLogger(__name__)
 
+
 async def on_job_queue_order_changes(db: Session, sio: socketio.AsyncServer,
                                      jobs_changed: List[models.Job] = []) -> None:
     """
@@ -44,25 +45,6 @@ async def on_job_queue_order_changes(db: Session, sio: socketio.AsyncServer,
             logger.debug('on_job_queue_all_change: emitting "%s"', event_name)
             await sio.emit(event_name,
                            event_json_payload)
-
-
-async def on_job_change_worker_notify(db: Session, sio: socketio.AsyncServer,
-                                      job_changed: models.Job) -> None:
-    """
-    Emit to notify a worker of "one" job change. Shouldn't be used to handle jobs orders.
-    :param db: database
-    :param sio: socketIO
-    :param job_changed: Changed job.
-    """
-    if job_changed.worker_id is None:
-        return
-
-    # Send socket IO event with all queue elements
-    event = EventJobChanged(job=job_changed)
-    event_json_payload = json.loads(event.json())  # Workaround to get pydantic deep conversion as dict
-    event_name = f"one_job.{job_changed.worker_id}.updated"
-    logger.debug('on_one_job_change: emitting "%s" with : %s', event_name, event_json_payload)
-    await sio.emit(event_name, event_json_payload)
 
 
 def get_job(db: Session, job_id: int) -> schemas.Job:

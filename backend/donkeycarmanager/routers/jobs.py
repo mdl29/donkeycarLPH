@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from donkeycarmanager import schemas
 import donkeycarmanager.crud.jobs as crud
+import donkeycarmanager.crud.jobs_read as crudRead
 from donkeycarmanager.dependencies import get_db, get_sio, get_job_scheduler
 from donkeycarmanager.schemas import JobState, WorkerType
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
@@ -26,7 +27,7 @@ async def create_job(job: schemas.JobCreate,
 
 @router.get("/{job_id}", response_model=schemas.Job)
 def get_job( job_id: int, db: Session = Depends(get_db)) -> schemas.Job:
-    db_job = crud.get_job(db, job_id=job_id)
+    db_job = crudRead.get_job(db, job_id=job_id)
     if db_job is None:
         raise HTTPException(status_code=404, detail="Job not found")
     return db_job
@@ -40,7 +41,7 @@ def read_jobs(by_rank: bool = True, skip: int = 0, limit: int = 100,
               job_states: Union[None, List[JobState]] = Query(default=None,
                                                              description="If multiple state, will use OR operator"),
               db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio)) -> List[schemas.Job]:
-    return crud.get_jobs(db, skip=skip, by_rank=by_rank,
+    return crudRead.get_jobs(db, skip=skip, by_rank=by_rank,
                          worker_id=worker_id, no_worker=no_worker, worker_type=worker_type,
                          job_states=job_states, limit=limit)
 
@@ -60,11 +61,11 @@ async def move_job_after(
         ),
         db: Session = Depends(get_db),
         sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Job:
-    to_move = crud.get_job(db, job_id)
+    to_move = crudRead.get_job(db, job_id)
     if to_move is None:  # Guard ensure the player we want to move exists
         raise HTTPException(status_code=404, detail=f"Job to be moved with id {job_id} "
                                                     f"not found in jobs queue")
-    before_item = crud.get_job(db, after_job_id)
+    before_item = crudRead.get_job(db, after_job_id)
     if before_item is None:  # Guard ensure the player we want to move exists
         raise HTTPException(status_code=404, detail=f"Job with id {after_job_id}, to be after "
                                                     f"not found in jobs queue")
@@ -88,11 +89,11 @@ async def move_job_before(
         ),
         db: Session = Depends(get_db),
         sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Job:
-    to_move = crud.get_job(db, job_id)
+    to_move = crudRead.get_job(db, job_id)
     if to_move is None:  # Guard ensure the player we want to move exists
         raise HTTPException(status_code=404, detail=f"Job to be moved with id {job_id} "
                                                     f"not found in jobs queue")
-    after_item = crud.get_job(db, before_job_id)
+    after_item = crudRead.get_job(db, before_job_id)
     if after_item is None:  # Guard ensure the player we want to move exists
         raise HTTPException(status_code=404, detail=f"Job with id {before_job_id}, to be before "
                                                     f"not found in jobs queue")
@@ -106,7 +107,7 @@ async def update_job(job: schemas.JobUpdate,
                      job_id: int,
                      db: Session = Depends(get_db), sio: socketio.AsyncServer = Depends(get_sio),
                      job_sched: AsyncJobScheduler = Depends(get_job_scheduler)) -> schemas.Job:
-    db_job = crud.get_job(db, job_id=job_id)
+    db_job = crudRead.get_job(db, job_id=job_id)
     if db_job is None:
         raise HTTPException(status_code=404, detail="Job not found")
     return await crud.update_job(db, sio=sio, job_sched=job_sched, job=job)
@@ -115,7 +116,7 @@ async def update_job(job: schemas.JobUpdate,
 async def check_and_update_job_state(job_id: int, job_state: JobState,
                      db: Session, sio: socketio.AsyncServer,
                      job_sched: AsyncJobScheduler) -> schemas.Job:
-    db_job = crud.get_job(db, job_id=job_id)
+    db_job = crudRead.get_job(db, job_id=job_id)
     if db_job is None:
         raise HTTPException(status_code=404, detail="Job not found")
 
