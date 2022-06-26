@@ -8,21 +8,25 @@ import logging
 
 from custom.manager.car_manager_api_service import CarManagerApiService
 from .jobs.job_drive import JobDrive
-from .schemas import JobState, Worker, Job as JobModel, EventJobChanged, WorkerState, Car
+from .jobs.job_record import JobRecord
+from .schemas import JobState, Worker, Job as JobModel, EventJobChanged, WorkerState, Car, JobCreate
 from .jobs.job import Job as JobRun
 
 # Match job name with job runnable instance
 from ..helpers.RegistableEvents import RegistableEvent
+from ..helpers.zeroconf import ZeroConfResult
 
 JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
-    'DRIVE': JobDrive
+    'DRIVE': JobDrive,
+    'RECORD': JobRecord
 }
 
 class JobManager(threading.Thread):
 
-    def __init__(self, api: CarManagerApiService, sio: socketio.Client, worker: Worker, car: Car):
+    def __init__(self, api: CarManagerApiService, ftp: ZeroConfResult, tub_path: str, sio: socketio.Client, worker: Worker, car: Car):
         """
         :param api: API manager instance.
+        :param tub_path: Path where data are stored
         :param sio: Socket IO client.
         :param worker: The current car worker.
         """
@@ -31,7 +35,9 @@ class JobManager(threading.Thread):
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
         self._api = api
+        self._ftp = ftp
         self._sio = sio
+        self._tub_path = tub_path
         self.worker = worker
         self.car = car
 
@@ -134,7 +140,10 @@ class JobManager(threading.Thread):
             self.logger.error('Parsing json parameters for job_id: %s, FAILED with the following exception :')
             self.logger.exception(e)
 
-        job_run_instance = job_run_class(parameters=parameters, job_data=job, api=self._api, sio=self._sio, car=self.car)
+        job_run_instance = job_run_class(
+            parameters=parameters, job_data=job,
+            api=self._api, ftp=self._ftp, sio=self._sio, tub_path=self._tub_path,
+            car=self.car)
         return job_run_instance
 
     def set_worker_state(self, worker_state: WorkerState):
@@ -145,6 +154,34 @@ class JobManager(threading.Thread):
         self.worker.state = worker_state
         self._api.update_worker(worker=self.worker)
 
+    def handle_next_job(self):
+        current_job = self.current_running_job.job_data
+
+        if current_job.next_job_details is None:
+            return
+
+        next_job_details = {}
+        try:
+            next_job_details = json.loads(current_job.next_job_details)
+        except Exception as e:
+            self.logger.error('Parsing json next_job_details for job_id: %s, FAILED with the following exception :')
+            self.logger.exception(e)
+            return
+
+        default_job_parameters = {
+            'worker_id': current_job.worker_id,
+            'worker_type': current_job.worker_type,
+            'player_id': current_job.player_id,
+            'state': JobState.WAITING
+        }
+        next_job_dict = { **default_job_parameters, **next_job_details }
+        next_job = JobCreate( **next_job_dict )
+        self.logger.debug('Creating next job, next_job.name: %s', next_job.name)
+        next_job = self._api.create_job(next_job)
+        # Job as to be run just after the current job
+        self.logger.debug('Moving next job (%i), just after current job (%i)', next_job.job_id, current_job.job_id)
+        next_job = self._api.job_move_after(next_job.job_id, after_job_id=current_job.job_id)
+        self.logger.debug('Next job as rank %i an current job as rank %i', next_job.rank, current_job.rank)
 
     def run(self):
         for job in self.next_job():
@@ -168,6 +205,9 @@ class JobManager(threading.Thread):
             if job.state == JobState.FAILED and job_run.final_job_fail_details is not None:
                 job.fail_details = job_run.final_job_fail_details
 
+            # Handle next job
+            self.handle_next_job()
+
             self._api.update_job(job)
 
             # Handeling car state
@@ -185,7 +225,7 @@ class JobManager(threading.Thread):
                                  laptimer_last_lap_start_datetime: Optional[datetime] = None,
                                  laptimer_last_lap_duration: Optional[int] = None,
                                  laptimer_last_lap_end_date_time: Optional[datetime] = None,
-                                 laptimer_laps_total: Optional[int] = None) -> Tuple[float, str, bool]:
+                                 laptimer_laps_total: Optional[int] = None) -> Tuple[float, str, bool, bool]:
         """
         See donkeycar CarManager part for details.
         """
@@ -202,5 +242,9 @@ class JobManager(threading.Thread):
             )
             return res
 
-
-        return 0.0, 'NO_JOB', True
+        # Default values
+        user_throttle = 0.0
+        job_name = 'NO_JOB'
+        laptimer_reset_all = True
+        recording_state = False
+        return user_throttle, job_name, laptimer_reset_all, recording_state

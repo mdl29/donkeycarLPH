@@ -6,16 +6,17 @@ import socketio
 import socket
 import os
 from netifaces import ifaddresses, AF_INET
-from zeroconf import Zeroconf
 
 from .car_manager_api_service import CarManagerApiService
 from .job_manager import JobManager
 from .schemas import Car, Worker, WorkerCreate, WorkerState, WorkerType, CarCreate
 from .worker_heartbeat import WorkerHeartBeat
+from ..helpers.zeroconf import find_zero_conf_service, ZeroConfResult
 
 RES_WORKERS = "workers"
 RES_CARS = "cars"
-ZERO_CONF_TYPE = "_http._tcp.local."
+ZERO_CONF_API_TYPE = "_http._tcp.local."
+ZERO_CONF_FTP_TYPE = "_ftp._tcp.local."
 ZERO_CONF_NAME = "donkeycarmanager"
 ZERO_CONF_MAX_TRY = 15  # Will try 15 times to find server IP
 
@@ -25,8 +26,12 @@ class ManagerNoApiFoundException(Exception):
 
 
 class CarManager:
-    def __init__(self, api_origin: Optional[str] = None, network_interface: str = "wlan0"):
+    def __init__(self,
+                 tub_path: str,
+                 api_origin: Optional[str] = None,
+                 network_interface: str = "wlan0"):
         """
+        :param tub_path: Path where data are stored
         :param api_origin:  Optionnal api path, if not given will use zeroconf to find it and use the first found IP.
             Eg:
         :param network_interface: Network interface used to determine the car's IP addr.
@@ -34,8 +39,10 @@ class CarManager:
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
         self._api_origin = api_origin if api_origin else self._find_api_with_zero_conf()
-
         self._api = CarManagerApiService(self._api_origin)
+
+        self._ftp = self._find_ftp_with_zero_conf()
+
         self._sio = socketio.Client()
         self._sio.connect(self._api_origin, socketio_path='/ws/socket.io')
 
@@ -56,8 +63,23 @@ class CarManager:
         self._worker_heartbeat.start()
 
         # Job managment
-        self._job_manager = JobManager(self._api, self._sio, self.worker, self.car)
+        self._job_manager = JobManager(self._api, self._ftp, tub_path, self._sio, self.worker, self.car)
         self._job_manager.start()
+
+    @staticmethod
+    def _find_ftp_with_zero_conf() -> ZeroConfResult:
+        """
+        Find API URL using zero conf.
+        :return: The API URL
+        """
+        logger = logging.getLogger(CarManager.__module__ + "." + CarManager.__class__.__name__)
+        logger.debug('Searching API using zeroconf ...')
+        ftp_info = find_zero_conf_service(ZERO_CONF_FTP_TYPE, ZERO_CONF_NAME)
+
+        if ftp_info is not None:
+            return ftp_info
+
+        raise ManagerNoApiFoundException("Can't find the FTP using zero conf")
 
     @staticmethod
     def _find_api_with_zero_conf() -> str:
@@ -65,29 +87,14 @@ class CarManager:
         Find API URL using zero conf.
         :return: The API URL
         """
-        zeroconf = Zeroconf()
         logger = logging.getLogger(CarManager.__module__ + "." + CarManager.__class__.__name__)
-        url = None
+        logger.debug('Searching API using zeroconf ...')
+        api_info = find_zero_conf_service(ZERO_CONF_API_TYPE, ZERO_CONF_NAME)
 
-        nb_remaining_try = ZERO_CONF_MAX_TRY
-
-        while nb_remaining_try > 0:
-            logger.debug('Trying to find API using zeroconf, remaining try : %i', nb_remaining_try)
-            try:
-                service = zeroconf.get_service_info(ZERO_CONF_TYPE, f"_{ZERO_CONF_NAME}.{ZERO_CONF_TYPE}")
-
-                if service is not None:  # API found
-                    url = f"http://{socket.inet_ntoa(service.addresses[0])}:{service.port}"
-                    logger.debug('Found API IP at : %s ', url)
-                    return url
-            except Exception as e:
-                if nb_remaining_try - 1 <= 0: # last try display error
-                    logger.error('Last attempt using zeroconf got the following error : %s')
-                    logger.exception(e)
-            finally:
-                zeroconf.close()
-
-            nb_remaining_try -= 1
+        if api_info is not None:
+            url = f"http://{api_info.ip}:{api_info.port}"
+            logger.debug('Found manager API at : %s', url)
+            return url
 
         raise ManagerNoApiFoundException("Can't find the API using zero conf")
 
@@ -140,13 +147,14 @@ class CarManager:
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int]=None
-                     ) -> Tuple[float, str, bool]:
+                     ) -> Tuple[float, str, bool, bool]:
         """
         :param user_throttle: User throttle value
         :return: [manager/enable_controller_throttle, ..]
             user/throttle
             manager/job_name
             laptimer/reset_all
+            recording
         """
         res = self._job_manager.run_threaded_current_job(
             user_throttle,

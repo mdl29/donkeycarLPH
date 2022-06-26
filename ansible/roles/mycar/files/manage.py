@@ -266,7 +266,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
             rpi_network_interface = rpi_network_interface if rpi_network_interface else "wlan0"
 
             try:
-                manager = CarManager(network_interface=rpi_network_interface)
+                manager = CarManager(tub_path=cfg.DATA_PATH, network_interface=rpi_network_interface)
                 V.add(
                     manager,
                     inputs=[
@@ -281,7 +281,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                     outputs=[
                         'user/throttle',
                         'manager/job_name',
-                        'laptimer/reset_all'
+                        'laptimer/reset_all',
+                        'recording'
                     ], threaded=True)
             except ManagerNoApiFoundException:
                 logger.error(

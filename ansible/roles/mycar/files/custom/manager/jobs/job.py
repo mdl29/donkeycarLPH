@@ -11,19 +11,24 @@ from ..schemas import Job as JobModel, JobState, Car
 from custom.manager.car_manager_api_service import CarManagerApiService
 from ...helpers.conditional_events import ConditionalEvents, CondEventsOperator
 from ...helpers.RegistableEvents import RegistableEvent
+from ...helpers.zeroconf import ZeroConfResult
 
 
 class Job(Thread):
 
     def __init__(self, parameters: Dict[str, any],
                  job_data: JobModel, car: Car,
-                 api: CarManagerApiService, sio: socketio.Client):
+                 api: CarManagerApiService, ftp: ZeroConfResult,
+                 sio: socketio.Client,
+                 tub_path: str):
         """
         Init a job
         :param parameters: Job parameters (json parsed from API)
         :param job_data: Job entry.
         :param api: DonkeyCarManager API
+        :param ftp: DonkeyCarManager FTP server location details
         :param sio: SocketIO to manager
+        :param tub_path: Path where data are stored
         """
         super(Job, self).__init__()
         self.daemon = True
@@ -36,7 +41,9 @@ class Job(Thread):
         self.job_data: JobModel = job_data
         self.car = car
         self.api = api
+        self.ftp = ftp
         self.sio = sio
+        self.tub_path = tub_path
 
         self.final_job_status = None
         self.final_job_error: Optional[Exception] = None

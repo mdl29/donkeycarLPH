@@ -25,6 +25,9 @@ class JobDriveStage(int, Enum):
     # user start moving and drive session fully started
     USER_DRIVING = 2
 
+    # Driving session is finished
+    DRIVE_FINISHED = 3
+
 
 class JobDrive(Job):
 
@@ -57,13 +60,14 @@ class JobDrive(Job):
         :return: [
             user_throttle,
             job_name,
-            laptimer_reset_all
+            laptimer_reset_all,
+            recording
             ]
         """
         laptimer_reset_all = True
 
         if self.drive_stage == JobDriveStage.USER_NOT_CONFIRMED: # user not confirmed yet
-            return 0.0, 'DRIVE', laptimer_reset_all
+            return 0.0, 'DRIVE', laptimer_reset_all, False
 
         if user_throttle > 0.0:
             if not self.user_start_moving.isSet(): # Logging only first time
@@ -82,7 +86,7 @@ class JobDrive(Job):
                 laptimer_laps_total
             )
 
-        return user_throttle if self.controller_can_move else 0.0, 'DRIVE', laptimer_reset_all
+        return user_throttle if self.controller_can_move else 0.0, 'DRIVE', laptimer_reset_all, False
 
     def set_move(self, user_can_move: bool) -> threading.Event:
         """
@@ -119,6 +123,7 @@ class JobDrive(Job):
                 start_pause_or_cancelled.wait()
 
             if self.event_cancelled.isSet():
+                self.drive_stage = JobDriveStage.DRIVE_FINISHED
                 return
 
             if self.event_paused.isSet():
@@ -139,8 +144,10 @@ class JobDrive(Job):
                 self.event_cancelled.wait(timeout=self.drive_time)
                 if self.event_cancelled.isSet(): # Cancelled before have finished is run :(
                     self.logger.warning('[job_id: %i] Drive canceled before having time to finish it', self.get_id())
+                    self.drive_stage = JobDriveStage.DRIVE_FINISHED
                     return
 
                 # Drive timeout, setting can_move to false and ensure it's set
                 self.logger.debug('[job_id: %i]  Driving session finished', self.get_id())
                 self.set_move(False) # Not waiting as False is the default state, even this line could be removed
+                self.drive_stage = JobDriveStage.DRIVE_FINISHED
