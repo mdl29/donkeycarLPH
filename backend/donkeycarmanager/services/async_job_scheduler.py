@@ -77,7 +77,10 @@ class AsyncJobScheduler:
         :return: All available jobs.
         """
         return crudJobs.get_jobs(self._db, limit=1, by_rank=True,
-                                 no_worker=True, worker_type=worker_type, job_states=[JobState.WAITING])
+                                 no_worker=True, worker_type=worker_type,
+                                 job_states=[
+                                     JobState.WAITING, JobState.RUNNING, JobState.PAUSING, JobState.PAUSED,
+                                     JobState.CANCELLING])
 
     async def refresh_available_workers_by_types(self):
         """

@@ -30,7 +30,8 @@ def read_players(player_pseudo: Union[str, None] = Query(
         skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
     if player_pseudo:
-        return [crud.get_player_by_pseudo(db, player_pseudo=player_pseudo)]
+        r = crud.get_player_by_pseudo(db, player_pseudo=player_pseudo)
+        return [r] if r is not None else []
 
     return crud.get_players(db, skip=skip, limit=limit)
 
