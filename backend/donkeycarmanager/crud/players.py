@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Union
 
 from sqlalchemy.orm import Session
 
@@ -9,7 +9,7 @@ def get_player(db: Session, player_id: int) -> schemas.Player:
     return db.query(models.Player).filter(models.Player.player_id == player_id).first()
 
 
-def get_player_by_pseudo(db: Session, player_pseudo: str) -> List[schemas.Player]:
+def get_player_by_pseudo(db: Session, player_pseudo: str) -> Union[schemas.Player, None]:
     return db.query(models.Player).filter(models.Player.player_pseudo == player_pseudo).first()
 
 
