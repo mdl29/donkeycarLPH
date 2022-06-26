@@ -46,7 +46,7 @@ class DrivingWaitingQueue(DrivingWaitingQueueBase):
 # ---- Stage ----
 class Stage(str, Enum):
     DRIVE = "DRIVE"
-    RECORDING = "RECORDING"
+    RECORD = "RECORD"
     AI_ASSISTED = "AI_ASSISTED"
     MAINTENANCE = "MAINTENANCE"
 
@@ -176,6 +176,9 @@ class JobBase(BaseModel):
     state: JobState = Field(default=JobState.WAITING)
     worker_id: Optional[int]
     player_id: int
+
+    # contains details to create the next related job that will be executed after this job
+    next_job_details: Optional[str]
 
 
 class JobCreate(JobBase):

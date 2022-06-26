@@ -40,16 +40,20 @@ open_api_tags_metadata = [
 ]
 
 # ZeroConf, server discovery
+ZERO_CONF_API_TYPE = "_http._tcp.local."
+ZERO_CONF_FTP_TYPE = "_ftp._tcp.local."
+
 interface_name = os.environ.get(NETWORK_INTERFACE_ENV_VAR_NAME)
-server_zeroconf = ZeroConfService(app_port=APP_PORT, network_interface_name=interface_name)
+server_zeroconf = ZeroConfService(app_port=APP_PORT, service_type=ZERO_CONF_API_TYPE, network_interface_name=interface_name)
+ftp_zeroconf = ZeroConfService(app_port=21, service_type=ZERO_CONF_FTP_TYPE, network_interface_name=interface_name)
 
 app = FastAPI(
     docs_url=None,
     redoc_url=None,
     dependencies=[Depends(get_db), Depends(get_sio), Depends(get_job_scheduler)],
     openapi_tags=open_api_tags_metadata,
-    on_startup=[server_zeroconf.start, get_job_scheduler().start, heartbeat_manager.server_init],
-    on_shutdown=[server_zeroconf.stop])
+    on_startup=[server_zeroconf.start, ftp_zeroconf.start, get_job_scheduler().start, heartbeat_manager.server_init],
+    on_shutdown=[server_zeroconf.stop, ftp_zeroconf.stop])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],

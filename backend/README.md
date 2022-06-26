@@ -19,6 +19,7 @@ python setup.py install
 
 Starting postgres database :
 ```
+ export SERVER_LOCAL_IP_ADDR=$(ip a s wlp2s0 | awk '/inet / {print$2}' | cut -d/ -f1) # Adapt to your interface
  docker-compose up -d --build
 ```
 

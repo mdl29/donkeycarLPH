@@ -109,5 +109,7 @@ class Job(Base):
 
     fail_details = Column(String(1100), nullable=True)
 
+    next_job_details = Column(String(2000), nullable=True)
+
     worker = relationship("Worker", backref="jobs", lazy='subquery')
     player = relationship("Player", lazy='subquery')
