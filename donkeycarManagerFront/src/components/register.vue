@@ -11,19 +11,33 @@
         </vs-col>
       </vs-row>
     </div>
-    <vs-dialog width="550px" prevent-close blur not-close v-model="popup">
+    <vs-dialog width="100%" prevent-close blur not-close v-model="popup">
       <template #header>
-        <h2 class="not-margin"> Bienvenue <b>{{pseudo}}</b></h2>
+        <h1 class="not-margin"> Bienvenue <b>{{pseudo}}</b></h1>
       </template>
-      <div class="con-content">
+      <div class="content-404">
         <p>Vous venez d'être enregistré(e) !!</p>
         <h3> Votre pseudo : {{player.player_pseudo}} </h3>
         <h3> Votre numéro : {{numero}} </h3>
         <h3> temps d'attente : {{attente}}</h3>
       </div>
       <template #footer>
-        <div class="con-footer">
+        <div class="content-404r">
           <vs-button @click="popup=false ; redirect() " >Ok</vs-button>
+        </div>
+      </template>
+    </vs-dialog>
+
+    <vs-dialog width="100%" prevent-close blur not-close v-model="popup404">
+      <template #header>
+        <h1 class=""> Erreur lors de l'enregistrement</h1>
+      </template>
+      <div class="content-404">
+        Votre <b>pseudo</b> est déjà utilisé, merci de bien vouloir le changer :)
+      </div>
+      <template #footer>
+        <div>
+          <vs-button class="content-404" @click="popup404=false" >Ok</vs-button>
         </div>
       </template>
     </vs-dialog>
@@ -34,14 +48,16 @@
 
 import DonkeycarManagerService from '@/js/service.js'
 
-const ip = 'localhost'
+const ip = '192.168.20.107'
 const srv = new DonkeycarManagerService('http://' + ip + ':8000')
 
 export default {
   data: () => ({
     pseudo: '',
     player: [],
+    playerTest: null,
     popup: false,
+    popup404: false,
     pseudoBlank: false,
     telBlank: false,
     numero: 0,
@@ -64,22 +80,33 @@ export default {
       this.$router.push('/')
     },
     async addUser () {
-      this.player = await srv.createPlayer(this.pseudo)
-      await srv.addJobs(this.player.player_id)
-      if (this.waitingList.length < 2) {
-        this.attente = 'Maintenant'
-      } else if (this.waitingList.length >= 2 && this.waitingList.length < 4) {
-        this.attente = '15 minutes'
-      } else if (this.waitingList.length >= 4 && this.waitingList.length < 8) {
-        this.attente = '30 minutes'
-      } else if (this.waitingList.length >= 8 && this.waitingList.length < 12) {
-        this.attente = '45 minutes'
-      } else if (this.waitingList.length >= 12) {
-        this.attente = 'plus de 1 heure'
+      this.playerTest = await srv.getPlayerByPseudo(this.pseudo)
+      console.log(this.playerTest)
+      console.log(this.playerTest.length)
+      if (this.playerTest.length === 0){
+        console.log('pass')
+        this.player = await srv.createPlayer(this.pseudo)
+        console.log('pass1.1')
+        await srv.addJobs(this.player.player_id)
+        console.log('pass2')
+        if (this.waitingList.length < 2) {
+          this.attente = 'Maintenant'
+        } else if (this.waitingList.length >= 2 && this.waitingList.length < 4) {
+          this.attente = '15 minutes'
+        } else if (this.waitingList.length >= 4 && this.waitingList.length < 8) {
+          this.attente = '30 minutes'
+        } else if (this.waitingList.length >= 8 && this.waitingList.length < 12) {
+          this.attente = '45 minutes'
+        } else if (this.waitingList.length >= 12) {
+          this.attente = 'plus de 1 heure'
+        }
+        this.numero = this.player.player_id
+        this.popup = true
+        console.log('pass3')
+      }else if (this.playerTest.length !== 0){
+        this.popup404 = true
       }
-      this.numero = this.player.player_id
-      this.popup = true
-    },
+      },
     async fetchDrivingQueue () {
       this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
     }
@@ -116,5 +143,8 @@ input::placeholder{
 }
 #label-form{
   margin-left: 0px;
+}
+.content-404{
+ font-size: 35px;
 }
 </style>

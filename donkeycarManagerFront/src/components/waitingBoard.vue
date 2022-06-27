@@ -50,7 +50,7 @@ const moment = require('moment')
 
 moment.locale('fr')
 
-const ip = 'localhost'
+const ip = '192.168.20.107'
 const srv = new DonkeycarManagerService('http://' + ip + ':8000')
 var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
 

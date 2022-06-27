@@ -105,8 +105,9 @@
                   <vs-button color="#fe5f55" v-if="car.current_stage === null" > ❌ no status </vs-button>
                 </vs-col>
               </vs-row>
-              <p v-if="car.current_player_id!=null"> Used by : <b>{{car.player.player_pseudo}}</b> </p>
+              <p v-if="car.current_player_id !== null"> Used by : <b>{{car.player.player_pseudo}}</b> </p>
               <p v-else> Used by : <b>nobody</b> </p>
+              <p v-if="car.worker!== undefined || car.worker!== null" style="padding-top: 10px;"> Worker status : <b>{{car.worker.state}}</b> </p>
               <vs-row class="popup-footer">
                 <vs-col vs-type="flex" w="6">
                   <vs-button class="param-btn" warn @click=" carSpec=car ; parampopup=true ; newStatus = carSpec.current_stage ; calibValue =1; carPlayer = carSpec.current_player_id"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M13 5h9v2h-9zM2 7h7v2h2V3H9v2H2zm7 10h13v2H9zm10-6h3v2h-3zm-2 4V9.012h-2V11H2v2h13v2zM7 21v-6H5v2H2v2h3v2z"></path></svg> </vs-button>
@@ -267,7 +268,7 @@ const moment = require('moment')
 
 moment.locale('fr')
 
-const ip = 'localhost'
+const ip = '192.168.20.107'
 const srv = new DonkeycarManagerService('http://' + ip + ':8000')
 var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
 

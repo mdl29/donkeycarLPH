@@ -60,6 +60,17 @@ export default class DonkeycarManagerService {
     return response.data
   }
 
+    /**
+  *
+  * @async
+  * @augments donkeycarManagerService
+  * @param {int} playerId - player Id , e.g: 0
+  * @returns {Promise} - all player information
+  */
+     async getPlayerByPseudo (pseudo) {
+      const response = await axios.get(this.apiUrl + '/players/?player_pseudo=' + String(pseudo)+'&skip=0&limit=100')
+      return response.data
+    }
   /**
   *
   * @async
@@ -81,7 +92,7 @@ export default class DonkeycarManagerService {
   * @returns {Promise} - all player information
   */
   async getDrivingWaitingQueue (rank, skip, limit) {
-    const response = await axios.get(this.apiUrl + '/jobs/?by_rank=' + rank + '&skip=' + String(skip) + '&limit=' + String(limit) + '&no_worker=true&worker_type=CAR&job_states=WAITING')
+    const response = await axios.get(this.apiUrl + '/jobs/?by_rank=' + rank + '&skip=' + String(skip) + '&limit=' + String(limit) + '&worker_type=CAR&job_states=WAITING')
     return response.data
   }
   /**
