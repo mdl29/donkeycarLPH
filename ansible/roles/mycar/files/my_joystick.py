@@ -46,8 +46,8 @@ class MyJoystick(Joystick):
 
         self.button_names = {
             0x130: 'a_button',
-            0x131: 'b_button',
-            0x133: 'x_button',
+            0x133: 'b_button',
+            0x131: 'x_button',
             0x134: 'y_button',
             0x13b: 'options',
             0x136: 'left_shoulder',
@@ -70,6 +70,8 @@ class MyJoystickController(JoystickController):
     """
     def __init__(self, *args, **kwargs):
         super(MyJoystickController, self).__init__(*args, **kwargs)
+
+        self.state_x_button = False
 
 
     def init_js(self):
@@ -109,7 +111,7 @@ class MyJoystickController(JoystickController):
         self.button_down_trigger_map = {
             #'a_button': self.toggle_mode,
             #'b_button': self.toggle_manual_recording,
-            #'x_button': self.erase_last_N_records,
+            'x_button': self.x_button_pressed,
             'y_button': self.emergency_stop,
             'right_shoulder': self.increase_max_throttle,
             'left_shoulder': self.decrease_max_throttle,
@@ -139,6 +141,12 @@ class MyJoystickController(JoystickController):
         else:
             self.js._led_control.stop_led_flash()
 
+    def x_button_pressed(self):
+        """
+        X button was pressed, could be used for confirmation.
+        """
+        self.state_x_button = True
+
     def run_threaded(self, img_arr=None, mode=None, recording=None, manager_job_name = None):
         """
         :param img_arr: current camera image or None
@@ -150,15 +158,19 @@ class MyJoystickController(JoystickController):
         other_parts_recording_before = recording
 
         # Update I/O
-        outputs = super(MyJoystickController, self).run_threaded(img_arr=img_arr, mode=mode, recording=recording)
+        o_angle, o_throttle, o_mode, o_recording = super(MyJoystickController, self).run_threaded(img_arr=img_arr, mode=mode, recording=recording)
 
         # Check for changes, doing it like this we don't need to understand the update logic
         controller_recording_after = self.recording
         # 4th element of the output tuple is the recording sent to other parts
-        other_parts_recording_after = outputs[3]
+        other_parts_recording_after = o_recording
         controller_recording_changed = controller_recording_before != controller_recording_after
         other_parts_recording_changed = other_parts_recording_before != other_parts_recording_after
         if controller_recording_changed or other_parts_recording_changed: # Internal or external mutation sate
             self._on_recording_change()
 
-        return outputs
+        o_x_pressed = self.state_x_button
+        if o_x_pressed:
+            self.state_x_button = False # resetting it for next turns
+
+        return o_angle, o_throttle, o_mode, o_recording, o_x_pressed

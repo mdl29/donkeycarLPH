@@ -6,6 +6,7 @@ from ftplib import FTP
 from typing import Optional, Tuple, NoReturn
 
 from custom.helpers.RegistableEvents import RegistableEvent
+from custom.helpers.conditional_events import ConditionalEvents, CondEventsOperator
 from custom.helpers.os import clean_directory_content, make_tarfile
 from custom.manager.jobs.job_drive import JobDrive, JobDriveStage
 
@@ -19,6 +20,9 @@ class JobRecord(JobDrive):
 
         # We don't need user confirmation for recording as the user doesn't change
         self.drive_stage = JobDriveStage.USER_CONFIRMED
+
+        # We don't want drive confirmation message
+        self.by_pass_drive_finished_confirmation = True
 
         self.is_recording = RegistableEvent()  # Will be set when the user is recording
 
@@ -39,7 +43,8 @@ class JobRecord(JobDrive):
                               self.get_id(), self.job_data.player.player_pseudo)
         self.clean_data_folder()
         # Would need to reset tub_writer
-        # With tub_writer.tub = Tub(.....)  see in tub_writer.__init__()
+        self.tub_writer.reset()
+
         # To have the json manifest inited
         self.is_recording.set()
 
@@ -82,7 +87,8 @@ class JobRecord(JobDrive):
                      laptimer_last_lap_start_datetime: Optional[datetime] = None,
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
-                     laptimer_laps_total: Optional[int] = None
+                     laptimer_laps_total: Optional[int] = None,
+                     controller_x_pressed: Optional[bool] = False
                      ) -> Tuple[float, str, bool, bool]:
         user_throttle, job_name, laptimer_reset_all, recording_state =  super(JobRecord, self).run_threaded(
                 user_throttle,
@@ -91,7 +97,8 @@ class JobRecord(JobDrive):
                 laptimer_last_lap_start_datetime,
                 laptimer_last_lap_duration,
                 laptimer_last_lap_end_date_time,
-                laptimer_laps_total)
+                laptimer_laps_total,
+                controller_x_pressed)
         job_name = 'RECORD'
 
 
@@ -118,6 +125,21 @@ class JobRecord(JobDrive):
                               self.get_id())
             self.compress_transfert_data()
             self.clean_data_folder()
+
+            self.logger.debug('[job_id: %i]  Telling the user it\'s finished and he need to press X to continue',
+                              self.get_id())
+            self.job_data.screen_msg = "Enregistrement fini ! X pour lancer le calcul du modèle"
+            self.job_data.screen_msg_display = True
+            self.api.update_job(self.job_data)
+
+            with ConditionalEvents([self.event_cancelled, self.event_controller_x_pressed],
+                                   operator=CondEventsOperator.OR) as x_pressed_or_cancelled:
+                x_pressed_or_cancelled.wait()
+
+            self.job_data.screen_msg = None
+            self.job_data.screen_msg_display = False
+            self.api.update_job(self.job_data)
+
         else:
             self.logger.error('Job[job_id: %i] Something wrong hapened drive job didn\'t return with finish state',
                               self.get_id())

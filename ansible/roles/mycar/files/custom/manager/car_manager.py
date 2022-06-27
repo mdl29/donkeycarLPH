@@ -1,10 +1,12 @@
 import logging
 from datetime import datetime
-from typing import Optional, NoReturn, List, Tuple
+from typing import Optional, NoReturn, List, Tuple, Callable
 
 import socketio
 import socket
 import os
+
+from donkeycar.parts.tub_v2 import TubWriter
 from netifaces import ifaddresses, AF_INET
 
 from .car_manager_api_service import CarManagerApiService
@@ -12,6 +14,7 @@ from .job_manager import JobManager
 from .schemas import Car, Worker, WorkerCreate, WorkerState, WorkerType, CarCreate
 from .worker_heartbeat import WorkerHeartBeat
 from ..helpers.zeroconf import find_zero_conf_service, ZeroConfResult
+from ..parts.custom_tub_writer import CustomTubWriter
 
 RES_WORKERS = "workers"
 RES_CARS = "cars"
@@ -28,10 +31,12 @@ class ManagerNoApiFoundException(Exception):
 class CarManager:
     def __init__(self,
                  tub_path: str,
+                 tub_writer: CustomTubWriter,
                  api_origin: Optional[str] = None,
                  network_interface: str = "wlan0"):
         """
         :param tub_path: Path where data are stored
+        :param tub_writer: Resetable thumb writer
         :param api_origin:  Optionnal api path, if not given will use zeroconf to find it and use the first found IP.
             Eg:
         :param network_interface: Network interface used to determine the car's IP addr.
@@ -63,7 +68,7 @@ class CarManager:
         self._worker_heartbeat.start()
 
         # Job managment
-        self._job_manager = JobManager(self._api, self._ftp, tub_path, self._sio, self.worker, self.car)
+        self._job_manager = JobManager(self._api, self._ftp, tub_path, tub_writer, self._sio, self.worker, self.car)
         self._job_manager.start()
 
     @staticmethod
@@ -146,7 +151,8 @@ class CarManager:
                      laptimer_last_lap_start_datetime: Optional[datetime]=None,
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
-                     laptimer_laps_total: Optional[int]=None
+                     laptimer_laps_total: Optional[int]=None,
+                     controller_x_pressed: Optional[bool]=False
                      ) -> Tuple[float, str, bool, bool]:
         """
         :param user_throttle: User throttle value
@@ -163,7 +169,8 @@ class CarManager:
             laptimer_last_lap_start_datetime,
             laptimer_last_lap_duration,
             laptimer_last_lap_end_date_time,
-            laptimer_laps_total
+            laptimer_laps_total,
+            controller_x_pressed
         )
         return res
 

@@ -25,8 +25,11 @@ class JobDriveStage(int, Enum):
     # user start moving and drive session fully started
     USER_DRIVING = 2
 
+    # Driving session is finished, we ask user to press X to confirm he as seen the message on the screen
+    DRIVE_FINISHED_WAIT_FOR_CONFIRMATION = 3
+
     # Driving session is finished
-    DRIVE_FINISHED = 3
+    DRIVE_FINISHED = 4
 
 
 class JobDrive(Job):
@@ -42,6 +45,7 @@ class JobDrive(Job):
         self.drive_time = self.parameters["drive_time"] if "drive_time" in self.parameters else DEFAULT_DRIVE_TIME_SEC
 
         self.race_service = RaceService(self.api, self.job_data.player, car=self.car, max_duration=self.drive_time)
+        self.by_pass_drive_finished_confirmation = False
 
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
@@ -52,7 +56,8 @@ class JobDrive(Job):
                      laptimer_last_lap_start_datetime: Optional[datetime] = None,
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
-                     laptimer_laps_total: Optional[int] = None
+                     laptimer_laps_total: Optional[int] = None,
+                     controller_x_pressed: Optional[bool] = False
                      ) -> Tuple[float, str, bool]:
         """
         Part run_threaded call.
@@ -64,6 +69,14 @@ class JobDrive(Job):
             recording
             ]
         """
+        super(JobDrive, self).run_threaded(user_throttle,
+                     laptimer_current_start_lap_datetime,
+                     laptimer_current_lap_duration,
+                     laptimer_last_lap_start_datetime,
+                     laptimer_last_lap_duration,
+                     laptimer_last_lap_end_date_time,
+                     laptimer_laps_total,
+                     controller_x_pressed)
         laptimer_reset_all = True
 
         if self.drive_stage == JobDriveStage.USER_NOT_CONFIRMED: # user not confirmed yet
@@ -150,4 +163,32 @@ class JobDrive(Job):
                 # Drive timeout, setting can_move to false and ensure it's set
                 self.logger.debug('[job_id: %i]  Driving session finished', self.get_id())
                 self.set_move(False) # Not waiting as False is the default state, even this line could be removed
-                self.drive_stage = JobDriveStage.DRIVE_FINISHED
+                self.drive_stage = JobDriveStage.DRIVE_FINISHED_WAIT_FOR_CONFIRMATION
+
+                if self.by_pass_drive_finished_confirmation:  # Used by job that would like to bypass the confirmation message, display an other one...
+                    self.drive_stage = JobDriveStage.DRIVE_FINISHED
+                    return
+
+                self.logger.debug('[job_id: %i]  Telling the user it\'s finished and he need to press X to continue',
+                                  self.get_id())
+                self.job_data.screen_msg = "C'est fini ! X pour passer à la suite"
+                self.job_data.screen_msg_display = True
+                self.api.update_job(self.job_data)
+
+                with ConditionalEvents([self.event_cancelled, self.event_controller_x_pressed], operator=CondEventsOperator.OR) as x_pressed_or_cancelled:
+                    x_pressed_or_cancelled.wait()
+
+                self.job_data.screen_msg = None
+                self.job_data.screen_msg_display = False
+                self.api.update_job(self.job_data)
+
+                if self.event_cancelled.isSet():
+                    self.logger.warning('[job_id: %i] Drive canceled without final user confirmation', self.get_id())
+                    self.drive_stage = JobDriveStage.DRIVE_FINISHED
+                    return
+
+                if self.event_controller_x_pressed.isSet():
+                    self.event_controller_x_pressed.clear()
+                    self.logger.warning('[job_id: %i] Drive finished with user final confirmation', self.get_id())
+                    self.drive_stage = JobDriveStage.DRIVE_FINISHED
+                    return

@@ -180,6 +180,10 @@ class JobBase(BaseModel):
     # contains details to create the next related job that will be executed after this job
     next_job_details: Optional[str]
 
+    # Screen display
+    screen_msg: Optional[str]  # Message that will be displayed on the screen
+    screen_msg_display: Optional[bool]  # Set to true to display message on the screen
+
 
 class JobCreate(JobBase):
     pass

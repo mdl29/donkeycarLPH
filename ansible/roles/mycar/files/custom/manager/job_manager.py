@@ -6,6 +6,8 @@ import socketio
 import json
 import logging
 
+from donkeycar.parts.tub_v2 import TubWriter
+
 from custom.manager.car_manager_api_service import CarManagerApiService
 from .jobs.job_drive import JobDrive
 from .jobs.job_record import JobRecord
@@ -15,6 +17,7 @@ from .jobs.job import Job as JobRun
 # Match job name with job runnable instance
 from ..helpers.RegistableEvents import RegistableEvent
 from ..helpers.zeroconf import ZeroConfResult
+from ..parts.custom_tub_writer import CustomTubWriter
 
 JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
     'DRIVE': JobDrive,
@@ -23,10 +26,13 @@ JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
 
 class JobManager(threading.Thread):
 
-    def __init__(self, api: CarManagerApiService, ftp: ZeroConfResult, tub_path: str, sio: socketio.Client, worker: Worker, car: Car):
+    def __init__(self, api: CarManagerApiService, ftp: ZeroConfResult,
+                 tub_path: str, tub_writer: CustomTubWriter,
+                 sio: socketio.Client, worker: Worker, car: Car):
         """
         :param api: API manager instance.
         :param tub_path: Path where data are stored
+        :param tub_writer: resetable thub writer
         :param sio: Socket IO client.
         :param worker: The current car worker.
         """
@@ -38,6 +44,7 @@ class JobManager(threading.Thread):
         self._ftp = ftp
         self._sio = sio
         self._tub_path = tub_path
+        self._tub_writer = tub_writer
         self.worker = worker
         self.car = car
 
@@ -142,7 +149,8 @@ class JobManager(threading.Thread):
 
         job_run_instance = job_run_class(
             parameters=parameters, job_data=job,
-            api=self._api, ftp=self._ftp, sio=self._sio, tub_path=self._tub_path,
+            api=self._api, ftp=self._ftp, sio=self._sio,
+            tub_path=self._tub_path, tub_writer=self._tub_writer,
             car=self.car)
         return job_run_instance
 
@@ -225,7 +233,8 @@ class JobManager(threading.Thread):
                                  laptimer_last_lap_start_datetime: Optional[datetime] = None,
                                  laptimer_last_lap_duration: Optional[int] = None,
                                  laptimer_last_lap_end_date_time: Optional[datetime] = None,
-                                 laptimer_laps_total: Optional[int] = None) -> Tuple[float, str, bool, bool]:
+                                 laptimer_laps_total: Optional[int] = None,
+                                 controller_x_pressed: Optional[bool] = False) -> Tuple[float, str, bool, bool]:
         """
         See donkeycar CarManager part for details.
         """
@@ -238,7 +247,8 @@ class JobManager(threading.Thread):
                 laptimer_last_lap_start_datetime,
                 laptimer_last_lap_duration,
                 laptimer_last_lap_end_date_time,
-                laptimer_laps_total
+                laptimer_laps_total,
+                controller_x_pressed
             )
             return res
 
