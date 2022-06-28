@@ -6,7 +6,7 @@ from typing import Optional, Union, Dict, List
 import pydantic
 
 from .schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
-    MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate
+    MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate, JobCreate
 import requests
 from datetime import date, datetime
 
@@ -44,7 +44,7 @@ class CarManagerApiService:
         """ Convert to json handeling dates """
         return json.dumps(dict, default=CarManagerApiService.json_serial)
 
-    def _create_resource(self, res: Union[CarCreate, WorkerCreate],
+    def _create_resource(self, res: Union[CarCreate, WorkerCreate, JobCreate],
                          res_path: str, result_type: typing.Type[T], resource_name: str) -> T:
         """
         Create an api resource or raise an exception.
@@ -179,6 +179,14 @@ class CarManagerApiService:
 
         return self._get_resources(RES_JOBS, Job, "job", filters)
 
+    def create_job(self, job: JobCreate) -> Job:
+        """
+        Create a job
+        :param job:
+        :return: Created job
+        """
+        return self._create_resource(job, RES_JOBS, Job, 'job')
+
     def update_job(self, job: Job) -> Job:
         """
         Update a job.
@@ -186,6 +194,36 @@ class CarManagerApiService:
         :return: The updated job.
         """
         return self._update_resource(job.job_id, job, RES_JOBS, Job, "job")
+
+    def job_move_after(self, job_id: int, after_job_id: int) -> Job:
+        """
+        Move job with job_id after the job having after_job_id
+        :param job_id: Job to be moved
+        :param after_job_id: Job reference.
+        :return: The moved job.
+        """
+        resp = requests.post(f"{self._api_origin}/{RES_JOBS}/{job_id}/move_after",
+                             data=self._json_dumps({ 'after_job_id': after_job_id }),
+                             headers={'Content-Type': 'application/json'})
+        if resp.status_code == 200:
+            return Job.parse_obj(resp.json())
+
+        raise CarManagerApiError(f"Unable to move job_id:{job_id} after after_job_id:{after_job_id} ")
+
+    def job_move_before(self, job_id: int, before_job_id: int) -> Job:
+        """
+        Move job with job_id before the job having before_job_id
+        :param job_id: Job to be moved
+        :param before_job_id: Job reference.
+        :return: The moved job.
+        """
+        resp = requests.post(f"{self._api_origin}/{RES_JOBS}/{job_id}/move_before",
+                             data=self._json_dumps({'before_job_id': before_job_id}),
+                             headers={'Content-Type': 'application/json'})
+        if resp.status_code == 200:
+            return Job.parse_obj(resp.json())
+
+        raise CarManagerApiError(f"Unable to move job_id:{job_id} before before_job_id:{before_job_id} ")
 
     def worker_clean(self, worker: Worker, fail_details: str) -> int:
         """

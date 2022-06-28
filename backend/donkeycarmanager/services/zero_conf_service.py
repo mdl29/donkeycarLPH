@@ -15,7 +15,8 @@ class ZeroConfService:
                  app_ip: Optional[str] = None,
                  app_fqdn: Optional[str] = None,
                  network_interface_name: Optional[str] = None,
-                 service_name: str = "donkeycarmanager"):
+                 service_name: str = "donkeycarmanager",
+                 service_type: str = "_http._tcp.local."):
         """
         :param app_port: current fastAPI port / uvicorn port
         :param app_ip: current fastAPI host / uvicorn host. Default will be using IP from network_interface_name.
@@ -23,7 +24,8 @@ class ZeroConfService:
         :param network_interface_name: The network interface name "wlan0", "eth0" where we can find the app_ip.
             Not required if you use app_ip.
         :param service_name:  Name of the service that will be advertise on the network,
-            will be : "_"+service_name+"._http._tcp.local."
+            will be : "_"+service_name+"."+service_type
+        :param service_type: Type if the service.
         """
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
@@ -33,8 +35,8 @@ class ZeroConfService:
         self.logger.debug("Using ip %s", self.ip)
         self.logger.debug("Using FQDN %s", fqdn)
 
-        self.service_info = AsyncServiceInfo("_http._tcp.local.",
-            f"_{service_name}._http._tcp.local.",
+        self.service_info = AsyncServiceInfo(service_type,
+            f"_{service_name}.{service_type}",
             addresses=[socket.inet_aton(self.ip)],
             port=app_port,
             server=fqdn)

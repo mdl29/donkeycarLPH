@@ -64,7 +64,6 @@ class AsyncJobScheduler:
             await on_job_update_without_sched(db_job_event, self._sio, job)
             return
 
-
     async def on_worker_changed(self, worker: Worker):
         """
         A new worker is in available state.

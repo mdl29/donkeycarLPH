@@ -22,7 +22,7 @@ from docopt import docopt
 import donkeycar as dk
 from donkeycar.parts import actuator, pins
 from donkeycar.parts.transform import TriggeredCallback, DelayedTrigger
-from donkeycar.parts.tub_v2 import TubWriter
+from donkeycar.parts.tub_v2 import TubWriter, Tub
 from donkeycar.parts.datastore import TubHandler
 from donkeycar.parts.controller import LocalWebController, WebFpv, JoystickController
 from donkeycar.parts.throttle_filter import ThrottleFilter
@@ -30,9 +30,11 @@ from donkeycar.parts.behavior import BehaviorPart
 from donkeycar.parts.file_watcher import FileWatcher
 from donkeycar.parts.launch import AiLaunch
 from donkeycar.utils import *
+from typing_extensions import NoReturn
 
 from custom.irlaptimer import IrLapTimerPart
 from custom.manager.car_manager import CarManager, ManagerNoApiFoundException
+from custom.parts.custom_tub_writer import CustomTubWriter
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -209,6 +211,9 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
         outputs=['user/angle', 'user/throttle', 'user/mode', 'recording'],
         threaded=True)
 
+    #Custom Tub writer
+    tub_writer = CustomTubWriter()
+
     if use_joystick or cfg.USE_JOYSTICK_AS_DEFAULT:
         #modify max_throttle closer to 1.0 to have more power
         #modify steering_scale lower than 1.0 to have less responsive steering
@@ -243,7 +248,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
             V.add(
                 ctr,
                 inputs=['cam/image_array', 'user/mode', 'recording', 'manager/job_name'],
-                outputs=['user/angle', 'user/throttle', 'user/mode', 'recording'],
+                outputs=['user/angle', 'user/throttle', 'user/mode', 'recording', 'controller/x_pressed'],
                 threaded=True)
 
             # IR Lap timer
@@ -266,7 +271,9 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
             rpi_network_interface = rpi_network_interface if rpi_network_interface else "wlan0"
 
             try:
-                manager = CarManager(network_interface=rpi_network_interface)
+                manager = CarManager(tub_path=cfg.DATA_PATH,
+                                     tub_writer=tub_writer,
+                                     network_interface=rpi_network_interface)
                 V.add(
                     manager,
                     inputs=[
@@ -276,12 +283,14 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                         'laptimer/last_lap_start_datetime',
                         'laptimer/last_lap_duration',
                         'laptimer/last_lap_end_date_time',
-                        'laptimer/laps_total'
+                        'laptimer/laps_total',
+                        'controller/x_pressed'
                     ],
                     outputs=[
                         'user/throttle',
                         'manager/job_name',
-                        'laptimer/reset_all'
+                        'laptimer/reset_all',
+                        'recording'
                     ], threaded=True)
             except ManagerNoApiFoundException:
                 logger.error(
@@ -866,7 +875,11 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
     # do we want to store new records into own dir or append to existing
     tub_path = TubHandler(path=cfg.DATA_PATH).create_tub_path() if \
         cfg.AUTO_CREATE_NEW_TUB else cfg.DATA_PATH
-    tub_writer = TubWriter(tub_path, inputs=inputs, types=types, metadata=meta)
+    tub_writer.configure(tub_path, inputs=inputs, types=types, metadata=meta)
+
+    def sub_writer_reset() -> NoReturn:
+        tub_writer.tub = Tub(tub_path, inputs, types, meta, 1000)
+
     V.add(tub_writer, inputs=inputs, outputs=["tub/num_records"], run_condition='recording')
 
     # Telemetry (we add the same metrics added to the TubHandler

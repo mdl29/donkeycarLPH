@@ -25,3 +25,18 @@ services:
     restart: always
     ports:
       - 123:123/udp
+
+  ftp-server:
+    image: stilliard/pure-ftpd
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes: # remember to replace /folder_on_disk/ with the path to where you want to store the files on the host machine
+      - "./data/ftp_data:/home/donkeycarlph/"
+      - "./data/ftp_passwd:/etc/pure-ftpd/passwd"
+    environment:
+      PUBLICHOST: "${SERVER_LOCAL_IP_ADDR}"
+      FTP_USER_NAME: donkeycarlph
+      FTP_USER_PASS: donkeycarlph
+      FTP_USER_HOME: /home/donkeycarlph
+    restart: always
