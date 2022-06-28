@@ -45,11 +45,13 @@ def get_job_scheduler(db: SessionLocal = Depends(get_db)) -> AsyncJobScheduler:
     return job_scheduler
 
 
+heartbeat_manager = WorkerHeartbeatManager()
+
+
 def get_heartbeat_manager(db: SessionLocal = Depends(get_db)) -> WorkerHeartbeatManager:
     """
     Returns heartbeat manager.
     :param db: Database, injected
     :return: The hearbeat manager.
     """
-    heartbeat_manager = WorkerHeartbeatManager(db=db)
     yield heartbeat_manager
