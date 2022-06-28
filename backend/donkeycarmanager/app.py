@@ -13,6 +13,12 @@ from donkeycarmanager.services.zero_conf_service import ZeroConfService
 
 from donkeycarmanager import models
 from donkeycarmanager.database import engine
+from fastapi.staticfiles import StaticFiles
+from fastapi.openapi.docs import (
+    get_redoc_html,
+    get_swagger_ui_html,
+    get_swagger_ui_oauth2_redirect_html,
+)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -37,6 +43,8 @@ interface_name = os.environ.get(NETWORK_INTERFACE_ENV_VAR_NAME)
 server_zeroconf = ZeroConfService(app_port=APP_PORT, network_interface_name=interface_name)
 
 app = FastAPI(
+    docs_url=None,
+    redoc_url=None,
     dependencies=[Depends(get_db), Depends(get_sio), Depends(get_job_scheduler)],
     openapi_tags=open_api_tags_metadata,
     on_startup=[server_zeroconf.start, get_job_scheduler().start],
@@ -48,7 +56,36 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static") # mount swagger doc files
+
 sm.mount(app)  # Mount socketIO
+
+# Swagger ui configuration
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=" Donkeycar manager - Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_js_url="/static/swagger-ui-bundle.js",
+        swagger_css_url="/static/swagger-ui.css",
+    )
+
+
+@app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
+async def swagger_ui_redirect():
+    return get_swagger_ui_oauth2_redirect_html()
+
+
+# Redoc configuration
+@app.get("/redoc", include_in_schema=False)
+async def redoc_html():
+    return get_redoc_html(
+        openapi_url=app.openapi_url,
+        title="Donkeycar manager - ReDoc",
+        redoc_js_url="/static/redoc.standalone.js",
+    )
 
 # Routes
 app.include_router(players.router)
