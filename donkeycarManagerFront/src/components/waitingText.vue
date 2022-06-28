@@ -2,32 +2,23 @@
   <div>
     <span style="--i:1">E</span>
     <span style="--i:2">N</span>
-    <span style="--i:3"> </span>
-    <span style="--i:4"> </span>
-    <span style="--i:5">A</span>
-    <span style="--i:6">T</span>
-    <span style="--i:7">T</span>
-    <span style="--i:8">E</span>
-    <span style="--i:9">N</span>
-    <span style="--i:10">T</span>
-    <span style="--i:11">E</span>
-    <span style="--i:12">.</span>
-    <span style="--i:13">.</span>
-    <span style="--i:14">.</span>
+    <span style="--i:2"> </span>
+    <span style="--i:2"> </span>
+    <span style="--i:3">A</span>
+    <span style="--i:4">T</span>
+    <span style="--i:5">T</span>
+    <span style="--i:6">E</span>
+    <span style="--i:7">N</span>
+    <span style="--i:8">T</span>
+    <span style="--i:9">E</span>
   </div>
 </template>
 
 <style scoped>
-div {
-  margin-top: 40%;
-  position: relative;
-}
 span {
-  position: relative;
   display: inline-block;
   font-weight: bold;
   font-size: 50px;
-  text-transform: uppercase;
   animation: flip 5s infinite;
   animation-delay: calc(.2s * var(--i))
 }

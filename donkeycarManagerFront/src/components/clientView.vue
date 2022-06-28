@@ -1,123 +1,121 @@
 <template>
-<div class="wrapper">
-<div class="players-wrapper">
-      <vs-row class="cars">
-          <car-view :car="car1" :job="job1" number="1" />
-          <car-view :car="car2" :job="job2" number="2" />
-      </vs-row>
-  </div>
-  <div>
-      <vs-row>
-      <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car1 !== null && car1.race != undefined">
-        <flip-countdown v-if="car1.race && car1.race.start_datetime" class="flip-countdown" :deadline="makeDate(car1.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
-        <flip-countdown  v-if="car1.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown> <!-- why is it here ??-->
-      </vs-col>
-      <div class="waiting-list">
-        <template v-for="(player,i) in waitingList">
-          <div class="row">
-              <div v-bind:key="player.rank" class="pseudo">
-              {{player.player.player_pseudo}}
-              </div>
-              <div class="timeleft">
-                {{ timeLeft(i) }} min
-              </div>
-          </div>
-        </template>
+  <div class="client-view">
+    <div class="car-views">
+      <template v-if="entries.length > 0">
+        <div class="car-view" v-for="entry in entries" :key="entry.car.name">
+          <car-view :car="entry.car" :job="entry.job" :race="entry.race" />
+        </div>
+      </template>
+      <div v-else class="no-cars">
+        Aucune voiture en marche
       </div>
-      <vs-col  vs-type="flex" vs-justify="center" vs-align="center" w="4" v-if="car2 !== null">
-        <flip-countdown v-if="car2.race !== null && car2.race !== undefined && car2.race.start_datetime !== undefined" class="flip-countdown" :deadline="makeDate(car2.race.start_datetime)" :showDays="false" :showHours="false" ></flip-countdown>
-        <flip-countdown  v-if="car2.race === null" class="flip-countdown" deadline="2018-06-06 21:20:36" :showDays="false" :showHours="false" ></flip-countdown>
-      </vs-col>
-    </vs-row>
+    </div>
+    <div class="waiting-list" v-if="waitingList.length > 0">
+      <div v-for="(job, index) in waitingList" :key="job.job_id" class="waiting-list-item">
+        <div class="name">{{ job.player.player_pseudo }}</div>
+        <div class="wait">{{ waitTime[index] || "" }}</div>
+      </div>
+    </div>
   </div>
-</div>
 </template>
+
 <script>
 import DonkeycarManagerService from '@/js/service.js'
-import carView from './carView.vue'
-import FlipCountdown from 'vue2-flip-countdown'
-import moment from 'moment'
+import carView from '@/components/carView.vue'
+import { io } from 'socket.io-client'
 
-const { io } = require('socket.io-client')
-const ip = '192.168.20.107'
-const srv = new DonkeycarManagerService('http://' + ip + ':8000')
-var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
+const ip = 'localhost'
+const url = `http://${ip}:8000`
+const srv = new DonkeycarManagerService(url)
+const car_count = 2
+const socket = io.connect(url, { path: `/ws/socket.io` })
 
 export default {
   components: {
-    FlipCountdown,
     carView
   },
-  data: () => ({
-    cars: [],
-    car1: null,
-    car2: null,
-    job1: [],
-    job2: [],
-    player1Race: [],
-    player2Race: [],
-    waitingList: [],
-    attente: []
-
-  }),
-  mounted () {
-    this.fetchcars(0, 4)
-    this.fetchWaitinPlayers()
+  data() {
+    return {
+      // Array of { car, job, race }
+      entries: [],
+      waitingList: [],
+      waitTime: [],
+      interval: null,
+    }
   },
-  created () {
+  mounted() {
+    this.fetchWaitingList()
+    this.fetchCars().then(async () => {
+      await Promise.all([
+        that.fetchJobs(),
+        that.fetchRaces(),
+      ])
+      that.waitTime = that.waitingList.map((_, i) => that.getEstimatedWait(i))
+    })
     const that = this
-    socket.on('car.updated', function (data) {
+    this.interval = setInterval(() => {
+      that.waitTime = that.waitingList.map((_, i) => that.getEstimatedWait(i))
+    }, 5000)
+  },
+  unmounted() {
+    clearInterval(this.interval)
+  },
+  created() {
+    const that = this
+    // TODO: that
+    // I don't really know what event implies what change,
+    // so I update jobs on every case but this could be optimized
+    socket.on('car.updated', async data => {
       console.debug('clientView.event: car.updated')
-      that.fetchcars(0, 4)
+      await that.fetchCars()
+      that.fetchJobs()
+      that.fetchRaces()
     })
-    socket.on('car.added', function (data) {
+    socket.on('car.added', async data => {
       console.debug('clientView.event: car.added')
-      that.fetchcars(0, 4)
+      await that.fetchCars()
+      that.fetchJobs()
+      that.fetchRaces()
     })
-    socket.on('laptimer.added', function (data) {
+    socket.on('laptimer.added', async data => {
       console.debug('clientView.event: laptimer.added')
-      that.fetchcars(0, 4)
+      await that.fetchCars()
+      that.fetchJobs()
+      that.fetchRaces()
     })
-    socket.on('jobs.all.updated', function (data) {
+    socket.on('jobs.all.updated', async data => {
       console.debug('clientView.event: jobs.all.updated')
-      that.fetchWaitinPlayers()
-      that.fetchcars(0, 4)
+      that.fetchWaitingList()
+      await that.fetchCars()
+      that.fetchJobs()
+      that.fetchRaces()
     })
-    socket.on('worker.all.updated', function (data) {
+    socket.on('worker.all.updated', async data => {
       console.debug('clientView.event: worker.all.updated')
-      that.fetchWaitinPlayers()
-      that.fetchcars(0, 4)
+      that.fetchWaitingList()
+      await that.fetchCars()
+      that.fetchJobs()
+      that.fetchRaces()
     })
   },
   methods: {
-    async fetchcars (skip, limit) {
-      const cars = await srv.getCars(skip, limit)
-      this.cars = cars
+    // fetch and update the cars
+    async fetchCars() {
+      const cars = await srv.getCars(0, 10)
       for (const car of cars) {
-        console.debug('clientView: car %o', car)
-        if (car.worker.state === 'BUSY' || car.worker.state === 'AVAILABLE') {
-          if ( this.car1 && this.car1.name === car.name){
-            this.car1 = car
-          } else if ( this.car2 && this.car2.name === car.name){
-            this.car2 = car
-          }else{
-            if (this.car1 === null){
-              this.car1 = car
-            }else if (this.car2 === null){
-              this.car2 = car
-            }else{
-              console.warn("too many cars, can't display %s",car.name)
-            }
+        const state = car.worker.state
+        const index = this.entries.findIndex(e => e.car.name === car.name)
+
+        if(state === 'BUSY' || state === 'AVAILABLE') {
+          if (index >= 0) {
+            this.entries[index].car = car
+            console.debug('clientView: (update) displaying car %s', car.name)
+          } else if (this.entries.length < car_count) {
+            this.entries.push({ car: car, job: undefined, race: undefined })
+            console.debug('clientView: (added)  displaying car %s', car.name)
           }
-        } else if (car.worker.state === 'STOPPED') { // Handle stopped car, remove them if the were displayed
-          if (this.car1 && this.car1.name === car.name) { // Stopped car was displayed as car1, removing it
-            console.debug('clientView: car %s was stopped, removing it from first (left side car)', car.name)
-            this.car1 = null
-          }
-          if (this.car2 && this.car2.name === car.name) {
-            console.debug('clientView: car %s was stopped, removing it from second (right side car)', car.name)
-            this.car2 = null
-          }
+        } else if (state === 'STOPPED' && index >= 0) {
+          this.entries.splice(index, 1)
         }
       }
       if (this.car1){
@@ -127,110 +125,124 @@ export default {
         this.job2 = await  srv.getJobCar(this.car2.worker_id)
       }
     },
-    async fetchWaitinPlayers () {
-      this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 12)
+    // fetch and update the jobs of the currently displayed cars
+    async fetchJobs() {
+      this.entries = await Promise.all(
+        this.entries.map(async entry => {
+          entry.job = (await srv.getJobCar(entry.car.worker_id))[0]
+          return entry
+        })
+      )
     },
-    async fetchRaces (skip, limit) {
-      const races = await srv.fetchRaces(skip, limit)
-      console.log(races[0].player_id)
-      console.log(this.car2.player.player_id)
-      for (const race of races) {
-        if (race.player_id === this.car1.player.player_id) {
-          this.player1Race = race
-        } else if (race.player_id === this.car2.player.player_id) {
-          this.player2Race = race
+    // fetch and update the races of the currently displayed cars
+    async fetchRaces() {
+      const races = await srv.fetchRaces(0, 10)
+      for (const entry of this.entries) {
+        entry.race = races.find(r => r.player_id === entry.car.player.player_id)
+      }
+    },
+    async fetchWaitingList() {
+      this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
+    },
+    getJobDuration(job) { // in seconds
+      try {
+        return parseInt(JSON.parse(job.parameters).drive_time)
+      } catch(_) {
+        return 0
+      }
+    },
+    getEstimatedWait(index) {
+      // I want spread operator
+      const that = this
+      const current_jobs_wait = this.entries.filter(e => e.job).map(e => {
+        let duration = that.getJobDuration(e.job);
+        if (e.race && e.race !== null) {
+          const elapsed = new Date().getTime() - new Date(e.race.start_datetime).getTime();
+          duration = Math.max(Math.floor(duration - elapsed / 1000), 0)
         }
+        return duration
+      })
+      const min_current_job_wait = current_jobs_wait.length > 0 ? Math.min.apply(Math, current_jobs_wait) : 0
+      const waitingTimes = this.waitingList.filter((_, i) => i < index).map(this.getJobDuration)
+      let time = 0;
+      if (waitingTimes.length > 0) {
+        time = min_current_job_wait + waitingTimes.reduce((acc, v) => acc + v, 0)
+      } else {
+        time = min_current_job_wait
       }
-    },
-    getJobDuration(job) {
-      if (!job.parameters) {
-        return 0;
+      if (time < 60) {
+        return `${time}s`
+      } else {
+        time = Math.round(time / 60)
+        return `${time} min`
       }
-      return (parseInt(JSON.parse(job.parameters).drive_time) || 0);
-    },
-    timeLeft (index) {
-      const current_job = Math.min(this.getJobDuration(this.job1), this.getJobDuration(this.job2));
-      // waitingList is an array of jobs, jobs have a JSON string called parameters that contains the job duration
-      return Math.floor((this.waitingList.map((v, i) => i >= index ? 0 : this.getJobDuration(v)).reduce((a, v) => a + v) + current_job) / 60);
-    },
-    makeDate (myDate) {
-      const date = new Date(myDate)
-      const trueDate = String(date.getFullYear()) + '-' + String(date.getMonth() + 1) + '-' + String(date.getDate()) + ' ' + String(date.getHours()) + ':' + String(date.getMinutes() + 2) + ':' + String(date.getSeconds())
-      console.log(trueDate)
-      return trueDate
-    },
+    }
   }
 }
 </script>
+
 <style scoped>
-.wrapper {
+.client-view {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  width: 100%;
+  height: 100vh;
 }
-.players-wrapper {
-  flex: 3;
+.car-views {
+  display:flex;
+  flex-direction: row;
+  flex: 1;
 }
-.flip-countdown {
-  padding-top: 25px;
+.car-view {
+  display: flex;
+  flex: 2;
+  box-sizing: content-box;
+  flex-direction: column;
 }
-.waiting-table{
-  text-align: left !important;
-  width: 110%;
-  height: 100%;
-}
-@keyframes grow-animation {
-  0% { transform: scale(1); }
-  50% {transform: scale(1.15); }
-  100% {transform: scale(1); }
+.car-view:not(:last-child) {
+  border-right: 4px dashed gray;
 }
 .waiting-list {
   display: flex;
-  padding-left: 1em;
-  padding-top: 1em;
-  padding-bottom: 0.5em;
+  flex-direction: row;
   overflow-x: hidden;
+  padding-bottom: 0.4em;
+  padding-left: 0.4em;
+  z-index: 20;
+  background-color: white;
+  padding-top: 0.4em;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 .waiting-list::after {
   display: block;
-  height: 3em;
-  width: 7em;
-  background: linear-gradient(to left, white 20%, transparent);
+  content: "";
+  height: 2.8em;
   position: absolute;
   right: 0;
-  content: "";
+  width: 6em;
+  background: linear-gradient(to right, transparent, white 150%)
 }
-.waiting-list .row {
-  display: flex;
-  background: #4269F5;
-  padding-left: 10px;
+.waiting-list-item {
+  background-color: #4287f5;
   border-radius: 2em;
-  color: white;
-  margin-right: 10px;
+  padding: 0.8em;
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
-  min-width: 10em;
-  white-space: nowrap;
-  overflow-x: hidden;
+  color: white;
+  margin-right: 0.5em;
+  flex-shrink: 0;
 }
-.waiting-list .row .pseudo {
-  margin-left: 10px;
+.waiting-list-item .name {
+  margin-right: 0.5em;
   font-weight: bold;
-  font-size: 1.1em;
-  max-width: 5em;
 }
-.waiting-list .row .timeleft {
-  border-radius: 2em;
-  padding: 15px;
-}
-.waiting-list .row:last-child {
-  margin-right: 0;
-}
-.cars {
+.no-cars {
+  flex: 1;
   display: flex;
-  flex-grow: 2;
-  height: 100%;
   justify-content: center;
   align-items: center;
+  font-size: 4em;
+  font-weight: bold;
 }
 </style>

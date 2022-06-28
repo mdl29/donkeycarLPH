@@ -242,7 +242,7 @@ export default class DonkeycarManagerService {
     return response.data
   }
   async getJobCar (carId) {
-    const response = await axios.get(this.apiUrl + '/jobs/?by_rank=true&skip=0&limit=100&worker_id=' + String(carId) + '&job_states=RUNNING&job_states=PAUSING&job_states=PAUSED&job_states=RESUMING&job_states=CANCELLING')
+    const response = await axios.get(this.apiUrl + '/jobs/?by_rank=true&skip=0&limit=100&worker_id=' + String(carId) + '&job_states=RUNNING&job_states=PAUSING&job_states=PAUSED&job_states=RESUMING&job_states=CANCELLING&job_states=PAUSED')
     return response.data
   }
   /**
