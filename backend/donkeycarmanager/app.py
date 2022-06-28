@@ -3,9 +3,10 @@ import logging
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
-
-from donkeycarmanager.dependencies import get_db, sm, get_sio, get_job_scheduler
+from donkeycarmanager.dependencies import get_db, sm, get_sio, get_job_scheduler, heartbeat_manager, \
+    get_heartbeat_manager
 from donkeycarmanager.helpers.logging import setup_logging
 from donkeycarmanager.routers import players, driving_waiting_queue, cars, races, laptimers, workers, jobs
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
@@ -47,7 +48,7 @@ app = FastAPI(
     redoc_url=None,
     dependencies=[Depends(get_db), Depends(get_sio), Depends(get_job_scheduler)],
     openapi_tags=open_api_tags_metadata,
-    on_startup=[server_zeroconf.start, get_job_scheduler().start],
+    on_startup=[server_zeroconf.start, get_job_scheduler().start, heartbeat_manager.server_init],
     on_shutdown=[server_zeroconf.stop])
 app.add_middleware(
     CORSMiddleware,

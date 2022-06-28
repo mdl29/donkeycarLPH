@@ -1,21 +1,26 @@
 import logging
 from fastapi import WebSocket
+from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 import socketio
 
 from donkeycarmanager import models
 from donkeycarmanager.crud.jobs_read import get_jobs
+from donkeycarmanager.database import SessionLocal
 from donkeycarmanager.emitters.workers import on_worker_update
 from donkeycarmanager.schemas import WorkerState, JobState
 from donkeycarmanager.services.async_job_scheduler import AsyncJobScheduler
 
 
 class WorkerHeartbeatManager:
-    def __init__(self, db: Session):
+    def __init__(self):
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
+    async def server_init(self):
         # Ensure every worker is stopped, before handling heartbeat
+        db = SessionLocal()
+
         db.query(models.Worker).update({models.Worker.state: WorkerState.STOPPED})
         db.commit()
         self.logger.debug('All workers set to STOPPED')
