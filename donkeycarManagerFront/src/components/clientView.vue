@@ -32,7 +32,7 @@ const socket = io.connect(url, { path: `/ws/socket.io` })
 
 export default {
   components: {
-    carView
+    carView,
   },
   data() {
     return {

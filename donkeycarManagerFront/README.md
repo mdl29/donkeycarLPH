@@ -30,3 +30,30 @@ waiting board :
 admin dashboard :
 `http://localhost:8080/#/dashboard`
 
+## Controller icons for the screen\_msg of jobs
+
+The icons are parsed from the message, any `[<name>]` will become an icon
+
+Available icons are:
+ - Circle
+ - Cross
+ - Diagram
+ - Diagram\_Simple
+ - Dpad\_Down
+ - Dpad\_Left
+ - Dpad
+ - Dpad\_Right
+ - Dpad\_Up
+ - L1
+ - L2
+ - Left\_Stick\_Click
+ - Left\_Stick
+ - Options
+ - R1
+ - R2
+ - Right\_Stick\_Click
+ - Right\_Stick
+ - Share
+ - Square
+ - Touch\_Pad
+ - Triangle

@@ -1,6 +1,9 @@
 <template>
   <div class="car">
     <div class="header" :class="{blur: is_paused}"> 
+      <div class="record" v-if="job && (job.name === 'RECORD' || job.name === 'AUTO')">
+        {{ job.name === 'RECORD' ? "REC" : "AUTO" }}
+      </div>
       <div class="username" v-if="job">{{ job.player.player_pseudo }}</div>
       <div :class="{name_job: job, name: !job}" :style="{'--color': color}">{{ car.name }}</div>
     </div>
@@ -13,20 +16,28 @@
             <div class="duration"> Temps </div>
           </div>
           <!-- laptimers -->
-          <div v-for="(lap, index) in laptimers" class="lap real">
+          <div v-for="(lap, index) in laptimers" class="lap real" :class="{ best: isBestLap(lap) }">
             <div class="number">{{ index + laptimersOffset + 1 }}</div>
             <div class="duration">{{ formatMMs(lap.duration) }}</div>
           </div>
           <!-- ongoing lap -->
-          <div class="lap">
+          <div class="lap ongoing" v-if="timeleft > 0">
             <div class="number">{{ race.laptimers.length + 1 }}</div>
             <div class="duration">{{ formatMMs(currentlapDuration) }}</div>
           </div>
         </div>
-        <div v-if="race" class="end">
+        <div v-if="race && timeleft > 0" class="end">
           Finit dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
-        <div v-else class="no-race"> Veuillez avancer pour lancer la course </div>
+        <div v-if="job && job.screen_msg_display" class="end message">
+          <template v-for="part in messageComponents">
+            <span v-if="part.text">
+              {{ part.text }}
+            </span>
+            <textIcon :src="part.img" v-if="part.img" />
+          </template>
+        </div>
+        <div v-if="!race" class="no-race"> Veuillez avancer pour lancer la course </div>
       </div>
       <waiting-text v-else />
     </div>
@@ -35,10 +46,12 @@
 
 <script>
 import waitingText from '@/components/waitingText.vue'
+import textIcon from '@/components/textIcon.vue'
 
 export default {
   components: {
-    waitingText
+    waitingText,
+    textIcon,
   },
   data() {
     return {
@@ -101,12 +114,15 @@ export default {
       return new Date().getTime() - new Date(ts).getTime()
     },
     updateMaxTimers() {
-      const height = (a) => document.querySelector(a).offsetHeight
+      const height = (a) => {
+        const e = document.querySelector(a)
+        return e ? e.offsetHeight : 0
+      }
       const lap = document.querySelector(".lap.real")
       if (lap) {
         const lapHeight = lap.offsetHeight
         let availableHeight = height(".job")
-        availableHeight -= lapHeight // remove height of ongoing lap
+        availableHeight -= height(".lap.ongoing")
         availableHeight -= height(".lap.head") // remove height of head
         availableHeight -= height(".header") // remove height of header
         availableHeight -= height(".end")
@@ -114,11 +130,37 @@ export default {
         this.maxTimers = Math.max(Math.floor(availableHeight / lapHeight), 1)
         console.debug("displaying %i laps", this.maxTimers + 1)
       }
+    },
+    isBestLap(lap) {
+      if (this.race) {
+        const max = this.race.laptimers.map(v => v.duration).reduce((a, b) => Math.min(a, b))
+        return max === lap.duration
+      } else {
+        return false
+      }
     }
   },
   computed: {
     color() {
       return `#${this.car.color}`
+    },
+    messageComponents() {
+      if (this.job && this.job.screen_msg) {
+        const str = this.job.screen_msg
+        const groups = str.split(/[\]\[]/g);
+        const res = []
+        let type = "text"
+        for (const m of groups) {
+          if (type === "text") {
+            res.push({text: m})
+            type = "img"
+          } else {
+            res.push({img: `PS4_${m}.png`})
+            type = "text"
+          }
+        }
+        return res
+      }
     },
     is_paused() {
       return this.job && this.job.state == 'PAUSED'
@@ -185,6 +227,9 @@ export default {
   margin-right: 0.5em;
   font-weight: bold;
 }
+.header.blur .username {
+  color: white;
+}
 .content {
   display: flex;
   flex-direction: column;
@@ -209,7 +254,7 @@ export default {
   font-weight: bold;
 }
 .content.blur .job {
-  filter: blur(0.3em);
+  filter: blur(0.5em);
 }
 .no-race {
   font-size: 2em;
@@ -233,6 +278,23 @@ export default {
   text-align: start;
   padding-left: 0.9rem;
 }
+.lap::before {
+  content: "";
+  display: block;
+  width: 1.5em;
+  height: 1em;
+  margin-right: -1em;
+}
+.lap.best::before {
+  content: "";
+  display: block;
+  background-image: url("../assets/crown.png");
+  background-size: cover;
+  background-position: center;
+  margin-right: -1em;
+  width: 1.5em;
+  height: 1em;
+}
 .lap:not(:last-child) {
   padding-bottom: 0.3em;
   border-bottom: 1px solid gray;
@@ -249,5 +311,32 @@ export default {
 }
 .end {
  font-size: 1.2em;
+}
+.message {
+  font-size: 2em;
+}
+.record {
+  font-size: 1em;
+  font-weight: bold;
+  padding: 0.4em;
+  padding-bottom: 0.2em;
+  border: 3px solid black;
+  border-radius: 2em;
+  color: black;
+  margin-right: 1em;
+}
+.record::before {
+  content: "⬤ ";
+  font-size: 0.8em;
+  color: red;
+  animation: blink infinite normal running 1s steps(1, start);
+}
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 </style>
