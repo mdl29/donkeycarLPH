@@ -46,10 +46,7 @@ export default {
   mounted() {
     this.fetchWaitingList()
     this.fetchCars().then(async () => {
-      await Promise.all([
-        that.fetchJobs(),
-        that.fetchRaces(),
-      ])
+      await that.fetchJobs()
       that.waitTime = that.waitingList.map((_, i) => that.getEstimatedWait(i))
     })
     const that = this
@@ -69,33 +66,28 @@ export default {
       console.debug('clientView.event: car.updated')
       await that.fetchCars()
       that.fetchJobs()
-      that.fetchRaces()
     })
     socket.on('car.added', async data => {
       console.debug('clientView.event: car.added')
       await that.fetchCars()
       that.fetchJobs()
-      that.fetchRaces()
     })
     socket.on('laptimer.added', async data => {
       console.debug('clientView.event: laptimer.added')
       await that.fetchCars()
       that.fetchJobs()
-      that.fetchRaces()
     })
     socket.on('jobs.all.updated', async data => {
       console.debug('clientView.event: jobs.all.updated')
       that.fetchWaitingList()
       await that.fetchCars()
       that.fetchJobs()
-      that.fetchRaces()
     })
     socket.on('worker.all.updated', async data => {
       console.debug('clientView.event: worker.all.updated')
       that.fetchWaitingList()
       await that.fetchCars()
       that.fetchJobs()
-      that.fetchRaces()
     })
   },
   methods: {
@@ -109,9 +101,10 @@ export default {
         if(state === 'BUSY' || state === 'AVAILABLE') {
           if (index >= 0) {
             this.entries[index].car = car
+            this.entries[index].race = car.race
             console.debug('clientView: (update) displaying car %s', car.name)
           } else if (this.entries.length < car_count) {
-            this.entries.push({ car: car, job: undefined, race: undefined })
+            this.entries.push({ car: car, job: undefined, race: car.race })
             console.debug('clientView: (added)  displaying car %s', car.name)
           }
         } else if (state === 'STOPPED' && index >= 0) {
@@ -133,13 +126,6 @@ export default {
           return entry
         })
       )
-    },
-    // fetch and update the races of the currently displayed cars
-    async fetchRaces() {
-      const races = await srv.fetchRaces(0, 10)
-      for (const entry of this.entries) {
-        entry.race = races.find(r => r.player_id === entry.car.player.player_id)
-      }
     },
     async fetchWaitingList() {
       this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
