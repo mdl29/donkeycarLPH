@@ -171,7 +171,7 @@ class JobDrive(Job):
 
                 self.logger.debug('[job_id: %i]  Telling the user it\'s finished and he need to press X to continue',
                                   self.get_id())
-                self.job_data.screen_msg = "C'est fini ! X pour passer à la suite"
+                self.job_data.screen_msg = "C'est fini ! [Cross] pour passer à la suite"
                 self.job_data.screen_msg_display = True
                 self.api.update_job(self.job_data)
 
