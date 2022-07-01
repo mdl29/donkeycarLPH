@@ -24,7 +24,7 @@ import DonkeycarManagerService from '@/js/service.js'
 import carView from '@/components/carView.vue'
 import { io } from 'socket.io-client'
 
-const ip = 'localhost'
+const ip = DonkeycarManagerService.ip
 const url = `http://${ip}:8000`
 const srv = new DonkeycarManagerService(url)
 const car_count = 2
@@ -132,7 +132,12 @@ export default {
     },
     getJobDuration(job) { // in seconds
       try {
-        return parseInt(JSON.parse(job.parameters).drive_time)
+        const params = JSON.parse(job.parameters)
+        if (job.next_job_details) {
+          return parseInt(params.drive_time) + this.getJobDuration(JSON.parse(job.next_job_details))
+        } else {
+          return parseInt(params.drive_time)
+        }
       } catch(_) {
         return 0
       }
@@ -156,7 +161,9 @@ export default {
       } else {
         time = min_current_job_wait
       }
-      if (time < 60) {
+      if (time === 0) {
+        return 'maintenant'
+      } else if (time < 60) {
         return `${time}s`
       } else {
         time = Math.round(time / 60)

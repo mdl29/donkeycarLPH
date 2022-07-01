@@ -11,20 +11,39 @@
       <div v-if="job" class="job">
         <div v-if="race" class="race">
           <!-- head -->
-          <div class="lap head">
+          <div class="lap head" v-if="race.laptimers.length > 0 || timeleft > 0">
             <div class="number"> Tour </div>
             <div class="duration"> Temps </div>
           </div>
           <!-- laptimers -->
-          <div v-for="(lap, index) in laptimers" class="lap real" :class="{ best: isBestLap(lap) }">
-            <div class="number">{{ index + laptimersOffset + 1 }}</div>
-            <div class="duration">{{ formatMMs(lap.duration) }}</div>
-          </div>
-          <!-- ongoing lap -->
-          <div class="lap ongoing" v-if="timeleft > 0">
-            <div class="number">{{ race.laptimers.length + 1 }}</div>
-            <div class="duration">{{ formatMMs(currentlapDuration) }}</div>
-          </div>
+          <transition-group :duration="200" appear
+            @before-enter="onBeforeEnter"
+            @enter="onEnter"
+            @after-enter="onAfterEnter"
+            @before-leave="onBeforeLeave"
+            @leave="onLeave"
+            @after-leave="onAfterLeave"
+            >
+            <div 
+              v-for="lap in laptimers"
+              class="lap"
+              :class="{ 
+                best: isBestLap(lap),
+                ongoing: lap.current,
+                real: !lap.current
+              }"
+              :key="lap.laptimer_id"
+            >
+              <div class="number">{{ lap.index + 1 }}</div>
+              <div class="duration">
+                {{
+                  lap.current
+                    ? formatMMs(currentlapDuration)
+                    : formatMMs(lap.duration)
+                }}
+              </div>
+            </div>
+          </transition-group>
         </div>
         <div v-if="race && timeleft > 0" class="end">
           Finit dans <strong>{{ formatM(timeleft) }}</strong>
@@ -74,11 +93,11 @@ export default {
     
     this.interval = setInterval(() => {
       if (that.race) {
+        that.timeleft = (that.race.max_duration * 1000) - that.fromNow(that.race.start_datetime)
         const start = that.race.laptimers.length > 0
           ? that.race.laptimers[that.race.laptimers.length - 1].end_datetime
           : that.race.start_datetime
         that.currentlapDuration = that.fromNow(start)
-        that.timeleft = (that.race.max_duration * 1000) - that.fromNow(that.race.start_datetime)
       }
     }, 30)
   },
@@ -118,27 +137,62 @@ export default {
         const e = document.querySelector(a)
         return e ? e.offsetHeight : 0
       }
-      const lap = document.querySelector(".lap.real")
-      if (lap) {
-        const lapHeight = lap.offsetHeight
+      const lap = Array.from(document.querySelectorAll(".lap.real"))
+        .map(v => v.offsetHeight)
+        .reduce((a, b) => Math.max(a, b), 0)
+      if (lap != 0) {
         let availableHeight = height(".job")
         availableHeight -= height(".lap.ongoing")
         availableHeight -= height(".lap.head") // remove height of head
         availableHeight -= height(".header") // remove height of header
         availableHeight -= height(".end")
         availableHeight *= 0.6 // remove some space to leave gaps
-        this.maxTimers = Math.max(Math.floor(availableHeight / lapHeight), 1)
-        console.debug("displaying %i laps", this.maxTimers + 1)
+        const maxTimers = Math.max(Math.floor(availableHeight / lap), 1)
+        if (this.maxTimers != maxTimers) {
+          this.maxTimers = maxTimers
+          console.debug("displaying %i laps", this.maxTimers + 1)
+        }
       }
+    },
+    bestLapIndex() {
+      let d = Infinity
+      let i = -1
+      this.race.laptimers.forEach((v, index) => {
+        if (v.duration < d) i = index
+        d = Math.min(v.duration, d)
+      })
+      return i
     },
     isBestLap(lap) {
       if (this.race) {
-        const max = this.race.laptimers.map(v => v.duration).reduce((a, b) => Math.min(a, b))
+        const max = this.race.laptimers.map(v => v.duration).reduce((a, b) => Math.min(a, b), Infinity)
         return max === lap.duration
       } else {
         return false
       }
-    }
+    },
+    // because it doesn't fucking work otherwise
+    onBeforeEnter(el) {
+      el.classList.add("list-enter", "list-enter-active")
+      requestAnimationFrame(() => {
+        el.classList.replace("list-enter", "list-enter-to")
+      });
+    },
+    // We should be able to just use that, but doesn't work consistently so ¯\_(ツ)_/¯
+    onEnter(el) {},
+    // because I need js for one thing, i'm using hooks for all the classes
+    onAfterEnter(el) {
+      el.classList.remove("list-enter-to", "list-enter-active")
+    },
+    onBeforeLeave(el) {
+      el.classList.add("list-leave", "list-leave-active")
+    },
+    onLeave(el) {
+      el.classList.replace("list-leave", "list-leave-to")
+    },
+    onAfterLeave(el) {
+      el.classList.remove("list-leave-to", "list-leave-active")
+    },
   },
   computed: {
     color() {
@@ -166,11 +220,28 @@ export default {
       return this.job && this.job.state == 'PAUSED'
     },
     laptimers() {
-      return this.race.laptimers.slice(-this.maxTimers)
+      const offset = Math.max(this.race.laptimers.length - this.maxTimers, 0)
+      const a = this.race.laptimers.slice(-this.maxTimers).map((v, i) => {
+        v.index = offset + i
+        return v
+      })
+      if (a.length > 0) {
+        const bestIndex = this.bestLapIndex()
+        if (bestIndex < offset) {
+          a[0] = this.race.laptimers[bestIndex]
+          a[0].index = bestIndex
+        }
+      }
+      if (this.timeleft > 0) {
+        a.push({
+          duration: NaN,
+          laptimer_id: 9999999999,
+          current: true,
+          index: this.race.laptimers.length
+        })
+      }
+      return a
     },
-    laptimersOffset() {
-      return Math.max(this.race.laptimers.length - this.maxTimers, 0)
-    }
   }
 }
 </script>
@@ -190,6 +261,7 @@ export default {
   flex-direction: column;
 }
 .header {
+  transition: all 0.2s ease;
   padding-top: 1em;
   padding-bottom: 1em;
   display: flex;
@@ -215,6 +287,7 @@ export default {
   border-radius: 5px;
 }
 .job {
+  transition: all 0.2s ease;
   display: flex;
   flex: 1;
   width: 100%;
@@ -238,6 +311,7 @@ export default {
   justify-content: space-evenly;
   margin-top: -4.6em;
   overflow-y: hidden;
+  transition: all 0.2s ease;
 }
 .content.blur {
   background-color: rgba(0, 0, 0, 0.5);
@@ -265,13 +339,13 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3em;
 }
 .lap {
   display: flex;
   flex-direction: row;
   gap: 1em;
   justify-content: center;
+  padding-top: 0.3em;
 }
 .lap .number {
   width: 3.6rem;
@@ -281,9 +355,10 @@ export default {
 .lap::before {
   content: "";
   display: block;
-  width: 1.5em;
-  height: 1em;
-  margin-right: -1em;
+  width: 1.8em;
+  height: 1.1em;
+  margin-right: -1.1em;
+  margin-left: 0.3em;
 }
 .lap.best::before {
   content: "";
@@ -291,9 +366,13 @@ export default {
   background-image: url("../assets/crown.png");
   background-size: cover;
   background-position: center;
-  margin-right: -1em;
-  width: 1.5em;
-  height: 1em;
+  margin-right: -1.1em;
+  margin-left: 0.3em;
+  width: 1.8em;
+  height: 1.1em;
+}
+.lap.best {
+  color: #FAD000;
 }
 .lap:not(:last-child) {
   padding-bottom: 0.3em;
@@ -327,6 +406,7 @@ export default {
 }
 .record::before {
   content: "⬤ ";
+  padding-bottom: 0.2em;
   font-size: 0.8em;
   color: red;
   animation: blink infinite normal running 1s steps(1, start);
@@ -338,5 +418,45 @@ export default {
   50% {
     opacity: 0;
   }
+}
+/* why is that necessary for animation ?? */
+.lap {
+  max-height: 2em;
+}
+
+.list-enter-to,
+.list-leave {
+  max-height: 2em;
+  opacity: 1;
+}
+
+.list-enter,
+.list-leave-to {
+  max-height: 0em;
+  opacity: 0;
+}
+
+.list-move,
+.list-leave-active,
+.list-enter-active {
+  overflow-y: hidden;
+  border-color: transparent;
+  transition-duration: 0.2s;
+}
+
+.list-move {
+  transition-timing-function: linear;
+}
+.list-leave-active {
+  transition-timing-function: ease-out;
+}
+.list-enter-active {
+  transition-timing-function: ease-in;
+}
+
+.lap.real.list-enter,
+.lap.real.list-leave-to {
+  border-color: transparent;
+  padding: 0;
 }
 </style>
