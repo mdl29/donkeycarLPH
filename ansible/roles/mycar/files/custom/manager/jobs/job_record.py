@@ -128,7 +128,7 @@ class JobRecord(JobDrive):
 
             self.logger.debug('[job_id: %i]  Telling the user it\'s finished and he need to press X to continue',
                               self.get_id())
-            self.job_data.screen_msg = "Enregistrement fini ! X pour lancer le calcul du modèle"
+            self.job_data.screen_msg = "Enregistrement fini ! [Cross] pour lancer le calcul du modèle"
             self.job_data.screen_msg_display = True
             self.api.update_job(self.job_data)
 

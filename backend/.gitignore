@@ -1,3 +1,7 @@
 # Files from cars are stored here
 data
 dataTest.tar.gz
+dist
+build
+*.egg-info
+**/*/__pycache__
