@@ -1,7 +1,11 @@
 #!/bin/bash
 
 get_manager() {
-	avahi-browse -r -t _http._tcp | awk -F'[] []' '/_donkeycarmanager/ { getline; getline; getline; print $7; end }'
+	if [[ -z "${MANAGER_NTP_HOST}" ]]; then
+		avahi-browse -r -t _http._tcp | awk -F'[] []' '/_donkeycarmanager/ { getline; getline; getline; print $7; end }'
+	else
+		echo $MANAGER_NTP_HOST
+	fi
 }
 
 MANAGER="$(get_manager)"

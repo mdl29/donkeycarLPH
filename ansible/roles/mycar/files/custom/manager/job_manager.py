@@ -16,7 +16,7 @@ from .jobs.job import Job as JobRun
 
 # Match job name with job runnable instance
 from ..helpers.RegistableEvents import RegistableEvent
-from ..helpers.zeroconf import ZeroConfResult
+from ..helpers.zeroconf import ServiceLocation
 from ..parts.custom_tub_writer import CustomTubWriter
 
 JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
@@ -26,7 +26,7 @@ JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
 
 class JobManager(threading.Thread):
 
-    def __init__(self, api: CarManagerApiService, ftp: ZeroConfResult,
+    def __init__(self, api: CarManagerApiService, ftp: ServiceLocation,
                  tub_path: str, tub_writer: CustomTubWriter,
                  sio: socketio.Client, worker: Worker, car: Car):
         """

@@ -13,7 +13,7 @@ from .car_manager_api_service import CarManagerApiService
 from .job_manager import JobManager
 from .schemas import Car, Worker, WorkerCreate, WorkerState, WorkerType, CarCreate
 from .worker_heartbeat import WorkerHeartBeat
-from ..helpers.zeroconf import find_zero_conf_service, ZeroConfResult
+from ..helpers.zeroconf import find_zero_conf_service, ServiceLocation
 from ..parts.custom_tub_writer import CustomTubWriter
 
 RES_WORKERS = "workers"
@@ -33,6 +33,7 @@ class CarManager:
                  tub_path: str,
                  tub_writer: CustomTubWriter,
                  api_origin: Optional[str] = None,
+                 ftp_location: Optional[ServiceLocation] = None,
                  network_interface: str = "wlan0"):
         """
         :param tub_path: Path where data are stored
@@ -46,7 +47,7 @@ class CarManager:
         self._api_origin = api_origin if api_origin else self._find_api_with_zero_conf()
         self._api = CarManagerApiService(self._api_origin)
 
-        self._ftp = self._find_ftp_with_zero_conf()
+        self._ftp = ftp_location if ftp_location else self._find_ftp_with_zero_conf()
 
         self._sio = socketio.Client()
         self._sio.connect(self._api_origin, socketio_path='/ws/socket.io')
@@ -72,7 +73,7 @@ class CarManager:
         self._job_manager.start()
 
     @staticmethod
-    def _find_ftp_with_zero_conf() -> ZeroConfResult:
+    def _find_ftp_with_zero_conf() -> ServiceLocation:
         """
         Find API URL using zero conf.
         :return: The API URL

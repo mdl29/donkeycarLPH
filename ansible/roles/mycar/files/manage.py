@@ -32,6 +32,7 @@ from donkeycar.parts.launch import AiLaunch
 from donkeycar.utils import *
 from typing_extensions import NoReturn
 
+from custom.helpers.zeroconf import ServiceLocation
 from custom.irlaptimer import IrLapTimerPart
 from custom.manager.car_manager import CarManager, ManagerNoApiFoundException
 from custom.parts.custom_tub_writer import CustomTubWriter
@@ -269,10 +270,18 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
             # Donkeycar manager part
             rpi_network_interface = os.environ.get('RPI_NETWORK_INTERFACE')  # eg: wlan0 or eth0
             rpi_network_interface = rpi_network_interface if rpi_network_interface else "wlan0"
+            api_origin = os.environ.get('MANAGER_API_ORIGIN')
+
+            ftp_host = os.environ.get('MANAGER_FTP_HOST')
+            ftp_port = os.environ.get('MANAGER_FTP_PORT')
+            ftp_service = ServiceLocation(ip=ftp_host,
+                                          port=int(ftp_port)) if ftp_host is not None and ftp_port is not None else None
 
             try:
                 manager = CarManager(tub_path=cfg.DATA_PATH,
                                      tub_writer=tub_writer,
+                                     api_origin=api_origin,
+                                     ftp_location=ftp_service,
                                      network_interface=rpi_network_interface)
                 V.add(
                     manager,
