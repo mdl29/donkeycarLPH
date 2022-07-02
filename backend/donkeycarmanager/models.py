@@ -43,6 +43,10 @@ class Race(Base):
         default=datetime.datetime.utcnow
     )
     max_duration = Column(Integer, nullable=False, default=5*60)  # Maximum race duration in ms
+    end_datetime = Column(
+        DateTime(timezone=True),
+        nullable=True
+    )
 
     player = relationship("Player", lazy='subquery')
     laptimers = relationship("LapTimer", backref="race", lazy='subquery')

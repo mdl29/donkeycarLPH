@@ -6,7 +6,7 @@ from typing import Optional, Union, Dict, List
 import pydantic
 
 from .schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
-    MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate, JobCreate
+    MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate, JobCreate, RaceUpdate
 import requests
 from datetime import date, datetime
 
@@ -103,7 +103,7 @@ class CarManagerApiService:
             raise CarManagerApiError(f"Unable to al fetch {resource_name},"
                                      f" got status : {resp.status_code} with message : {resp.text}")
 
-    def _update_resource(self, res_id: str, res: Union[WorkerUpdate, CarUpdate],
+    def _update_resource(self, res_id: str, res: Union[WorkerUpdate, CarUpdate, RaceUpdate],
                           res_path: str, result_type: typing.Type[T], resource_name: str) -> T:
         """
         Update an existing ressource.
@@ -251,6 +251,14 @@ class CarManagerApiService:
         :return: Created race.
         """
         return self._create_resource(race, RES_RACES, Race, "race")
+
+    def update_race(self, race: RaceUpdate) -> Race:
+        """
+        Update an existing race.
+        :param race: Race to be updated.
+        :return: Updated race
+        """
+        return self._update_resource(race.race_id, race, RES_RACES, Race, "race")
 
     def create_laptimer(self, laptimer: LapTimerCreate) -> LapTimer:
         """
