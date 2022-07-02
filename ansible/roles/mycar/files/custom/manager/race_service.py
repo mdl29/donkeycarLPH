@@ -111,4 +111,11 @@ class RaceService:
         """
         End the race, reset lap timer.
         """
+        self.logger.debug('Ending race')
         self.is_ended = True
+
+        if self.race:
+            self.race.end_datetime = datetime.now(timezone.utc)
+            self._api.update_race(self.race)
+            self.logger.debug('Updating race with id %i, setting end date to : %s',
+                              self.race.race_id, self.race.end_datetime)

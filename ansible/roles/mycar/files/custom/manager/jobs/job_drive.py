@@ -158,11 +158,13 @@ class JobDrive(Job):
                 if self.event_cancelled.isSet(): # Cancelled before have finished is run :(
                     self.logger.warning('[job_id: %i] Drive canceled before having time to finish it', self.get_id())
                     self.drive_stage = JobDriveStage.DRIVE_FINISHED
+                    self.race_service.end()
                     return
 
                 # Drive timeout, setting can_move to false and ensure it's set
                 self.logger.debug('[job_id: %i]  Driving session finished', self.get_id())
                 self.set_move(False) # Not waiting as False is the default state, even this line could be removed
+                self.race_service.end()
                 self.drive_stage = JobDriveStage.DRIVE_FINISHED_WAIT_FOR_CONFIRMATION
 
                 if self.by_pass_drive_finished_confirmation:  # Used by job that would like to bypass the confirmation message, display an other one...

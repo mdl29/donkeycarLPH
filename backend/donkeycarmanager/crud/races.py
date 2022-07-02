@@ -7,7 +7,7 @@ from donkeycarmanager.helpers.utils import dict_to_attr
 
 
 def get_race(db: Session, race_id: int) -> schemas.Race:
-    return db.query(models.Car).filter(models.Race.race_id == race_id).first()
+    return db.query(models.Race).filter(models.Race.race_id == race_id).first()
 
 
 def get_races(db: Session, skip: int = 0, limit: int = 100) -> List[schemas.Race]:
