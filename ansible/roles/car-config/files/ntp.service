@@ -6,6 +6,7 @@ Conflicts=systemd-timesyncd.service
 
 [Service]
 Type=forking
+Environment="MANAGER_NTP_HOST=192.168.20.42"
 ExecStartPre=/usr/bin/config-ntp.sh
 # Debian uses a shell wrapper to process /etc/default/ntp
 # and select DHCP-provided NTP servers if available

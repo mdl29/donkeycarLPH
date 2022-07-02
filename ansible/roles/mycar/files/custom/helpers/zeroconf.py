@@ -7,12 +7,12 @@ from pydantic import BaseModel
 
 ZERO_CONF_MAX_TRY = 15
 
-class ZeroConfResult(BaseModel):
+class ServiceLocation(BaseModel):
     ip: str
     port: int
 
 
-def find_zero_conf_service(service_type: str, name: str, max_retry = ZERO_CONF_MAX_TRY) -> Optional[ZeroConfResult]:
+def find_zero_conf_service(service_type: str, name: str, max_retry = ZERO_CONF_MAX_TRY) -> Optional[ServiceLocation]:
     """
     Find zeroconf service IP addr, may try multiple times.
 
@@ -38,7 +38,7 @@ def find_zero_conf_service(service_type: str, name: str, max_retry = ZERO_CONF_M
                 ip = socket.inet_ntoa(service.addresses[0])
                 port = service.port
                 logger.debug('Found service %s IP at : %s:%i', full_name, ip, port)
-                return ZeroConfResult(ip=ip, port=port)
+                return ServiceLocation(ip=ip, port=port)
         except Exception as e:
             if nb_remaining_try - 1 <= 0:  # last try display error
                 logger.error('Last attempt using zeroconf got the following error : %s')

@@ -14,7 +14,7 @@ from ..schemas import Job as JobModel, JobState, Car
 from custom.manager.car_manager_api_service import CarManagerApiService
 from ...helpers.conditional_events import ConditionalEvents, CondEventsOperator
 from ...helpers.RegistableEvents import RegistableEvent
-from ...helpers.zeroconf import ZeroConfResult
+from ...helpers.zeroconf import ServiceLocation
 from ...parts.custom_tub_writer import CustomTubWriter
 
 
@@ -22,7 +22,7 @@ class Job(Thread):
 
     def __init__(self, parameters: Dict[str, any],
                  job_data: JobModel, car: Car,
-                 api: CarManagerApiService, ftp: ZeroConfResult,
+                 api: CarManagerApiService, ftp: ServiceLocation,
                  sio: socketio.Client,
                  tub_path: str, tub_writer: CustomTubWriter):
         """
