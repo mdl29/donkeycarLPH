@@ -136,6 +136,8 @@ class CarBase(BaseModel):
     ip: str
     color: str
     worker_id: int
+    inverted_controls: Optional[bool]
+    throttle_scale: Optional[float]
 
 
 class CarCreate(CarBase):

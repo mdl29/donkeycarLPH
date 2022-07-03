@@ -119,7 +119,9 @@ class CarManager:
         car_name = self.get_car_name()
         current_car_basic_details = { 'name': car_name,
                           'ip': ifaddresses(self._network_interface)[AF_INET][0]['addr'],
-                          'color': os.environ.get('CONTROLLER_LED_COLOR')}
+                          'color': os.environ.get('CONTROLLER_LED_COLOR'),
+                          'inverted_controls': False,
+                          'throttle_scale': 0.5}
 
         existing_car = self._api.get_car(car_name)
         if existing_car is not None:  # Need to update the car with current details
@@ -154,6 +156,8 @@ class CarManager:
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int]=None,
                      controller_x_pressed: Optional[bool]=False
+                     inverted: Optional[bool]=False
+                     scale: Optional[float]=0.5
                      ) -> Tuple[float, str, bool, bool]:
         """
         :param user_throttle: User throttle value
@@ -163,6 +167,17 @@ class CarManager:
             laptimer/reset_all
             recording
         """
+        changed = False
+        if inverted != self.car.inverted_controls:
+            self.logger.info("Controls inverted")
+            self.car.inverted_controls = inverted
+            changed = True
+        if scale != self.car.throttle_scale:
+            self.car.throttle_scale = scale
+            changed = True
+        if changed:
+            self._api.update_car(self.car)
+
         res = self._job_manager.run_threaded_current_job(
             user_throttle,
             laptimer_current_start_lap_datetime,
