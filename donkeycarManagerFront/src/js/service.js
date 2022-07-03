@@ -218,7 +218,8 @@ export default class DonkeycarManagerService {
       'worker_type': 'CAR',
       'name': 'DRIVE',
       'player_id': playerId,
-      'parameters': '{ "drive_time" : 300 }',
+      'parameters': '{ "drive_time" : 10 }',
+      'next_job_details': "{ \"worker_type\": \"CAR\", \"name\": \"RECORD\", \"parameters\": \"{ \\\"drive_time\\\":  100 }\"  }",
       'state': 'WAITING',
       'worker_id': null
     })
