@@ -13,31 +13,17 @@
     </div>
     <vs-dialog width="100%" prevent-close blur not-close v-model="popup">
       <template #header>
-        <h1 class="not-margin"> Bienvenue <b>{{pseudo}}</b></h1>
+        <h1 class="content"> Bienvenue <b>{{pseudo}}</b></h1>
       </template>
-      <div class="content-404">
+      <div class="content">
         <p>Vous venez d'être enregistré(e) !!</p>
         <h3> Votre pseudo : {{player.player_pseudo}} </h3>
         <h3> Votre numéro : {{numero}} </h3>
         <h3> temps d'attente : {{attente}}</h3>
       </div>
       <template #footer>
-        <div class="content-404r">
-          <vs-button @click="popup=false ; redirect() " >Ok</vs-button>
-        </div>
-      </template>
-    </vs-dialog>
-
-    <vs-dialog width="100%" prevent-close blur not-close v-model="popup404">
-      <template #header>
-        <h1 class=""> Erreur lors de l'enregistrement</h1>
-      </template>
-      <div class="content-404">
-        Votre <b>pseudo</b> est déjà utilisé, merci de bien vouloir le changer :)
-      </div>
-      <template #footer>
         <div>
-          <vs-button class="content-404" @click="popup404=false" >Ok</vs-button>
+          <vs-button @click="popup=false ; redirect() " class="content">Ok</vs-button>
         </div>
       </template>
     </vs-dialog>
@@ -57,7 +43,6 @@ export default {
     player: [],
     playerTest: null,
     popup: false,
-    popup404: false,
     pseudoBlank: false,
     telBlank: false,
     numero: 0,
@@ -138,7 +123,7 @@ input::placeholder{
 #label-form{
   margin-left: 0px;
 }
-.content-404{
+.content{
  font-size: 35px;
 }
 </style>
