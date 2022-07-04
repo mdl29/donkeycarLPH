@@ -4,8 +4,8 @@ from datetime import datetime
 from ftplib import FTP
 from typing import Optional, Tuple, NoReturn
 
-from custom.generic_worker.helpers.RegistableEvents import RegistableEvent
-from custom.generic_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
+from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
+from dkmanager_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
 from custom.car.helpers.os import clean_directory_content, make_tarfile
 from custom.car.services.jobs.job_drive import JobDrive, JobDriveStage
 

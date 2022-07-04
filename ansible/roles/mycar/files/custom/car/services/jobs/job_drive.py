@@ -4,8 +4,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Tuple, Optional
 
-from custom.generic_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
-from custom.generic_worker.helpers.RegistableEvents import RegistableEvent
+from dkmanager_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
+from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
 from custom.car.services.jobs.job import Job
 from custom.car.services.race_service import RaceService
 

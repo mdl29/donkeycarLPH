@@ -5,7 +5,7 @@ from typing import Optional, Union, Dict, List
 
 import pydantic
 
-from .schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
+from dkmanager_worker.models.schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
     MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate, JobCreate
 import requests
 from datetime import date, datetime
@@ -19,10 +19,10 @@ RES_LAPTIMERS = "laptimers"
 T = pydantic.BaseModel
 
 
-class CarManagerApiError(Exception):
+class ManagerApiError(Exception):
     pass
 
-class CarManagerApiService:
+class ManagerApiService:
 
     def __init__(self, api_origin: str):
         """
@@ -42,7 +42,7 @@ class CarManagerApiService:
     @staticmethod
     def _json_dumps(dict: Dict) -> str:
         """ Convert to json handeling dates """
-        return json.dumps(dict, default=CarManagerApiService.json_serial)
+        return json.dumps(dict, default=ManagerApiService.json_serial)
 
     def _create_resource(self, res: Union[CarCreate, WorkerCreate, JobCreate],
                          res_path: str, result_type: typing.Type[T], resource_name: str) -> T:
@@ -60,7 +60,7 @@ class CarManagerApiService:
         if resp.status_code == 200:
             return result_type.parse_obj(resp.json())
 
-        raise CarManagerApiError(f"Unable to create {resource_name} with : {res.dict()},"
+        raise ManagerApiError(f"Unable to create {resource_name} with : {res.dict()},"
                                  f" got status : {resp.status_code} with message : {resp.text}")
 
     def _get_resource(self, res_id: str,
@@ -79,7 +79,7 @@ class CarManagerApiService:
         elif resp.status_code == 404:
             return None
         else:
-            raise CarManagerApiError(f"Unable to fetch {resource_name} with ID : {res_id},"
+            raise ManagerApiError(f"Unable to fetch {resource_name} with ID : {res_id},"
                                      f" got status : {resp.status_code} with message : {resp.text}")
 
     def _get_resources(self, res_path: str, result_type: typing.Type[T], resource_name: str,
@@ -100,7 +100,7 @@ class CarManagerApiService:
         elif resp.status_code == 404:
             return None
         else:
-            raise CarManagerApiError(f"Unable to al fetch {resource_name},"
+            raise ManagerApiError(f"Unable to al fetch {resource_name},"
                                      f" got status : {resp.status_code} with message : {resp.text}")
 
     def _update_resource(self, res_id: str, res: Union[WorkerUpdate, CarUpdate],
@@ -120,7 +120,7 @@ class CarManagerApiService:
         if resp.status_code == 200:
             return result_type.parse_obj(resp.json())
         else:
-            raise CarManagerApiError(f"Unable to update {resource_name} with ID : {res_id},"
+            raise ManagerApiError(f"Unable to update {resource_name} with ID : {res_id},"
                                      f" got status : {resp.status_code} with message : {resp.text}")
 
     def get_car(self, car_name: str) -> Optional[Car]:
@@ -208,7 +208,7 @@ class CarManagerApiService:
         if resp.status_code == 200:
             return Job.parse_obj(resp.json())
 
-        raise CarManagerApiError(f"Unable to move job_id:{job_id} after after_job_id:{after_job_id} ")
+        raise ManagerApiError(f"Unable to move job_id:{job_id} after after_job_id:{after_job_id} ")
 
     def job_move_before(self, job_id: int, before_job_id: int) -> Job:
         """
@@ -223,7 +223,7 @@ class CarManagerApiService:
         if resp.status_code == 200:
             return Job.parse_obj(resp.json())
 
-        raise CarManagerApiError(f"Unable to move job_id:{job_id} before before_job_id:{before_job_id} ")
+        raise ManagerApiError(f"Unable to move job_id:{job_id} before before_job_id:{before_job_id} ")
 
     def worker_clean(self, worker: Worker, fail_details: str) -> int:
         """
@@ -241,7 +241,7 @@ class CarManagerApiService:
         if resp.status_code == 200:
             return MassiveUpdateDeleteResult.parse_obj(resp.json()).nb_affected_items
         else:
-            raise CarManagerApiError(f"Unable to clean worker with ID : {worker.worker_id},"
+            raise ManagerApiError(f"Unable to clean worker with ID : {worker.worker_id},"
                                      f" got status : {resp.status_code} with message : {resp.text}")
 
     def create_race(self, race: RaceCreate) -> Race:

@@ -1,5 +1,5 @@
 from threading import Event, Lock
-from typing import List, Callable, Set
+from typing import Callable, Set
 
 
 class RegistableEvent(Event):

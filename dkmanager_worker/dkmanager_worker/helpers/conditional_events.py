@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List
 
-from custom.helpers.RegistableEvents import RegistableEvent
+from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
 
 class CondEventsOperator(str, Enum):
     AND = "and"

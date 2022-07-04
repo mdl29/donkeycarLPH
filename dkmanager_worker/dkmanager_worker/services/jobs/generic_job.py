@@ -1,4 +1,3 @@
-import threading
 from datetime import datetime
 
 import socketio
@@ -6,25 +5,20 @@ import logging
 import traceback
 from abc import abstractmethod
 from threading import Thread
-from typing import Dict, NoReturn, Optional, Callable, Tuple
+from typing import Dict, NoReturn, Optional
 
-from donkeycar.parts.tub_v2 import TubWriter
-
-from ..schemas import Job as JobModel, JobState, Car
-from custom.manager.car_manager_api_service import CarManagerApiService
-from ...helpers.conditional_events import ConditionalEvents, CondEventsOperator
-from ...helpers.RegistableEvents import RegistableEvent
-from ...helpers.zeroconf import ServiceLocation
-from ...parts.custom_tub_writer import CustomTubWriter
+from dkmanager_worker.models.schemas import Job as JobModel, JobState
+from dkmanager_worker.services.manager_api_service import ManagerApiService
+from dkmanager_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
+from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
+from dkmanager_worker.helpers.zeroconf import ServiceLocation
 
 
-class Job(Thread):
-
+class GenericJob(Thread):
     def __init__(self, parameters: Dict[str, any],
-                 job_data: JobModel, car: Car,
-                 api: CarManagerApiService, ftp: ServiceLocation,
-                 sio: socketio.Client,
-                 tub_path: str, tub_writer: CustomTubWriter):
+                 job_data: JobModel,
+                 api: ManagerApiService, ftp: ServiceLocation,
+                 sio: socketio.Client):
         """
         Init a job
         :param parameters: Job parameters (json parsed from API)
@@ -32,33 +26,26 @@ class Job(Thread):
         :param api: DonkeyCarManager API
         :param ftp: DonkeyCarManager FTP server location details
         :param sio: SocketIO to manager
-        :param tub_path: Path where data are stored
-        :param tub_writer: resetable tub writer part
         """
-        super(Job, self).__init__()
+        super(GenericJob, self).__init__()
         self.daemon = True
 
         self.event_cancelled = RegistableEvent()  # Event set used to cancel the job
         self.event_paused = RegistableEvent()  # Event set used to pause the job
         self.event_resume = RegistableEvent()  # Event set used to resume the job
 
-        # Controllers event
-        self.event_controller_x_pressed = RegistableEvent()  # "X" button was pressed on the controller
-
         self.parameters = parameters
         self.job_data: JobModel = job_data
-        self.car = car
         self.api = api
         self.ftp = ftp
         self.sio = sio
-        self.tub_path = tub_path
-        self.tub_writer = tub_writer
 
         self.final_job_status = None
         self.final_job_error: Optional[Exception] = None
         self.final_job_fail_details: Optional[str] = None
 
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
+
 
     def get_id(self) -> int:
         """
@@ -150,22 +137,3 @@ class Job(Thread):
                     ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
                 self.logger.error("Job[job_id: %i] failed with the following exception: %s", self.get_id(), e)
                 self.logger.exception(e)
-
-    def run_threaded(self,
-                     user_throttle: None,
-                     laptimer_current_start_lap_datetime: Optional[datetime] = None,
-                     laptimer_current_lap_duration: Optional[int] = None,
-                     laptimer_last_lap_start_datetime: Optional[datetime] = None,
-                     laptimer_last_lap_duration: Optional[int] = None,
-                     laptimer_last_lap_end_date_time: Optional[datetime] = None,
-                     laptimer_laps_total: Optional[int] = None,
-                     controller_x_pressed: Optional[bool] = False) -> Tuple[float, str, bool, bool]:
-        """
-        Part run threaded, is call with all donekcarmanacer I/O.
-        Should be implemented if the job need some part I/O.
-        Return outputs will be returned as donkeycarmanager part outputs.
-        """
-
-        if controller_x_pressed:
-            self.logger.debug('Controller X button was pressed, trigger event')
-            self.event_controller_x_pressed.set()

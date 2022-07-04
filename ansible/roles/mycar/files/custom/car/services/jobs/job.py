@@ -5,11 +5,11 @@ from typing import Dict, Optional, Tuple
 import socketio
 
 from custom.car.parts.custom_tub_writer import CustomTubWriter
-from custom.generic_worker.helpers.RegistableEvents import RegistableEvent
-from custom.generic_worker.helpers.zeroconf import ServiceLocation
-from custom.generic_worker.models.schemas import Job as JobModel, Car
-from custom.generic_worker.services.jobs.generic_job import GenericJob
-from custom.generic_worker.services.manager_api_service import ManagerApiService
+from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
+from dkmanager_worker.helpers.zeroconf import ServiceLocation
+from dkmanager_worker.models.schemas import Job as JobModel, Car
+from dkmanager_worker.services.jobs.generic_job import GenericJob
+from dkmanager_worker.services.manager_api_service import ManagerApiService
 
 
 class Job(GenericJob):

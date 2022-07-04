@@ -31,7 +31,7 @@ from donkeycar.parts.launch import AiLaunch
 from donkeycar.utils import *
 from typing_extensions import NoReturn
 
-from custom.generic_worker.helpers.zeroconf import ServiceLocation
+from dkmanager_worker.helpers.zeroconf import ServiceLocation
 from custom.car.parts.irlaptimer import IrLapTimerPart
 from custom.car.parts.car_manager_part import CarManagerPart, ManagerNoApiFoundException
 from custom.car.parts.custom_tub_writer import CustomTubWriter
