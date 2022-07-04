@@ -4,15 +4,13 @@ import socket
 from datetime import datetime
 from typing import Optional, Tuple
 
+from dkmanager_worker.helpers.zeroconf import ServiceLocation
+from dkmanager_worker.models.schemas import Car, WorkerCreate, WorkerState, WorkerType, CarCreate
+from dkmanager_worker.services.worker_service import WorkerService
 from netifaces import ifaddresses, AF_INET
 
-from custom.car.services.car_job_service import CarJobService
-from custom.generic_worker.services.manager_api_service import ManagerApiService
-from custom.generic_worker.services.worker_service import WorkerService
-from custom.generic_worker.services.job_service import JobService
-from custom.generic_worker.models.schemas import Car, WorkerCreate, WorkerState, WorkerType, CarCreate
-from custom.generic_worker.helpers.zeroconf import ServiceLocation
 from custom.car.parts.custom_tub_writer import CustomTubWriter
+from custom.car.services.car_job_service import CarJobService
 
 RES_CARS = "cars"
 

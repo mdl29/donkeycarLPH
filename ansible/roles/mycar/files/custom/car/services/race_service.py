@@ -2,9 +2,9 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional, NoReturn, List
 
-from custom.generic_worker.helpers.RegistableEvents import RegistableEvent
-from custom.generic_worker.services.manager_api_service import ManagerApiService
-from custom.generic_worker.models.schemas import Player, Car, RaceCreate, Race, LapTimerCreate, LapTimer
+from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
+from dkmanager_worker.services.manager_api_service import ManagerApiService
+from dkmanager_worker.models.schemas import Player, Car, RaceCreate, Race, LapTimerCreate, LapTimer
 
 
 class RaceService:

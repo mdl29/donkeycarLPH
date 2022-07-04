@@ -1,34 +1,21 @@
-import threading
-from datetime import datetime
-from typing import NoReturn, List, Optional, Iterable, Dict, Type, Tuple
-
-import socketio
 import json
 import logging
+import threading
+from typing import NoReturn, List, Optional, Iterable, Dict
 
-from donkeycar.parts.tub_v2 import TubWriter
+import socketio
 
-from custom.manager.car_manager_api_service import CarManagerApiService
-from .jobs.job_drive import JobDrive
-from .jobs.job_record import JobRecord
-from .schemas import JobState, Worker, Job as JobModel, EventJobChanged, WorkerState, Car, JobCreate
-from .jobs.job import Job as JobRun
-
+from dkmanager_worker.services.manager_api_service import ManagerApiService
+from dkmanager_worker.services.jobs.generic_job import GenericJob as JobRun
+from dkmanager_worker.models.schemas import JobState, Worker, Job as JobModel, EventJobChanged, WorkerState, JobCreate
 # Match job name with job runnable instance
 from ..helpers.RegistableEvents import RegistableEvent
 from ..helpers.zeroconf import ServiceLocation
-from ..parts.custom_tub_writer import CustomTubWriter
 
-JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
-    'DRIVE': JobDrive,
-    'RECORD': JobRecord
-}
+class JobService(threading.Thread):
 
-class JobManager(threading.Thread):
-
-    def __init__(self, api: CarManagerApiService, ftp: ServiceLocation,
-                 tub_path: str, tub_writer: CustomTubWriter,
-                 sio: socketio.Client, worker: Worker, car: Car):
+    def __init__(self, api: ManagerApiService, ftp: ServiceLocation,
+                 sio: socketio.Client, worker: Worker):
         """
         :param api: API manager instance.
         :param tub_path: Path where data are stored
@@ -36,17 +23,14 @@ class JobManager(threading.Thread):
         :param sio: Socket IO client.
         :param worker: The current car worker.
         """
-        super(JobManager, self).__init__()
+        super(JobService, self).__init__()
         self.daemon = True
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
         self._api = api
         self._ftp = ftp
         self._sio = sio
-        self._tub_path = tub_path
-        self._tub_writer = tub_writer
         self.worker = worker
-        self.car = car
 
         self.waiting_jobs_queue: List[JobModel] = []
         self.waiting_jobs_queue_changed = RegistableEvent()
@@ -127,33 +111,6 @@ class JobManager(threading.Thread):
                 self.logger.debug("Job to be run is job_id: %i, job_name: %s", job.job_id, job.name)
                 yield job
 
-    def init_job_run(self, job: JobModel) -> JobRun:
-        """
-        Return job instance form job definition.
-        :param job: Job definition
-        :return: A runnable / job thread to be started
-        """
-        job_run_class = JOB_NAME_TO_JOB_RUNNABLE.get(job.name)
-
-        if job_run_class is None:
-            #TODO display log error
-            # Throw an error
-            return None
-
-        parameters = {}
-        try:
-            parameters = json.loads(job.parameters)
-        except Exception as e:
-            self.logger.error('Parsing json parameters for job_id: %s, FAILED with the following exception :')
-            self.logger.exception(e)
-
-        job_run_instance = job_run_class(
-            parameters=parameters, job_data=job,
-            api=self._api, ftp=self._ftp, sio=self._sio,
-            tub_path=self._tub_path, tub_writer=self._tub_writer,
-            car=self.car)
-        return job_run_instance
-
     def set_worker_state(self, worker_state: WorkerState):
         """
         Update the current worker state.
@@ -191,17 +148,28 @@ class JobManager(threading.Thread):
         next_job = self._api.job_move_after(next_job.job_id, after_job_id=current_job.job_id)
         self.logger.debug('Next job as rank %i an current job as rank %i', next_job.rank, current_job.rank)
 
+    def parse_job_parameters(self, job_parameters: str) -> Dict:
+        """
+        Parse job parameters
+        :param job_parameters: JSON encoded parameters
+        :return: A dict of parsed parameters
+        """
+        parameters = {}
+        try:
+            parameters = json.loads(job_parameters)
+        except Exception as e:
+            self.logger.error('Parsing json parameters for job_id: %s, FAILED with the following exception :')
+            self.logger.exception(e)
+
+        return parameters
+
     def run(self):
         for job in self.next_job():
             self.set_worker_state(WorkerState.BUSY)
             job_run = self.init_job_run(job)
             self.current_running_job = job_run
 
-            # Handeling car state
-            self.car.current_player_id = job.player_id
-            self.car.current_stage = job.name
-            self.car.current_race_id = None
-            self._api.update_car(self.car)
+            self.on_before_new_job_start()
 
             # Start the job
             job_run.start()
@@ -218,43 +186,20 @@ class JobManager(threading.Thread):
 
             self._api.update_job(job)
 
-            # Handeling car state
-            self.car.current_player_id = None
-            self.car.current_stage = None
-            self.car.current_race_id = None
-            self._api.update_car(self.car)
+            self.on_current_job_ends()
 
             self.set_worker_state(WorkerState.AVAILABLE)
 
-    def run_threaded_current_job(self,
-                                 user_throttle: None,
-                                 laptimer_current_start_lap_datetime: Optional[datetime] = None,
-                                 laptimer_current_lap_duration: Optional[int] = None,
-                                 laptimer_last_lap_start_datetime: Optional[datetime] = None,
-                                 laptimer_last_lap_duration: Optional[int] = None,
-                                 laptimer_last_lap_end_date_time: Optional[datetime] = None,
-                                 laptimer_laps_total: Optional[int] = None,
-                                 controller_x_pressed: Optional[bool] = False) -> Tuple[float, str, bool, bool]:
+    def on_before_new_job_start(self) -> NoReturn:
         """
-        See donkeycar CarManager part for details.
+        Executed when a new job is selected for a run.
+        At this stage current_running_job is already setted with the new job
         """
+        pass
 
-        if self.current_running_job is not None:
-            res = self.current_running_job.run_threaded(
-                user_throttle,
-                laptimer_current_start_lap_datetime,
-                laptimer_current_lap_duration,
-                laptimer_last_lap_start_datetime,
-                laptimer_last_lap_duration,
-                laptimer_last_lap_end_date_time,
-                laptimer_laps_total,
-                controller_x_pressed
-            )
-            return res
-
-        # Default values
-        user_throttle = 0.0
-        job_name = 'NO_JOB'
-        laptimer_reset_all = True
-        recording_state = False
-        return user_throttle, job_name, laptimer_reset_all, recording_state
+    def on_current_job_ends(self) -> NoReturn:
+        """
+        Executed when the current job execution as finished, final state is setted.
+        Should be overridden. Worker is set AVAILABLE just after it.
+        """
+        pass

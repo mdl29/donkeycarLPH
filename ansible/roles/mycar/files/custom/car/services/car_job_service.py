@@ -3,14 +3,14 @@ from typing import NoReturn, Optional, Dict, Type, Tuple
 
 import socketio
 
-from custom.generic_worker.services.manager_api_service import ManagerApiService
-from custom.generic_worker.services.job_service import JobService
+from dkmanager_worker.services.manager_api_service import ManagerApiService
+from dkmanager_worker.services.job_service import JobService
 from custom.car.services.jobs.job import Job as JobRun
 from custom.car.services.jobs.job_drive import JobDrive
 from custom.car.services.jobs.job_record import JobRecord
-from custom.generic_worker.models.schemas import Worker, Job as JobModel, Car
+from dkmanager_worker.models.schemas import Worker, Job as JobModel, Car
 # Match job name with job runnable instance
-from custom.generic_worker.helpers.zeroconf import ServiceLocation
+from dkmanager_worker.helpers.zeroconf import ServiceLocation
 from custom.car.parts.custom_tub_writer import CustomTubWriter
 
 JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {

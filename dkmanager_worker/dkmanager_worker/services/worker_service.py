@@ -3,11 +3,11 @@ from typing import Optional, NoReturn
 
 import socketio
 
-from custom.generic_worker.services.manager_api_service import ManagerApiService
-from custom.generic_worker.services.job_service import JobService
-from custom.generic_worker.models.schemas import Worker, WorkerState
-from custom.generic_worker.services.heartbeat_service import HeartBeatService
-from custom.generic_worker.helpers.zeroconf import find_zero_conf_service, ServiceLocation
+from dkmanager_worker.services.manager_api_service import ManagerApiService
+from dkmanager_worker.services.job_service import JobService
+from dkmanager_worker.models.schemas import Worker, WorkerState
+from dkmanager_worker.services.heartbeat_service import HeartBeatService
+from dkmanager_worker.helpers.zeroconf import find_zero_conf_service, ServiceLocation
 
 RES_WORKERS = "workers"
 ZERO_CONF_API_TYPE = "_http._tcp.local."

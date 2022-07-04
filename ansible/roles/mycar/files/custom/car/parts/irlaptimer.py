@@ -1,11 +1,10 @@
+import logging
+import threading
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from evdev import InputDevice, ecodes
-from time import time
-import threading
-from datetime import datetime, timedelta, timezone
-import sys
-import logging
+
 
 class IrLapTimer(threading.Thread):
     def __init__(self):

@@ -2,7 +2,7 @@ import time
 import asyncio
 import threading
 import websockets
-from custom.generic_worker.models.schemas import Worker
+from dkmanager_worker.models.schemas import Worker
 from urllib.parse import urlparse
 
 class HeartBeatService(threading.Thread):
