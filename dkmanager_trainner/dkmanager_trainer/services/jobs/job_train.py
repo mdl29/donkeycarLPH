@@ -27,7 +27,6 @@ DATASET_INSIDE_ARCHIVE_DATA_FOLDER = "data" # Where catalog .json files are stor
 
 
 CONFIG_PATH = "/home/paperspace/car/config.py" # TODO should be improved with parameters
-MY_CONFIG_PATH = "/home/paperspace/car/myconfig.py" # TODO should be improved with parameters
 MODEL_TYPE = "linear"
 
 class JobTrain(GenericJob):
@@ -158,7 +157,7 @@ class JobTrain(GenericJob):
         models_folder = f"{self.lazy_temp_folder()}/{TMP_MODELS_FOLDER_NAME}"
         Path(models_folder).mkdir(parents=True, exist_ok=True)
 
-        cfg = dk.load_config(config_path=CONFIG_PATH, myconfig=MY_CONFIG_PATH)
+        cfg = dk.load_config(config_path=CONFIG_PATH)
         tubs = dataset_path
         model = f"{models_folder}/mypilot.h5"
         model_type = MODEL_TYPE
