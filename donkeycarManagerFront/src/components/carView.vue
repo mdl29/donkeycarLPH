@@ -55,7 +55,12 @@
       </div>
       <waiting-text v-else />
       <div class="bottom" v-if="job && !is_paused">
-        <div :style="throttle_style" class="throttle">
+        <div class="throttle-wrapper">
+          <img src="../assets/speedometer.png" />
+          <div class="throttle">
+            <div class="throttle-through" :style="throughStyle">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -195,11 +200,31 @@ export default {
     },
   },
   computed: {
-    throttle_style() {
-      let a = Math.min(Math.max(this.car.throttle_scale, 0), 1);
-      a = a * 240;
+    throughStyle() {
+      const t = Math.min(Math.max(this.car.throttle_scale, 0.0), 1.0);
+      const stops = [
+        [0.00, [113,  67,  46]],
+        [0.55, [113,  67,  46]],
+        [0.85, [ 26,  83,  54]],
+        [1.00, [  0,  83,  54]],
+      ];
+      let color;
+      for (let i = 0; i < stops.length - 1; i++) {
+        const cur = stops[i];
+        const next = stops[i + 1];
+        if (cur[0] <= t && t <= next[0]) {
+          const d = Math.abs(next[0] - cur[0]);
+          const id = d > 0 ? 1 / d : 0;
+          // Factor from 0 (all previous stop) to 1 (all next stop)
+          const f = (t - cur[0]) * id;
+          const res = cur[1].map((c, j) => Math.floor(c + f * (next[1][j] - c)));
+          color = `hsl(${res[0]}, ${res[1]}%, ${res[2]}%)`;
+        }
+      }
+      console.log(color);
       return {
-        "background-image": `conic-gradient(from 240deg, ${this.color} ${a}deg, #bbbbbb ${a}deg, #bbbbbb 240deg, transparent 240deg)`
+        "height": t * 100 + "%",
+        "background-color": color,
       }
     },
     color() {
@@ -462,22 +487,31 @@ export default {
   padding-right: 0.5em;
   box-sizing: border-box;
 }
-.throttle {
-  font-size: 1.9em;
-  width: 1.2em;
-  height: 1.2em;
-  border-radius: 100%;
+.throttle-wrapper {
+  position: absolute;
+  transform: translateY(-100%);
   display: flex;
-  justify-content: center;
+  flex-direction: column-reverse;
+  gap: 0.2em;
   align-items: center;
-  transition: 0.2s all;
 }
-.throttle::after {
-  content: "";
-  display: block;
-  width: 0.8em;
-  height: 0.8em;
-  background: white;
-  border-radius: 100%;
+.throttle-wrapper img {
+  width: 0.9em;
+  height: 0.9em;
+  opacity: 0.5;
+}
+.throttle {
+  height: 5em;
+  width: 0.4em;
+  border-radius: 0.5em;
+  background: #DEDEDE;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  overflow-y: hidden;
+}
+.throttle-through {
+  border-radius: 0.5em;
+  transition: 0.2s all;
 }
 </style>
