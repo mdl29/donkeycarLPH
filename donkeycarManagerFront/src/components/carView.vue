@@ -49,28 +49,29 @@
           Fini dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
         <div v-if="job && job.screen_msg_display" class="end message">
-          <template v-for="part in messageComponents">
-            <span v-if="part.text">
-              {{ part.text }}
-            </span>
-            <textIcon :src="part.img" v-if="part.img" />
-          </template>
+          <format-message :message="job.screen_msg" />
         </div>
         <div v-if="!race" class="no-race"> Veuillez avancer pour lancer la course </div>
       </div>
       <waiting-text v-else />
+      <div class="bottom" v-if="job && !is_paused">
+        <div :style="throttle_style" class="throttle">
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import waitingText from '@/components/waitingText.vue'
+import formatMessage from '@/components/formatMessage.vue'
 import textIcon from '@/components/textIcon.vue'
 
 export default {
   components: {
     waitingText,
     textIcon,
+    formatMessage,
   },
   data() {
     return {
@@ -81,16 +82,9 @@ export default {
     }
   },
   mounted() {
+    window.addEventListener("resize", this.updateMaxTimers)
     const that = this
-    // kindof a hack, because updateMaxTimers doesn't do anything if there is no lap element in the dom 
-    // which there isn't at mount
-    setTimeout(() => {
-      that.updateMaxTimers()
-    }, 500)
-    window.addEventListener("resize", () => {
-      that.updateMaxTimers()
-    })
-    
+    let once = true
     this.interval = setInterval(() => {
       if (that.race) {
         that.timeleft = (that.race.max_duration * 1000) - that.fromNow(that.race.start_datetime)
@@ -98,6 +92,10 @@ export default {
           ? that.race.laptimers[that.race.laptimers.length - 1].end_datetime
           : that.race.start_datetime
         that.currentlapDuration = that.fromNow(start)
+        if (once) {
+          setTimeout(that.updateMaxTimers, 500)
+          once = false
+        }
       }
     }, 30)
   },
@@ -146,7 +144,8 @@ export default {
         availableHeight -= height(".lap.head") // remove height of head
         availableHeight -= height(".header") // remove height of header
         availableHeight -= height(".end")
-        availableHeight *= 0.6 // remove some space to leave gaps
+        availableHeight -= height(".bottom")
+        availableHeight *= 0.8 // remove some space to leave gaps
         const maxTimers = Math.max(Math.floor(availableHeight / lap), 1)
         if (this.maxTimers != maxTimers) {
           this.maxTimers = maxTimers
@@ -186,35 +185,25 @@ export default {
     },
     onBeforeLeave(el) {
       el.classList.add("list-leave", "list-leave-active")
+      requestAnimationFrame(() => {
+        el.classList.replace("list-leave", "list-leave-to")
+      });
     },
-    onLeave(el) {
-      el.classList.replace("list-leave", "list-leave-to")
-    },
+    onLeave(el) {},
     onAfterLeave(el) {
       el.classList.remove("list-leave-to", "list-leave-active")
     },
   },
   computed: {
+    throttle_style() {
+      let a = Math.min(Math.max(this.car.throttle_scale, 0), 1);
+      a = a * 240;
+      return {
+        "background-image": `conic-gradient(from 240deg, ${this.color} ${a}deg, #bbbbbb ${a}deg, #bbbbbb 240deg, transparent 240deg)`
+      }
+    },
     color() {
       return `#${this.car.color}`
-    },
-    messageComponents() {
-      if (this.job && this.job.screen_msg) {
-        const str = this.job.screen_msg
-        const groups = str.split(/[\]\[]/g);
-        const res = []
-        let type = "text"
-        for (const m of groups) {
-          if (type === "text") {
-            res.push({text: m})
-            type = "img"
-          } else {
-            res.push({img: `PS4_${m}.png`})
-            type = "text"
-          }
-        }
-        return res
-      }
     },
     is_paused() {
       return this.job && this.job.state == 'PAUSED'
@@ -289,7 +278,7 @@ export default {
 .job {
   transition: all 0.2s ease;
   display: flex;
-  flex: 1;
+  flex: 2;
   width: 100%;
   flex-direction: column;
   justify-content: center;
@@ -320,7 +309,7 @@ export default {
   background: none;
 }
 .content.blur::after {
-  content: "Tache en pause";
+  content: "En pause";
   color: white;
   font-size: 3em;
   display: block;
@@ -372,7 +361,7 @@ export default {
   height: 1.1em;
 }
 .lap.best {
-  color: #FAD000;
+  color: #D19508;
 }
 .lap:not(:last-child) {
   padding-bottom: 0.3em;
@@ -395,19 +384,24 @@ export default {
   font-size: 2em;
 }
 .record {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
   font-size: 1em;
   font-weight: bold;
-  padding: 0.4em;
-  padding-bottom: 0.2em;
+  padding: 0.3em;
   border: 3px solid black;
   border-radius: 2em;
   color: black;
   margin-right: 1em;
+  gap: 0.3em;
 }
 .record::before {
+  align-self: end;
+  margin-bottom: -0.2em;
   content: "⬤ ";
-  padding-bottom: 0.2em;
-  font-size: 0.8em;
+  font-size: 0.7em;
   color: red;
   animation: blink infinite normal running 1s steps(1, start);
 }
@@ -458,5 +452,32 @@ export default {
 .lap.real.list-leave-to {
   border-color: transparent;
   padding: 0;
+}
+.bottom {
+  font-size: 1.7em;
+  margin-bottom: 0.5em;
+  width: 100%;
+  display: flex;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  box-sizing: border-box;
+}
+.throttle {
+  font-size: 1.9em;
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s all;
+}
+.throttle::after {
+  content: "";
+  display: block;
+  width: 0.8em;
+  height: 0.8em;
+  background: white;
+  border-radius: 100%;
 }
 </style>
