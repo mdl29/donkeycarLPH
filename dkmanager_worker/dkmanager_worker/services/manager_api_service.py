@@ -5,8 +5,9 @@ from typing import Optional, Union, Dict, List
 
 import pydantic
 
-from dkmanager_worker.models.schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
-    MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate, JobCreate
+from dkmanager_worker.models.schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, \
+    Job, \
+    MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate, JobCreate, WorkerType
 import requests
 from datetime import date, datetime
 
@@ -154,6 +155,15 @@ class ManagerApiService:
         :return: The created worker
         """
         return self._create_resource(worker, RES_WORKERS, Worker, "worker")
+
+    def get_workers(self, worker_type: Optional[WorkerType]=None) -> Optional[List[Worker]]:
+        """
+        :param worker_type: Filter by worker type.
+        """
+        filters = {
+            'worker_type': worker_type.value
+        }
+        return self._get_resources(RES_WORKERS, Worker, "worker", filters)
 
     def update_worker(self, worker: WorkerUpdate) -> Worker:
         """
