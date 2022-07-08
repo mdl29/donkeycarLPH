@@ -155,9 +155,9 @@ class CarManager:
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int]=None,
-                     controller_x_pressed: Optional[bool]=False
-                     inverted: Optional[bool]=False
-                     scale: Optional[float]=0.5
+                     controller_x_pressed: Optional[bool]=False,
+                     inverted: Optional[bool]=False,
+                     scale: Optional[float]=0.5,
                      ) -> Tuple[float, str, bool, bool]:
         """
         :param user_throttle: User throttle value
