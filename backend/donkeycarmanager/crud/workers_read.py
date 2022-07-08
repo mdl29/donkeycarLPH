@@ -17,9 +17,9 @@ def get_workers(db: Session, skip: int = 0, limit: int = 100,
     query_stm = db.query(models.Worker)
 
     if worker_state:
-        query_stm.filter(models.Worker.state == worker_state)
+        query_stm = query_stm.filter(models.Worker.state == worker_state)
 
     if worker_type:
-        query_stm.filter(models.Worker.type == worker_type)
+        query_stm = query_stm.filter(models.Worker.type == worker_type)
 
     return query_stm.offset(skip).limit(limit).all()
