@@ -22,7 +22,6 @@ class MyJoystick(Joystick):
     """
     def __init__(self, *args, **kwargs):
         super(MyJoystick, self).__init__(*args, **kwargs)
-        self.inverted = true
         self._led_control = PS4LEDControl()
         self._ds4drv_mac_reader = Ds4drvLastMacReader(devices_pipe_path=DEVICES_PIPE,
                                                       on_new_mac_addr=self._led_control.connect_to,
@@ -70,7 +69,7 @@ class MyJoystickController(JoystickController):
     """
     def __init__(self, *args, **kwargs):
         super(MyJoystickController, self).__init__(*args, **kwargs)
-
+        self.inverted = False
         self.state_x_button = False
 
 
