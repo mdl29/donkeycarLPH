@@ -4,8 +4,8 @@ import logging
 from donkeycar.parts.controller import Joystick, JoystickController
 from typing import NoReturn
 
-from custom.PS4_led_control import PS4LEDControl
-from custom.ds4drv_last_mac_reader import Ds4drvLastMacReader
+from custom.car.services.PS4_led_control import PS4LEDControl
+from custom.car.services.ds4drv_last_mac_reader import Ds4drvLastMacReader
 
 logger = logging.getLogger(__name__)
 
