@@ -218,8 +218,14 @@ export default class DonkeycarManagerService {
       'worker_type': 'CAR',
       'name': 'DRIVE',
       'player_id': playerId,
-      'parameters': '{ "drive_time" : 300 }',
+      'parameters': '{ "drive_time" : 120 }',
       'state': 'WAITING',
+      'next_job_details': JSON.stringify({
+        'name': 'RECORD',
+        'parameters': JSON.stringify({
+          'drive_time': 240
+        })
+      }),
       'worker_id': null
     })
     return response.data

@@ -21,6 +21,7 @@
 
 <script>
 import DonkeycarManagerService from '@/js/service.js'
+import { getJobDuration, getJobWaitTime } from '@/js/utils.js'
 import carView from '@/components/carView.vue'
 import { io } from 'socket.io-client'
 
@@ -29,7 +30,6 @@ const url = `http://${ip}:8000`
 const srv = new DonkeycarManagerService(url)
 const car_count = 2
 const socket = io.connect(url, { path: `/ws/socket.io` })
-
 export default {
   components: {
     carView,
@@ -130,44 +130,25 @@ export default {
     async fetchWaitingList() {
       this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
     },
-    getJobDuration(job) { // in seconds
-      try {
-        const params = JSON.parse(job.parameters)
-        if (job.next_job_details) {
-          return parseInt(params.drive_time) + this.getJobDuration(JSON.parse(job.next_job_details))
-        } else {
-          return parseInt(params.drive_time)
-        }
-      } catch(_) {
-        return 0
-      }
-    },
     getEstimatedWait(index) {
-      // I want spread operator
-      const that = this
-      const current_jobs_wait = this.entries.filter(e => e.job).map(e => {
-        let duration = that.getJobDuration(e.job);
+      const current_jobs_wait = this.entries.map(e => {
+        let duration = e.job ? getJobDuration(e.job) : 0;
         if (e.race && e.race !== null) {
           const elapsed = new Date().getTime() - new Date(e.race.start_datetime).getTime();
-          duration = Math.max(Math.floor(duration - elapsed / 1000), 0)
+          duration = Math.max(Math.floor(duration - elapsed / 1000), 0);
         }
-        return duration
+        return Math.max(duration, 0);
       })
-      const min_current_job_wait = current_jobs_wait.length > 0 ? Math.min.apply(Math, current_jobs_wait) : 0
-      const waitingTimes = this.waitingList.filter((_, i) => i < index).map(this.getJobDuration)
-      let time = 0;
-      if (waitingTimes.length > 0) {
-        time = min_current_job_wait + waitingTimes.reduce((acc, v) => acc + v, 0)
-      } else {
-        time = min_current_job_wait
-      }
+      const waitlist = this.waitingList.slice(0, index).map(getJobDuration);
+      const previous = current_jobs_wait.concat(waitlist);
+      let time = getJobWaitTime(previous, this.entries.length);
       if (time === 0) {
-        return 'maintenant'
+        return 'maintenant';
       } else if (time < 60) {
-        return `${time}s`
+        return `${time}s`;
       } else {
-        time = Math.round(time / 60)
-        return `${time} min`
+        time = Math.round(time / 60);
+        return `${time} min`;
       }
     }
   }

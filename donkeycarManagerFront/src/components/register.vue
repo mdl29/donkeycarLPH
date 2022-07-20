@@ -80,33 +80,23 @@ export default {
       this.$router.push('/')
     },
     async addUser () {
-      this.playerTest = await srv.getPlayerByPseudo(this.pseudo)
-      console.log(this.playerTest)
-      console.log(this.playerTest.length)
-      if (this.playerTest.length === 0){
-        console.log('pass')
-        this.player = await srv.createPlayer(this.pseudo)
-        console.log('pass1.1')
-        await srv.addJobs(this.player.player_id)
-        console.log('pass2')
-        if (this.waitingList.length < 2) {
-          this.attente = 'Maintenant'
-        } else if (this.waitingList.length >= 2 && this.waitingList.length < 4) {
-          this.attente = '15 minutes'
-        } else if (this.waitingList.length >= 4 && this.waitingList.length < 8) {
-          this.attente = '30 minutes'
-        } else if (this.waitingList.length >= 8 && this.waitingList.length < 12) {
-          this.attente = '45 minutes'
-        } else if (this.waitingList.length >= 12) {
-          this.attente = 'plus de 1 heure'
-        }
-        this.numero = this.player.player_id
-        this.popup = true
-        console.log('pass3')
-      }else if (this.playerTest.length !== 0){
-        this.popup404 = true
+      const players = await srv.getPlayerByPseudo(this.pseudo)
+      if (players.length === 0) {
+        players[0] = await srv.createPlayer(this.pseudo)
       }
-      },
+      this.player = players[0]
+      await srv.addJobs(this.player.player_id)
+      const time = this.waitingList.length * 5
+
+      if (time === 0) {
+        this.attente = "maintenant"
+      } else {
+        this.attente = `${time} minutes`
+      }
+
+      this.numero = this.player.player_id
+      this.popup = true
+    },
     async fetchDrivingQueue () {
       this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
     }
