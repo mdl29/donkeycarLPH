@@ -46,7 +46,7 @@
           </transition-group>
         </div>
         <div v-if="race && timeleft > 0" class="end">
-          Finit dans <strong>{{ formatM(timeleft) }}</strong>
+          Fini dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
         <div v-if="job && job.screen_msg_display" class="end message">
           <template v-for="part in messageComponents">
