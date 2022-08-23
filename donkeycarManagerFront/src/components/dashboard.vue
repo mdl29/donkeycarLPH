@@ -173,7 +173,8 @@
             <vs-td>
               <vs-row>
                 <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
-                  <vs-button warn v-if="jobs.state !== 'PAUSING' && jobs.state !== 'PAUSED' && jobs.state !== 'RESUMING' && jobs.state !== 'CANCELLING'" @click="pauseJobs(jobs)" > Pause </vs-button>
+                  <vs-button loading v-if="reload===true"> reload</vs-button>
+                  <vs-button v-if="jobs.state !== 'PAUSING' && jobs.state !== 'PAUSED' && jobs.state !== 'RESUMING' && jobs.state !== 'CANCELLING' && reload === false" @click="reload(jobs)" > reload </vs-button>
                   <vs-button warn loading v-if="jobs.state === 'PAUSING'" > Pause </vs-button>
                   <vs-button warn disabled v-if="jobs.state === 'CANCELLING'" > Pause </vs-button>
                   <vs-button success loading v-if="jobs.state === 'RESUMING'" > Resume </vs-button>
@@ -383,8 +384,13 @@ export default {
     async resumeJobs (player) {
       await srv.resumeJobs(player)
     },
-    async pauseJobs (player) {
-      await srv.pauseJobs(player)
+    async reload (player) {
+      this.reload = true
+      await srv.addJobs(player.player_id)
+      const firstPlayer = await srv.getDrivingWaitingQueue(true, 0, 1)
+      await srv.moveBefore(player.job_id, firstPlayer[0].job_id)
+      await srv.removeJobs(player)
+      this.reload = false    
     },
     getCarName (id) {
       for (const car of this.donkeycars) {
@@ -400,7 +406,7 @@ export default {
           return car.color
         }
       }
-      return 'unknow car'
+      return 'unknow color'
     },
     async goUp (player) {
       const index = this.drivingWaitingQueue.indexOf(player) - 1
