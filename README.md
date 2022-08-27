@@ -27,7 +27,7 @@ First you should create your own recipe book with your wanted recipes. Indeed, a
  roles:
     - role: raspi-config #rasperry pi configuration role
       become: yes # This role need root privileges
-    - role: car-config # ntp service
+    - role: car-config # car configurations (ntp, hostname, ds4drv...)
       become: yes # This role need root privileges
     - role: shutdown-btn # shutdown button service
       become: yes # This role need root privileges
@@ -45,9 +45,80 @@ First you should create your own recipe book with your wanted recipes. Indeed, a
 > 📒 [ansible/donkeycar.yml](ansible/donkeycar.yml) preview
 
 * `raspi-config` : defaults installations like wifi credentials, ssh ...
-* `car-config` : configuration of ntp server (needed for send models to paperspace vm)
+* `car-config` : car configurations (ntp, hostname, ds4drv...)
 * `shutdown-btn` : add scripts for the shutdown button ( see [documentation](doc/boutton/Boutton_poussoir.md) and [shematic](doc/schema/schema-electronique.png) )
 * `ps4-controller` : installation of ds4drv and configuration for ps4 bluetooth controllers
+* `openCV` : install openCV according to donkeycar documentation
+* `donkeycar` : install [donkeycar project](https://github.com/autorope/donkeycar) and his requirements 
+* `mycar` : create mycar folder with its files
+* `IR-lap-timer` : Infrared installation and configuration
+
+**Don't comment obligatory recipes (raspi-config, car-config, donkeycar, mycar ), this action can avoid the proper functioning of installations or configurations**
+
+## ⚙️ Modifie default car configurations
+
+***
+
+- modifie configuration for single car
+
+  Before launch your recipe, you should modifie config var with your configurations like `wpa_suplicant`, donkeycar sterring and throttle configuration
+  > 📒 [ansible/group_vars/all](ansible/group_vars/all)
+
+- modifie configuration for multiple cars with the same image
+
+  You can choice configuration for multiples cars. For example we made this in our repo for our 4 cars ( see [ansible/config](ansible/config)).
+  For make this, first you should specifie car folder with its mac address :
+  > 📒 [ansible/config/hostnames](ansible/config/hostnames)
+  ```text
+  e4:5f:01:68:17:2c	exampleCar
+  ```
+  afterwards, just create a folder with the car name at `ansible/config`. For our example we should create exampleCar folder at `ansible/config/exampleCar`.
+
+  In this folder we should to create two file :
+   - `ds4drv.env` --> ps4 controller color
+   - `myconfig.py` --> donkeycar myconfig
+
+   example :
+   > 📒 [ansible/config/dababycar/ds4drv.env](ansible/config/dababycar/ds4drv.env)
+   ```env
+  CONTROLLER_LED_COLOR=A103FC
+   ```
+  
+  > 📒 [ansible/config/dababycar/myconfig.py](ansible/config/dababycar/myconfig.py)
+   ```python
+  DRIVE_TRAIN_TYPE = "PIGPIO_PWM" # SERVO_ESC|DC_STEER_THROTTLE|DC_TWO_WHEEL|SERVO_HBRIDGE_PWM|PIGPIO_PWM|MM1|MOCK
+
+  STEERING_CHANNEL = 12           #channel on the 9685 pwm board 0-15
+  STEERING_LEFT_PWM = 739         #pwm value for full left steering
+  STEERING_RIGHT_PWM = 400        #pwm value for full right steering
+  
+  STEERING_PWM_PIN = 12           #Pin numbering according to Broadcom numbers
+  STEERING_PWM_FREQ = 75          #Frequency for PWM
+  STEERING_PWM_INVERTED = False   #If PWM needs to be inverted
+
+  THROTTLE_CHANNEL = 13           #channel on the 9685 pwm board 0-15
+  THROTTLE_FORWARD_PWM = 575      #pwm value for max forward throttle max 750
+  THROTTLE_STOPPED_PWM = 470      #pwm value for no movement
+  THROTTLE_REVERSE_PWM = 400      #pwm value for max reverse throttle
+
+  THROTTLE_PWM_PIN = 13           #Pin numbering according to Broadcom numbers
+  THROTTLE_PWM_FREQ = 75          #Frequency for PWM
+  THROTTLE_PWM_INVERTED = False   #If PWM needs to be inverted
+
+  AUTO_RECORD_ON_THROTTLE = False #if true, we will record whenever throttle is not zero. if false, you must manually toggle recording with some other trigger. Usually circle button on joystick.
+  CONTROLLER_TYPE='custom' # Set the controller to be used to be our custom one ()
+
+  LOGGING_LEVEL='DEBUG'
+  ```
+
+## 🚀 Launch ansible recipe
+
+***
+
+After have create your ansible playbook, you can launch it with these two options :
+- install it by ssh but you should configure manually internet, ssh and install ansible on your raspberry pi. Follow this [tutorial](ansible/README.md)
+- generate your raspian image with donkeycar installed, follow this [tutorial](packer/README.md)
+
   <br/>	
 </details>
 
