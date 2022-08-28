@@ -19,23 +19,20 @@ build {
   provisioner "shell" {
     // Use temporary installed ansible
     inline = [
-      "apt install -y python3-venv", // Install updated ansible version from pip, apt's version is outdated
-      "mkdir -p /tmp/ansible",
-      "python3 -m venv /tmp/ansible/venv",
-      "/tmp/ansible/venv/bin/pip install ansible"
+      "echo 'Test GCP' > /home/pi/gcp_ci.txt"
     ]
   }
 
-  // Launch ansible book
-  provisioner "ansible-local" {
-    // Use temporary installed ansible
-    playbook_dir = "../ansible"
-    playbook_file = "../ansible/donkeycar.yml"
-    command = "/tmp/ansible/venv/bin/ansible-playbook"
-    extra_arguments = [
-      "--extra-vars", "ansible_python_interpreter=/tmp/ansible/venv/bin/python"
-    ]
-  }
+  // // Launch ansible book
+  // provisioner "ansible-local" {
+  //   // Use temporary installed ansible
+  //   playbook_dir = "../ansible"
+  //   playbook_file = "../ansible/donkeycar.yml"
+  //   command = "/tmp/ansible/venv/bin/ansible-playbook"
+  //   extra_arguments = [
+  //     "--extra-vars", "ansible_python_interpreter=/tmp/ansible/venv/bin/python"
+  //   ]
+  // }
 
   // Remove Ansible
   // provisioner "shell" {
@@ -44,12 +41,12 @@ build {
   //   ]
   // }
 
-  provisioner "shell" {
-    // See still available place
-    inline = [
-      "df -h"
-    ]
-  }
+  // provisioner "shell" {
+  //   // See still available place
+  //   inline = [
+  //     "df -h"
+  //   ]
+  // }
 
 
 }
