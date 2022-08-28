@@ -73,9 +73,12 @@ jobs:
 
       - name: Compressing the output image # Rename the image output file and compress it
         run: |
-          sudo mv "packer/output-raspbian/image" "packer/output-raspbian/$IMAGE_FILENAME"
-          sudo tar zcvf "packer/output-raspbian/$IMAGE_FILENAME.tar.gz" "packer/output-raspbian/$IMAGE_FILENAME"
-          sudo rm "packer/output-raspbian/$IMAGE_FILENAME"
+          IMAGE_FILE="${{ env.IMAGE_BASE_FILENAME }}.img"
+
+          # Renaming file so that after extraction it as a comprehensive file name with commit hash
+          sudo mv "packer/output-raspbian/image" "packer/output-raspbian/$IMAGE_FILE"
+          sudo tar zcvf "packer/output-raspbian/${{ env.ARCHIVE_FILENAME }}" "packer/output-raspbian/$IMAGE_FILE"
+          sudo rm "packer/output-raspbian/$IMAGE_FILE"
 
       - name: Google Authentication
         id: 'auth'
