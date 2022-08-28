@@ -1,4 +1,4 @@
-# listwaiting
+# donkeycar manager frontend
 
 > A Vue.js project
 

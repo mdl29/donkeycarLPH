@@ -6,22 +6,36 @@
 ![commitActivity](https://img.shields.io/github/commit-activity/m/mdl29/donkeycarLPH?logo=github&style=flat-square)
 ![mainLanguage](https://img.shields.io/github/languages/top/mdl29/donkeycarLPH?color=yellow&style=flat-square)
 
-### In this project we present you a solution to industrialize the production of donkeycar cars, allow to everyone to install easily donkeycar environnement. We have also added some tools like our manager to make publics demonstrations, races during events to allow public to drive, race and understand the process of machine learning
+### In this project we present you a solution to industrialize the production of donkeycar car and allow everyone to be able to install easily the donkeycar environnement. We have also added some tools like our manager to make publics demonstrations, races during events to allow public to drive, race and understand the process of machine learning
 </div>
 <br>
 
- > 💡 A fork of the original [donkeycar project](https://github.com/autorope/donkeycar)
+ > 💡 Inspirated and use the original [donkeycar project](https://github.com/autorope/donkeycar)
  
  <br>
 
 <details>	
   <summary><b> 🚀 How to use our project</b></summary>
-    
+
+## 🧰 Build your own donkeycar 
+
+***
+
+Before use our project you need to build your donkeycar.
+If you don't have a donkeycar, please follow this [tutorial](https://docs.donkeycar.com/guide/build_hardware/) made by donkeycar community
+
+### **Tips :**
+If you using wide angle camera like [this](https://www.kubii.fr/cameras-capteurs/2207-module-camera-5mp-grand-angle-kubii-3272496011205.html), we have modelize on the chassis a camera cap holder. It is very usefull for avoid to lost it
+![chassis](3dDesigns/camera-cover/preview.png)
+> 📒 [open](3dDesigns/camera-cover/preview.png) chassis stl file
+
+
+
+
 ## 🧪 Create your ansible recipe
 
 *** 
-
-First you should create your own recipe book with your wanted recipes. Indeed, ansible have a configuration file where we specifie what options ( recipe ) we want, so you have to modifie the [donkeycar.yml](ansible/donkeycar.yml) file and comments recipe who you don't want
+If you wanted to use our features and improvements you should create your own recipe book with your wanted recipes. Indeed, ansible have a configuration file where we specifie what options ( recipe ) we want, so you have to modifie the [donkeycar.yml](ansible/donkeycar.yml) file and comments recipe who you don't want
 
 ```yml
  roles:
@@ -54,6 +68,8 @@ First you should create your own recipe book with your wanted recipes. Indeed, a
 * `IR-lap-timer` : Infrared installation and configuration
 
 **Don't comment obligatory recipes (raspi-config, car-config, donkeycar, mycar ), this action can avoid the proper functioning of installations or configurations**
+
+> ⚠️ Some features what we have added in theses ansible recipe need also harware. **Please read our [electronic shematic](doc/schema/schema-electronique.png)**
 
 ## ⚙️ Modifie default car configurations
 
@@ -116,8 +132,17 @@ First you should create your own recipe book with your wanted recipes. Indeed, a
 ***
 
 After have create your ansible playbook, you can launch it with these two options :
-- install it by ssh but you should configure manually internet, ssh and install ansible on your raspberry pi. Follow this [tutorial](ansible/README.md)
-- generate your raspian image with donkeycar installed, follow this [tutorial](packer/README.md)
+- install it by ssh but you should configure manually internet, ssh and install ansible on your raspberry pi. **Follow this [tutorial](ansible/README.md)**
+- generate your raspian image with donkeycar installed using packer.**follow this [tutorial](packer/README.md)**
+
+## 🏎 Run our manager and happy race !
+
+***
+
+1 - Run our backend according to our [documentation](backend/README.md)
+
+2 - Run our frontend according to our [documentation](donkeycarManagerFront/README.md)
+
 
   <br/>	
 </details>
