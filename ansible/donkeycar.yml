@@ -9,16 +9,16 @@
     - role: raspi-config #rasperry pi configuration role
       become: yes # This role need root privileges
     - role: car-config  # car configurations (ntp, hostname, ds4drv...)
-      become: yes # This role need root privileges
+      become: yes 
     - role: shutdown-btn # shutdown button service
-      become: yes # This role need root privileges
+      become: yes 
     - role: ps4-controller # install and configure ds4drv
-      become: no # This role no need root privileges
+      become: no
     - role: openCV # Install openCV (optional)
-      become: yes # This role need root privileges
+      become: yes 
     - role: donkeycar # Donkeycar installation 
-      become: no # This role doesn't need root privileges
+      become: no 
     - role: mycar # create car with configurations
-      become: no # This role no need root privileges
+      become: no 
     - role: IR-lap-timer # install dependencies for take charge IR counter
-      become: yes # This role need root privileges
+      become: yes 

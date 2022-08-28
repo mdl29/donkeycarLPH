@@ -35,7 +35,7 @@ If you using wide angle camera like [this](https://www.kubii.fr/cameras-capteurs
 ## 🧪 Create your ansible recipe
 
 *** 
-If you wanted to use our features and improvements you should create your own recipe book with your wanted recipes. Indeed, ansible have a configuration file where we specifie what options ( recipe ) we want, so you have to modifie the [donkeycar.yml](ansible/donkeycar.yml) file and comments recipe who you don't want
+If you wanted to use our features and improvements you should create your own recipe book with your wanted recipes. Indeed, ansible has a configuration file where we specifie what options ( recipe ) we want, so you have to modify the [donkeycar.yml](ansible/donkeycar.yml) file and comment recipies which you don't want
 
 ```yml
  roles:
@@ -63,32 +63,32 @@ If you wanted to use our features and improvements you should create your own re
 * `shutdown-btn` : add scripts for the shutdown button ( see [documentation](doc/boutton/Boutton_poussoir.md) and [shematic](doc/schema/schema-electronique.png) )
 * `ps4-controller` : installation of ds4drv and configuration for ps4 bluetooth controllers
 * `openCV` : install openCV according to donkeycar documentation
-* `donkeycar` : install [donkeycar project](https://github.com/autorope/donkeycar) and his requirements 
+* `donkeycar` : install [donkeycar project](https://github.com/autorope/donkeycar) and its requirements 
 * `mycar` : create mycar folder with its files
 * `IR-lap-timer` : Infrared installation and configuration
 
-**Don't comment obligatory recipes (raspi-config, car-config, donkeycar, mycar ), this action can avoid the proper functioning of installations or configurations**
+**Don't comment required recipes (raspi-config, car-config, donkeycar, mycar ), this action can prevent the proper functioning of installations or configurations**
 
 > ⚠️ Some features what we have added in theses ansible recipe need also harware. **Please read our [electronic shematic](doc/schema/schema-electronique.png)**
 
-## ⚙️ Modifie default car configurations
+## ⚙️ Modify default car configurations
 
 ***
 
-- modifie configuration for single car
+- modify configuration for single car
 
-  Before launch your recipe, you should modifie config var with your configurations like `wpa_suplicant`, donkeycar sterring and throttle configuration
+  Before launching your recipe, you should modify config var with your configurations like `wpa_suplicant`, donkeycar steering and throttle configuration
   > 📒 [ansible/group_vars/all](ansible/group_vars/all)
 
-- modifie configuration for multiple cars with the same image
+- configuration for multiple cars with the same image
 
-  You can choice configuration for multiples cars. For example we made this in our repo for our 4 cars ( see [ansible/config](ansible/config)).
-  For make this, first you should specifie car folder with its mac address :
+You can configure the cars independently, in our case we have 4 configurations (see [ansible/config](ansible/config)).
+To do this, you should specify add the car's hostname and mac address:
   > 📒 [ansible/config/hostnames](ansible/config/hostnames)
   ```text
-  e4:5f:01:68:17:2c	exampleCar
+  e4:5f:01:68:17:2c	dababycar
   ```
-  afterwards, just create a folder with the car name at `ansible/config`. For our example we should create exampleCar folder at `ansible/config/exampleCar`.
+  afterwards, just create a folder with the car name at `ansible/config`. For our example we should create dababycar folder at `ansible/config/dababycar`.
 
   In this folder we should to create two file :
    - `ds4drv.env` --> ps4 controller color
