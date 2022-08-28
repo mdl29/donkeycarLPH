@@ -6,7 +6,7 @@ shutdown_pin: 5 # Ping no 18, GPIO 24. See wireringpi layout pin numbers here : 
 # raspi-config var
 wpa_ssid: donkeycarlph 
 wpa_password: lph123456
-country_mode: FR
+country_mode: US
 new_password: dababycar
 
 # mycar config var
