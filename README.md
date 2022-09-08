@@ -69,7 +69,7 @@ If you wanted to use our features and improvements you should create your own re
 
 **Don't comment required recipes (raspi-config, car-config, donkeycar, mycar ), this action can prevent the proper functioning of installations or configurations**
 
-> ⚠️ Some features what we have added in theses ansible recipe need also harware. **Please read our [electronic shematic](doc/schema/schema-electronique.png)**
+> ⚠️ Some features what we have added in theses ansible recipe need also harware. **Please read our [electronic shematic](doc/schema/schema-electronique.png) or <a href="##Hardware"> hardware documentation </a>
 
 ## ⚙️ Modify default car configurations
 
@@ -90,7 +90,7 @@ To do this, you should specify add the car's hostname and mac address:
   ```
   afterwards, just create a folder with the car name at `ansible/config`. For our example we should create dababycar folder at `ansible/config/dababycar`.
 
-  In this folder we should to create two file :
+  In this folder we should to create two file configuration :
    - `ds4drv.env` --> ps4 controller color
    - `myconfig.py` --> donkeycar myconfig
 
@@ -135,6 +135,15 @@ After have create your ansible playbook, you can launch it with these two option
 - install it by ssh but you should configure manually internet, ssh and install ansible on your raspberry pi. **Follow this [tutorial](ansible/README.md)**
 - generate your raspian image with donkeycar installed using packer.**follow this [tutorial](packer/README.md)**
 
+## 👷 Build infrared transmitter
+
+***
+
+For count laps in donkeycar manager, we should build a infrared emitting tower.
+
+**TODO**
+
+
 ## 🏎 Run our manager and happy race !
 
 ***
@@ -172,7 +181,7 @@ After have create your ansible playbook, you can launch it with these two option
  > We have created a donkeycar manager. This manager is separated in to parts : a backend ( with database, api ...) and a frontend ( vuejs 2), it allow us to see cars who running, stopped, manage players who race... <br>
  <b>ℹ️ For more informations about how it works, you can see our documentation [here](doc/donkeycarManager/manager-features.md)</b>
 
-## Hardware 
+## Hardware
 
 ***
 
@@ -188,6 +197,8 @@ After have create your ansible playbook, you can launch it with these two option
 ### Led indicator :
  > This led indcator allow us to know if the car is up or not. If the led is up, the car working.
 
+### Infrared sensor
+> we using `KY-022` sensor for our cars, It allow us to count laps when a car pass front of the infrared emitting tower
 
 ## 3D designs 
 
