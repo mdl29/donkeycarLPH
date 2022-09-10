@@ -4,6 +4,6 @@
 - name: Start ds4drv service
   systemd:
     name: ds4drv
-    daemon-reload: yes
-    state: started
-    enabled: yes
+    # This should work, but I should just merge this role with jsfw (or the inverse) and scrap all the ds4drv stuff
+    daemon-reload: no
+    enabled: no
