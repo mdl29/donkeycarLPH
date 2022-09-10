@@ -1,0 +1,21 @@
+---
+
+- name: Install jsfw
+  ansible.builtin.git:
+    repo: https://github.com/viandoxdev/jsfw.git
+    dest: /home/pi/jsfw
+
+- name: Compile jsfw
+  shell:
+    cmd: make jsfw
+    creates: /home/pi/jsfw/jsfw
+    chdir: /home/pi/jsfw
+
+- name: Install jsfw service file
+  become: yes
+  ansible.builtin.copy:
+    src: jsfw.service
+    dest: /etc/systemd/system/jsfw.service
+    owner: root
+    group: root
+  notify: Start jsfw.service service
