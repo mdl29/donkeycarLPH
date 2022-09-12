@@ -60,7 +60,7 @@ If you wanted to use our features and improvements you should create your own re
 
 * `raspi-config` : defaults installations like wifi credentials, ssh ...
 * `car-config` : car configurations (ntp, hostname, ds4drv...)
-* `shutdown-btn` : add scripts for the shutdown button ( see [documentation](doc/boutton/Boutton_poussoir.md) and [shematic](doc/schema/schema-electronique.png) )
+* `shutdown-btn` : add scripts for the shutdown button ( see [documentation](doc/boutton/Boutton_poussoir.md) and [schematic](doc/schema/schema-electronique.png) )
 * `ps4-controller` : installation of ds4drv and configuration for ps4 bluetooth controllers
 * `openCV` : install openCV according to donkeycar documentation
 * `donkeycar` : install [donkeycar project](https://github.com/autorope/donkeycar) and its requirements 
@@ -69,7 +69,7 @@ If you wanted to use our features and improvements you should create your own re
 
 **Don't comment required recipes (raspi-config, car-config, donkeycar, mycar ), this action can prevent the proper functioning of installations or configurations**
 
-> ⚠️ Some features what we have added in theses ansible recipe need also harware. **Please read our [electronic shematic](doc/schema/schema-electronique.png) or <a href="##Hardware"> hardware documentation </a>
+> ⚠️ Some features what we have added in theses ansible recipe need also harware. **Please read our [electronic schematic](doc/schema/schema-electronique.png)
 
 ## ⚙️ Modify default car configurations
 
@@ -126,9 +126,7 @@ To do this, you should specify add the car's hostname and mac address:
 
   LOGGING_LEVEL='DEBUG'
   ```
-
-## 🚀 Launch ansible recipe
-
+### Our schematic
 ***
 
 After have create your ansible playbook, you can launch it with these two options :
@@ -140,8 +138,7 @@ After have create your ansible playbook, you can launch it with these two option
 ***
 
 For count laps in donkeycar manager, we should build a infrared emitting tower.
-
-**TODO**
+If you want to build your one, **you can follow this [documentation](IR-tower/README.md)**
 
 
 ## 🏎 Run our manager and happy race !
@@ -187,7 +184,7 @@ For count laps in donkeycar manager, we should build a infrared emitting tower.
 
 <br>
 
-### Our shematic : 
+### Our schematic : 
 
 ![Fichier Fritzing](doc/schema/schema-electronique.png)
 
@@ -199,6 +196,11 @@ For count laps in donkeycar manager, we should build a infrared emitting tower.
 
 ### Infrared sensor
 > we using `KY-022` sensor for our cars, It allow us to count laps when a car pass front of the infrared emitting tower
+
+### Infrared emitting tower 
+> For count laps in donkeycar manager, we should build a infrared emitting tower.
+If you want to build your one, **you can follow this [documentation](IR-tower/README.md)**
+
 
 ## 3D designs 
 
