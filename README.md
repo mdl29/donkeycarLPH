@@ -149,6 +149,9 @@ If you want to build your one, **you can follow this [documentation](IR-tower/RE
 
 2 - Run our frontend according to our [documentation](donkeycarManagerFront/README.md)
 
+About our architecture :
+
+![diagram](doc/donkeycarManager/DonkeycarBoothManagerArchitecture.png)
 
   <br/>	
 </details>
@@ -183,6 +186,10 @@ If you want to build your one, **you can follow this [documentation](IR-tower/RE
 ### Our schematic : 
 
 ![Fichier Fritzing](doc/schema/schema-electronique.png)
+
+### PS4 controller Shortcuts
+> We have created some shortcuts for easily make maintenance task like for test camera, shutdown car...
+**See [documentation](doc/controller.md)**
 
 ### Shutdown button :
 > we have made a shutdown button, for shutdown car manually because when ssh crash we can't make a clean shutdown and we risk to damage the SD card

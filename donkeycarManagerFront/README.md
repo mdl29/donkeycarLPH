@@ -2,6 +2,8 @@
 
 > A Vue.js project
 
+## Frontend views : 
+
 The donkeycar manager is composed of multiples parts : 
 
 ### Register 
@@ -46,6 +48,11 @@ waiting board :
 
 admin dashboard :
 `http://localhost:8080/#/dashboard`
+
+## Others docs:
+- [Websocket documentation](doc/donkeycarManager/events.md)
+- [manager features documentation](doc/donkeycarManager/manager-features.md)
+- [data structure diagram](../doc/donkeycarManager/DataStructure.png)
 
 ## Controller icons for the screen\_msg of jobs
 
