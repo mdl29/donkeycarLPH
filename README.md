@@ -6,7 +6,7 @@
 ![commitActivity](https://img.shields.io/github/commit-activity/m/mdl29/donkeycarLPH?logo=github&style=flat-square)
 ![mainLanguage](https://img.shields.io/github/languages/top/mdl29/donkeycarLPH?color=yellow&style=flat-square)
 
-### In this project we present you a solution to industrialize the production of donkeycar car and allow everyone to be able to install easily the donkeycar environnement. We have also added some tools like our manager to make publics demonstrations, races during events to allow public to drive, race and understand the process of machine learning
+### In this project we present a solution to industrialize the production of donkeycar car raspberry pi images and allow everyone to be able to install easily the donkeycar environnement. We have also added some tools like our manager to make public demonstrations, led several donkleycars to the public having now knowledge of the project, register for a driving session (have an estimated waiting time), drive with multiple cars at the same time and see in live on a huge screen their time lapses, start a recorded driving then view their own model in action (without handling transfers ...).
 </div>
 <br>
 
@@ -25,7 +25,7 @@ Before use our project you need to build your donkeycar.
 If you don't have a donkeycar, please follow this [tutorial](https://docs.donkeycar.com/guide/build_hardware/) made by donkeycar community
 
 ### **Tips :**
-If you using wide angle camera like [this](https://www.kubii.fr/cameras-capteurs/2207-module-camera-5mp-grand-angle-kubii-3272496011205.html), we have modelize on the chassis a camera cap holder. It is very usefull for avoid to lost it
+If you using wide angle camera like [this](https://www.kubii.fr/cameras-capteurs/2207-module-camera-5mp-grand-angle-kubii-3272496011205.html), we have modelize on the chassis a camera cap holder. Convenient to avoid losing it
 ![chassis](3dDesigns/camera-cover/preview.png)
 > 📒 [open](3dDesigns/camera-cover/preview.png) chassis stl file
 
@@ -35,7 +35,7 @@ If you using wide angle camera like [this](https://www.kubii.fr/cameras-capteurs
 ## 🧪 Create your ansible recipe
 
 *** 
-If you wanted to use our features and improvements you should create your own recipe book with your wanted recipes. Indeed, ansible has a configuration file where we specifie what options ( recipe ) we want, so you have to modify the [donkeycar.yml](ansible/donkeycar.yml) file and comment recipies which you don't want
+If you wanted to use our features and improvements you should create your own recipe book with your wanted recipes. Indeed, ansible has a configuration file where we specifie what options ( recipe ) we want, so you have to modify the [donkeycar.yml](ansible/donkeycar.yml) file and comment recipes you don't want
 
 ```yml
  roles:
@@ -69,7 +69,7 @@ If you wanted to use our features and improvements you should create your own re
 
 **Don't comment required recipes (raspi-config, car-config, donkeycar, mycar ), this action can prevent the proper functioning of installations or configurations**
 
-> ⚠️ Some features what we have added in theses ansible recipe need also harware. **Please read our [electronic schematic](doc/schema/schema-electronique.png)
+> ⚠️ Some features have hardware requirement. **Please read our [electronic schematic](doc/schema/schema-electronique.png)
 
 ## ⚙️ Modify default car configurations
 
@@ -77,7 +77,7 @@ If you wanted to use our features and improvements you should create your own re
 
 - modify configuration for single car
 
-  Before launching your recipe, you should modify config var with your configurations like `wpa_suplicant`, donkeycar steering and throttle configuration
+  Before launching your recipe, you should modify config var with your configurations like `wpa_suplicant` to specify acces point name and credentials, donkeycar steering and throttle configuration
   > 📒 [ansible/group_vars/all](ansible/group_vars/all)
 
 - configuration for multiple cars with the same image
@@ -129,7 +129,7 @@ To do this, you should specify add the car's hostname and mac address:
 ### Our schematic
 ***
 
-After have create your ansible playbook, you can launch it with these two options :
+After having created your ansible playbook, you can launch it with these two options :
 - install it by ssh but you should configure manually internet, ssh and install ansible on your raspberry pi. **Follow this [tutorial](ansible/README.md)**
 - generate your raspian image with donkeycar installed using packer.**follow this [tutorial](packer/README.md)**
 
@@ -137,7 +137,7 @@ After have create your ansible playbook, you can launch it with these two option
 
 ***
 
-For count laps in donkeycar manager, we should build a infrared emitting tower.
+Our lap-timer is based on an infrared emitting tower, each car is counting it's lap timings and they are displayed in live in the DonkeyCar manager (public screen).
 If you want to build your one, **you can follow this [documentation](IR-tower/README.md)**
 
 
@@ -169,10 +169,6 @@ If you want to build your one, **you can follow this [documentation](IR-tower/RE
 ### Generate raspian image with donkeycar installation :
  > With ansible and packer, we can also generate a raspian image with our donkeycar installation. This feature is very usefull if we want to share it with people and don't use ssh. <br>
  <b>ℹ️ Read [documentation](ansible/README.md) !! </b>
-
-### Generate raspian image with donkeycar installation :
- > With ansible and packer, we can also generate a raspian image with our donkeycar installation. This feature is very usefull if we want to share it with people and don't use ssh. <br>
- <b>ℹ️ Read [documentation](packer/README.md) !! </b>
 
 ### Donkeycar manager :
  > We have created a donkeycar manager. This manager is separated in to parts : a backend ( with database, api ...) and a frontend ( vuejs 2), it allow us to see cars who running, stopped, manage players who race... <br>
@@ -211,3 +207,5 @@ If you want to build your one, **you can follow this [documentation](IR-tower/RE
 
 ### Camera cap holder :
 >ℹ️ see [documentation](3dDesigns/camera-cover/README.md)
+
+</details>
