@@ -217,3 +217,11 @@ If you want to build your one, **you can follow this [documentation](IR-tower/RE
 >ℹ️ see [documentation](3dDesigns/camera-cover/README.md)
 
 </details>
+
+<details>	
+  <summary><b>📢 troubleshooting</b></summary>
+  <br/>
+
+  **Todo**
+
+</details>
