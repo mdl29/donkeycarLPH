@@ -193,7 +193,7 @@ About our architecture :
 
 ### Shutdown button :
 > we have made a shutdown button, for shutdown car manually because when ssh crash we can't make a clean shutdown and we risk to damage the SD card
-**See [documentation](doc/button/Boutton_poussoir.md)**
+**See [documentation](doc/button/shutdown-button.md)**
 
 ### Led indicator :
  > This led indcator allow us to know if the car is up or not. If the led is up, the car working.
