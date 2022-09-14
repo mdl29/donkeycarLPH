@@ -19,6 +19,10 @@ build {
   provisioner "shell" {
     // Use temporary installed ansible
     inline = [
+      // --- Refresh repo list ---
+      "echo \"=== Refresh apt repo ===\"",
+      "apt-get update",
+
       // --- Installing Rust ---
       "echo \"=== Installing Rust as required for python cryptography (dependency of Ansible) ===\"",
       "echo \"See: https://cryptography.io/en/latest/installation/#rust\"",
