@@ -196,7 +196,7 @@ About our architecture :
 **See [documentation](doc/button/shutdown-button.md)**
 
 ### Led indicator :
- > This led indcator allow us to know if the car is up or not. If the led is up, the car working.
+ > This led indicator allow us to know if the car is up or not. If the led is up, the car working.
 
 ### Infrared sensor
 > we using `KY-022` sensor for our cars, It allow us to count laps when a car pass front of the infrared emitting tower
