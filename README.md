@@ -77,13 +77,14 @@ If you wanted to use our features and improvements you should create your own re
 
 - modify configuration for single car
 
-  Before launching your recipe, you should modify config var with your configurations like `wpa_suplicant` to specify acces point name and credentials, donkeycar steering and throttle configuration
+  Before launching your recipe, you should modify config var with your configurations like `wpa_suplicant` to specify acces point name and credentials, donkeycar steering, throttle configuration and ip's of donkeycar servers
   > 📒 [ansible/group_vars/all](ansible/group_vars/all)
 
+  > ⚠️  If you change the server  ip or just change server pc, you should change ip configurations manually at `/etc/systemd/system/donkeycar.service`. **Be carefull, the backend and ftp are normally the same**
 - configuration for multiple cars with the same image
 
-You can configure the cars independently, in our case we have 4 configurations (see [ansible/config](ansible/config)).
-To do this, you should specify add the car's hostname and mac address:
+  You can configure the cars independently, in our case we have 4 configurations (see [ansible/config](ansible/config)).
+  To do this, you should specify add the car's hostname and mac address:
   > 📒 [ansible/config/hostnames](ansible/config/hostnames)
   ```text
   e4:5f:01:68:17:2c	dababycar
@@ -215,13 +216,3 @@ If you want to build your one, **you can follow this [documentation](IR-tower/RE
 
 ### Camera cap holder :
 >ℹ️ see [documentation](3dDesigns/camera-cover/README.md)
-
-</details>
-
-<details>	
-  <summary><b>📢 troubleshooting</b></summary>
-  <br/>
-
-  **Todo**
-
-</details>

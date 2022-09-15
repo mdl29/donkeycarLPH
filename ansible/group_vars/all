@@ -18,3 +18,9 @@ throttle_reverse_pwm: 445
 
 # PS4 controller config
 ps4_contoller_led_color: 00CED1 # hexadecimal color ( don't forget, remove the `#` before )
+
+# IP servers configuration for donkeycar.service
+
+backendIp: '192.168.20.42'
+ftpIp: `192.168.20.42` 
+ftpPort: '21'

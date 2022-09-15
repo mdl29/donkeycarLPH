@@ -9,9 +9,9 @@ After=pigpiod.service
 User=pi
 EnvironmentFile=/etc/donkeycar/ds4drv.env
 Environment="NETWORK_INTERFACE=wlan0"
-Environment="MANAGER_API_ORIGIN=http://192.168.20.42:8000"
-Environment="MANAGER_FTP_HOST=192.168.20.42"
-Environment="MANAGER_FTP_PORT=21"
+Environment="MANAGER_API_ORIGIN=http://{{ backendIp }}:8000"
+Environment="MANAGER_FTP_HOST={{ ftpIp }}"
+Environment="MANAGER_FTP_PORT={{ftpPort}}"
 ExecStartPre=/bin/sleep 5
 ExecStart=/home/pi/venv/bin/python /home/pi/mycar/manage.py drive --js
 Restart=on-failure
