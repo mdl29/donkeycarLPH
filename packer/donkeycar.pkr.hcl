@@ -19,19 +19,19 @@ build {
   provisioner "shell" {
     // Use temporary installed ansible
     inline = [
-      // --- Refresh repo list ---
+      // // --- Refresh repo list ---
       "echo \"=== Refresh apt repo ===\"",
       "apt-get update",
 
-      // --- Installing Rust ---
-      "echo \"=== Installing Rust as required for python cryptography (dependency of Ansible) ===\"",
-      "echo \"See: https://cryptography.io/en/latest/installation/#rust\"",
-      "apt install -y build-essential curl",
-      // Workaround for armv7 : https://github.com/rust-lang/cargo/issues/8719#issuecomment-932084513
-      // Using tempfs for cargo to bypass qemu arm bug : https://github.com/docker/buildx/issues/395#issuecomment-1069229784 
-      "mkdir -p /root/.cargo && chmod 777 /root/.cargo && mount -t tmpfs none /root/.cargo",
-      "curl https://sh.rustup.rs -sSf | bash -s -- -y",
-      "export PATH=\"$PATH:/root/.cargo/bin\"",
+      // // --- Installing Rust ---
+      // "echo \"=== Installing Rust as required for python cryptography (dependency of Ansible) ===\"",
+      // "echo \"See: https://cryptography.io/en/latest/installation/#rust\"",
+      // "apt install -y build-essential curl",
+      // // Workaround for armv7 : https://github.com/rust-lang/cargo/issues/8719#issuecomment-932084513
+      // // Using tempfs for cargo to bypass qemu arm bug : https://github.com/docker/buildx/issues/395#issuecomment-1069229784 
+      // "mkdir -p /root/.cargo && chmod 777 /root/.cargo && mount -t tmpfs none /root/.cargo",
+      // "curl https://sh.rustup.rs -sSf | bash -s -- -y",
+      // "export PATH=\"$PATH:/root/.cargo/bin\"",
 
       // --- Installing Python-venv and upgrade pip ---
       "echo \"=== Installing Python-venv and upgrade pip ===\"",
@@ -42,6 +42,8 @@ build {
 
       // --- Installing Ansible ---
       "echo \"=== Installing Ansible ===\"",
+      "export CRYPTOGRAPHY_DONT_BUILD_RUST=1",
+      "/tmp/ansible/venv/bin/pip install cryptography==3.4.6",
       "/tmp/ansible/venv/bin/pip install ansible"
     ]
   }
