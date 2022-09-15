@@ -79,6 +79,7 @@ class RaceBase(BaseModel):
     stage: Stage
     car_name: str
     start_datetime: datetime.datetime
+    end_datetime: Optional[datetime.datetime]
     max_duration: int = Field(default=5*60) # default 5 min
 
 
@@ -237,6 +238,12 @@ class EventLapTimerAdded(BaseModel):
     class Config:
         orm_mode = True
 
+
+class EventRaceUpdated(BaseModel):
+    race: Race
+
+    class Config:
+        orm_mode: True
 
 class EventJobQueue(BaseModel):
     jobs: List[Job]
