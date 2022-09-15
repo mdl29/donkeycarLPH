@@ -1,0 +1,12 @@
+---
+
+- name: Disable daily upgrades
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+    daemon-reload: yes
+  with_items:
+    - 'apt-daily-upgrade.timer'
+    - 'apt-daily.timer'
+    - 'apt-daily.service'

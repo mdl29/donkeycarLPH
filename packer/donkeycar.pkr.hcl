@@ -19,9 +19,21 @@ build {
   provisioner "shell" {
     // Use temporary installed ansible
     inline = [
-      "apt install -y python3-venv", // Install updated ansible version from pip, apt's version is outdated
+      // // --- Refresh repo list ---
+      "echo \"=== Refresh apt repo ===\"",
+      "apt-get update",
+
+      // --- Installing Python-venv and upgrade pip ---
+      "echo \"=== Installing Python-venv and upgrade pip ===\"",
+      "apt install -y python3-venv python3-dev", // Install updated ansible version from pip, apt's version is outdated
       "mkdir -p /tmp/ansible",
       "python3 -m venv /tmp/ansible/venv",
+      "/tmp/ansible/venv/bin/pip install --upgrade pip",
+
+      // --- Installing Ansible ---
+      "echo \"=== Installing Ansible ===\"",
+      "export CRYPTOGRAPHY_DONT_BUILD_RUST=1", // Due to new cryptography lib which required rust not fully support on armv7
+      "/tmp/ansible/venv/bin/pip install cryptography==3.4.6", // Forcing this version that doesn't use rust
       "/tmp/ansible/venv/bin/pip install ansible"
     ]
   }
