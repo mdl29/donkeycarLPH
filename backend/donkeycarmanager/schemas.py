@@ -239,6 +239,12 @@ class EventLapTimerAdded(BaseModel):
         orm_mode = True
 
 
+class EventRaceUpdated(BaseModel):
+    race: Race
+
+    class Config:
+        orm_mode: True
+
 class EventJobQueue(BaseModel):
     jobs: List[Job]
 

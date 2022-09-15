@@ -3,7 +3,7 @@ asyncapi: 2.4.0
 
 info:
   title: Donkeycar Management events
-  version: 1.0.0
+  version: 1.1.0
   description: Event related to managing multiple donkeycar cars (on an event for instance). Socket.io event name is the "name" field (written in orange).
 
 
@@ -16,6 +16,7 @@ channels:
         - $ref: '#/components/messages/car.updated'
         - $ref: '#/components/messages/car.added'
         - $ref: '#/components/messages/car.removed'
+        - $ref: '#/components/messages/race.updated'
         - $ref: '#/components/messages/laptimer.added'
 
     publish:
@@ -25,6 +26,7 @@ channels:
           - $ref: '#/components/messages/car.updated'
           - $ref: '#/components/messages/car.added'
           - $ref: '#/components/messages/car.removed'
+          - $ref: '#/components/messages/race.updated'
           - $ref: '#/components/messages/laptimer.added'
 
 components:
@@ -68,6 +70,15 @@ components:
         properties:
             carName:
                 $ref: '#/components/schemas/carName'
+
+    race.updated:
+      name: race.updated
+      description: "A race was change."
+      payload:
+        type: object
+        properties:
+            race:
+              $ref: "#/components/schemas/race"
 
     laptimer.added:
       name: laptimer.added
@@ -149,15 +160,21 @@ components:
     race:
       type: object
       properties:
-        raceId:
+        race_id:
           type: integer
-        playerPseudo:
+        player_id:
           type: string
         stage:
           $ref: '#/components/schemas/stage'
-        carName:
+        car_name:
           $ref: '#/components/schemas/carName'
-        startDatetime:
+        start_datetime:
+          description: When the whole race was started.
+          $ref: '#/components/schemas/dateISOms'
+        max_duration:
+          description: Race maximum duration in ms, race will be ended if this duration is reached.
+          type: integer
+        end_datetime:
           description: When the whole race was started.
           $ref: '#/components/schemas/dateISOms'
 

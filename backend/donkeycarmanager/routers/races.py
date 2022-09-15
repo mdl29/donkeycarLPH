@@ -1,11 +1,11 @@
 from typing import List, Union
-
+import socketio
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 
 from donkeycarmanager import schemas
 import donkeycarmanager.crud.races as crud
-from donkeycarmanager.dependencies import get_db
+from donkeycarmanager.dependencies import get_db, get_sio
 
 router = APIRouter(
     prefix="/races",
@@ -32,8 +32,10 @@ def read_race(race_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{race_id}", response_model=schemas.Race)
-def update_race(race_id: int, race: schemas.RaceUpdate, db: Session = Depends(get_db)) -> schemas.Race:
+async def update_race(race_id: int, race: schemas.RaceUpdate,
+                      db: Session = Depends(get_db),
+                      sio: socketio.AsyncServer = Depends(get_sio)) -> schemas.Race:
     db_race = crud.get_race(db, race_id=race_id)
     if db_race is None:
         raise HTTPException(status_code=404, detail="Race not found")
-    return crud.update_race(db, race=race)
+    return await crud.update_race(db, race=race, sio=sio)
