@@ -8,5 +8,5 @@ throttle_reverse_pwm: 280
 # Servers ip configuration
 # The backend and ftp ip are normally the same !
 backendIp: '192.168.20.42'
-ftpIp: `192.168.20.42` 
+ftpIp: '192.168.20.42'
 ftpPort: '21'
