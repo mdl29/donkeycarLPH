@@ -22,5 +22,5 @@ ps4_contoller_led_color: 00CED1 # hexadecimal color ( don't forget, remove the `
 # IP servers configuration for donkeycar.service
 
 backendIp: '192.168.20.42'
-ftpIp: `192.168.20.42` 
+ftpIp: '192.168.20.42'
 ftpPort: '21'
