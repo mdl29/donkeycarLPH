@@ -301,8 +301,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                         'laptimer/last_lap_duration',
                         'laptimer/last_lap_end_date_time',
                         'laptimer/laps_total',
-                        'controller/x_pressed'
-                        'controller/inverted'
+                        'controller/x_pressed',
+                        'controller/inverted',
                         'controller/scale'
                     ],
                     outputs=[
