@@ -65,15 +65,14 @@ export default {
       this.$router.push('/')
     },
     async addUser () {
-      this.playerTest = await srv.getPlayerByPseudo(this.pseudo)
-      if (this.playerTest.length === 0){
-        this.player = await srv.createPlayer(this.pseudo)
-        await srv.addJobs(this.player.player_id)
-        this.numero = this.player.player_id
-      } else if (this.playerTest.length !== 0){
-        await srv.addJobs(this.playerTest[0].player_id)
-        this.numero = this.playerTest[0].player_id
+      let player = await srv.getPlayerByPseudo(this.pseudo)
+      if (player.length === 0){
+        player = await srv.createPlayer(this.pseudo)
+        this.numero = player.player_id
+      } else if (playerTest.length !== 0){
+        this.numero = playerTest[0].player_id
       }
+      await srv.addJobs(player[0].player_id)
       this.fetchDrivingQueue ()
       if (this.waitingList.length < 2) {
         this.attente = 'Maintenant'
