@@ -174,7 +174,7 @@
               <vs-row>
                 <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
                   <vs-button loading v-if="reload===true"> reload</vs-button>
-                  <vs-button v-if="jobs.state !== 'PAUSING' && jobs.state !== 'PAUSED' && jobs.state !== 'RESUMING' && jobs.state !== 'CANCELLING' && reload === false" @click="reload(jobs)" > reload </vs-button>
+                  <vs-button  @click="reloadJob(jobs,jobs.worker_id)" > reload </vs-button>
                   <vs-button warn loading v-if="jobs.state === 'PAUSING'" > Pause </vs-button>
                   <vs-button warn disabled v-if="jobs.state === 'CANCELLING'" > Pause </vs-button>
                   <vs-button success loading v-if="jobs.state === 'RESUMING'" > Resume </vs-button>
@@ -299,7 +299,8 @@ export default {
     runningJobs: [],
     search: '',
     timestamps: [],
-    interval: 0
+    interval: 0,
+    reload: false
   }),
   mounted () {
     this.fetchDrivingQueue()
@@ -384,9 +385,9 @@ export default {
     async resumeJobs (player) {
       await srv.resumeJobs(player)
     },
-    async reload (player) {
+    async reloadJob (player,car) {
       this.reload = true
-      await srv.addJobs(player.player_id)
+      await srv.addJobs(player.player_id,car)
       const firstPlayer = await srv.getDrivingWaitingQueue(true, 0, 1)
       await srv.moveBefore(player.job_id, firstPlayer[0].job_id)
       await srv.removeJobs(player)

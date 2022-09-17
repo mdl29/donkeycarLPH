@@ -22,7 +22,7 @@ import axios from 'axios'
 
 export default class DonkeycarManagerService {
   static get ip() {
-    return 'localhost'
+    return '192.168.20.42'
   }
   /**
   *
@@ -213,14 +213,14 @@ export default class DonkeycarManagerService {
   * @param {int} playerId - id of the player
   * @returns {Promise} - all player information
   */
-  async addJobs (playerId) {
+  async addJobs (playerId,car = null) {
     const response = await axios.post(this.apiUrl + '/jobs', {
       'worker_type': 'CAR',
       'name': 'DRIVE',
       'player_id': playerId,
       'parameters': '{ "drive_time" : 300 }',
       'state': 'WAITING',
-      'worker_id': null
+      'worker_id': car
     })
     return response.data
   }
