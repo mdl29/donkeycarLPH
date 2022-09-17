@@ -33,7 +33,7 @@
 
 - name: Install the test pictures script
   become: yes
-  ansible.builtin.file.copy:
+  ansible.builtin.copy:
     src: picture.sh
     dest: /etc/donkeycar/picture.sh
     owner: root
