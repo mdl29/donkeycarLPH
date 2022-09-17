@@ -1,6 +1,6 @@
 # Shutdown button for donkeycar
  
-> 🇫🇷 **You can read this documentation in [french](doc/button/shutdown-button.md)**
+> 🇫🇷 **You can read this documentation in [french](doc/button/Boutton_poussoir.md)**
 
 Method of use for installing and using a push button to turn off a donkeycar
 
