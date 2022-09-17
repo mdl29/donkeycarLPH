@@ -41,7 +41,6 @@ export default {
   data: () => ({
     pseudo: '',
     player: [],
-    playerTest: null,
     popup: false,
     pseudoBlank: false,
     telBlank: false,
@@ -69,8 +68,8 @@ export default {
       if (player.length === 0){
         player = await srv.createPlayer(this.pseudo)
         this.numero = player.player_id
-      } else if (playerTest.length !== 0){
-        this.numero = playerTest[0].player_id
+      } else if (player.length !== 0){
+        this.numero = player[0].player_id
       }
       await srv.addJobs(player[0].player_id)
       this.fetchDrivingQueue ()
