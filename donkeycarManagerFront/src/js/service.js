@@ -21,8 +21,8 @@ import axios from 'axios'
  */
 
 export default class DonkeycarManagerService {
-  static get ip() {
-    return 'localhost'
+  static get ip () {
+    return '192.168.20.42'
   }
   /**
   *
@@ -63,17 +63,17 @@ export default class DonkeycarManagerService {
     return response.data
   }
 
-    /**
+  /**
   *
   * @async
   * @augments donkeycarManagerService
   * @param {int} playerId - player Id , e.g: 0
   * @returns {Promise} - all player information
   */
-     async getPlayerByPseudo (pseudo) {
-      const response = await axios.get(this.apiUrl + '/players/?player_pseudo=' + String(pseudo)+'&skip=0&limit=100')
-      return response.data
-    }
+  async getPlayerByPseudo (pseudo) {
+    const response = await axios.get(this.apiUrl + '/players/?player_pseudo=' + String(pseudo) + '&skip=0&limit=100')
+    return response.data
+  }
   /**
   *
   * @async
@@ -216,7 +216,7 @@ export default class DonkeycarManagerService {
   async addJobs (playerId) {
     const response = await axios.post(this.apiUrl + '/jobs', {
       'worker_type': 'CAR',
-      'name': 'DRIVE',
+      'name': 'RECORD',
       'player_id': playerId,
       'parameters': '{ "drive_time" : 300 }',
       'state': 'WAITING',

@@ -83,7 +83,7 @@ export default {
       this.playerTest = await srv.getPlayerByPseudo(this.pseudo)
       console.log(this.playerTest)
       console.log(this.playerTest.length)
-      if (this.playerTest.length === 0){
+      if (this.playerTest.length === 0) {
         console.log('pass')
         this.player = await srv.createPlayer(this.pseudo)
         console.log('pass1.1')
@@ -103,10 +103,10 @@ export default {
         this.numero = this.player.player_id
         this.popup = true
         console.log('pass3')
-      }else if (this.playerTest.length !== 0){
+      } else if (this.playerTest.length !== 0) {
         this.popup404 = true
       }
-      },
+    },
     async fetchDrivingQueue () {
       this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
     }

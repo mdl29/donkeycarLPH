@@ -11,7 +11,11 @@
       </div>
     </div>
     <div class="waiting-list" v-if="waitingList.length > 0">
-      <div v-for="(job, index) in waitingList" :key="job.job_id" class="waiting-list-item">
+      <div
+        v-for="(job, index) in waitingList"
+        :key="job.job_id"
+        class="waiting-list-item"
+      >
         <div class="name">{{ job.player.player_pseudo }}</div>
         <div class="wait">{{ waitTime[index] || "" }}</div>
       </div>
@@ -32,18 +36,18 @@ const socket = io.connect(url, { path: `/ws/socket.io` })
 
 export default {
   components: {
-    carView,
+    carView
   },
-  data() {
+  data () {
     return {
       // Array of { car, job, race }
       entries: [],
       waitingList: [],
       waitTime: [],
-      interval: null,
+      interval: null
     }
   },
-  mounted() {
+  mounted () {
     this.fetchWaitingList()
     this.fetchCars().then(async () => {
       await that.fetchJobs()
@@ -54,10 +58,10 @@ export default {
       that.waitTime = that.waitingList.map((_, i) => that.getEstimatedWait(i))
     }, 5000)
   },
-  unmounted() {
+  unmounted () {
     clearInterval(this.interval)
   },
-  created() {
+  created () {
     const that = this
     // TODO: that
     // I don't really know what event implies what change,
@@ -92,13 +96,13 @@ export default {
   },
   methods: {
     // fetch and update the cars
-    async fetchCars() {
+    async fetchCars () {
       const cars = await srv.getCars(0, 10)
       for (const car of cars) {
         const state = car.worker.state
         const index = this.entries.findIndex(e => e.car.name === car.name)
 
-        if(state === 'BUSY' || state === 'AVAILABLE') {
+        if (state === 'BUSY' || state === 'AVAILABLE') {
           if (index >= 0) {
             this.entries[index].car = car
             this.entries[index].race = car.race
@@ -111,15 +115,15 @@ export default {
           this.entries.splice(index, 1)
         }
       }
-      if (this.car1){
-        this.job1 = await  srv.getJobCar(this.car1.worker_id)
+      if (this.car1) {
+        this.job1 = await srv.getJobCar(this.car1.worker_id)
       }
-      if (this.car2){
-        this.job2 = await  srv.getJobCar(this.car2.worker_id)
+      if (this.car2) {
+        this.job2 = await srv.getJobCar(this.car2.worker_id)
       }
     },
     // fetch and update the jobs of the currently displayed cars
-    async fetchJobs() {
+    async fetchJobs () {
       this.entries = await Promise.all(
         this.entries.map(async entry => {
           entry.job = (await srv.getJobCar(entry.car.worker_id))[0]
@@ -127,37 +131,50 @@ export default {
         })
       )
     },
-    async fetchWaitingList() {
+    async fetchWaitingList () {
       this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
     },
-    getJobDuration(job) { // in seconds
+    getJobDuration (job) {
+      // in seconds
       try {
         const params = JSON.parse(job.parameters)
         if (job.next_job_details) {
-          return parseInt(params.drive_time) + this.getJobDuration(JSON.parse(job.next_job_details))
+          return (
+            parseInt(params.drive_time) +
+            this.getJobDuration(JSON.parse(job.next_job_details))
+          )
         } else {
           return parseInt(params.drive_time)
         }
-      } catch(_) {
+      } catch (_) {
         return 0
       }
     },
-    getEstimatedWait(index) {
+    getEstimatedWait (index) {
       // I want spread operator
       const that = this
-      const current_jobs_wait = this.entries.filter(e => e.job).map(e => {
-        let duration = that.getJobDuration(e.job);
-        if (e.race && e.race !== null) {
-          const elapsed = new Date().getTime() - new Date(e.race.start_datetime).getTime();
-          duration = Math.max(Math.floor(duration - elapsed / 1000), 0)
-        }
-        return duration
-      })
-      const min_current_job_wait = current_jobs_wait.length > 0 ? Math.min.apply(Math, current_jobs_wait) : 0
-      const waitingTimes = this.waitingList.filter((_, i) => i < index).map(this.getJobDuration)
-      let time = 0;
+      const current_jobs_wait = this.entries
+        .filter(e => e.job)
+        .map(e => {
+          let duration = that.getJobDuration(e.job)
+          if (e.race && e.race !== null) {
+            const elapsed =
+              new Date().getTime() - new Date(e.race.start_datetime).getTime()
+            duration = Math.max(Math.floor(duration - elapsed / 1000), 0)
+          }
+          return duration
+        })
+      const min_current_job_wait =
+        current_jobs_wait.length > 0
+          ? Math.min.apply(Math, current_jobs_wait)
+          : 0
+      const waitingTimes = this.waitingList
+        .filter((_, i) => i < index)
+        .map(this.getJobDuration)
+      let time = 0
       if (waitingTimes.length > 0) {
-        time = min_current_job_wait + waitingTimes.reduce((acc, v) => acc + v, 0)
+        time =
+          min_current_job_wait + waitingTimes.reduce((acc, v) => acc + v, 0)
       } else {
         time = min_current_job_wait
       }
@@ -182,7 +199,7 @@ export default {
   height: 100vh;
 }
 .car-views {
-  display:flex;
+  display: flex;
   flex-direction: row;
   flex: 1;
 }
@@ -213,7 +230,7 @@ export default {
   position: absolute;
   right: 0;
   width: 6em;
-  background: linear-gradient(to right, transparent, white 150%)
+  background: linear-gradient(to right, transparent, white 150%);
 }
 .waiting-list-item {
   background-color: #4287f5;
