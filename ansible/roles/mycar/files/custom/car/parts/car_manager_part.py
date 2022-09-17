@@ -2,7 +2,7 @@ import logging
 import os
 import socket
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Optional, NoReturn, List, Tuple, Callable
 
 from dkmanager_worker.helpers.zeroconf import ServiceLocation
 from dkmanager_worker.models.schemas import Car, WorkerCreate, WorkerState, WorkerType, CarCreate
@@ -60,16 +60,17 @@ class CarManagerPart(WorkerService):
         """
         return socket.gethostname()
 
-    def _update_or_create_car(self, network_interface: str) -> Car:
+    def _update_or_create_car(self) -> Car:
         """
         Create car matching the name or update it, as car always have a worker associated it will also create the worker.
-        :param network_interface: Used to determine car's IP addr
         :return:
         """
         car_name = self.get_car_name()
         current_car_basic_details = { 'name': car_name,
-                          'ip': ifaddresses(network_interface)[AF_INET][0]['addr'],
-                          'color': os.environ.get('CONTROLLER_LED_COLOR')}
+                          'ip': ifaddresses(self._network_interface)[AF_INET][0]['addr'],
+                          'color': os.environ.get('CONTROLLER_LED_COLOR'),
+                          'inverted_controls': False,
+                          'throttle_scale': 0.5}
 
         existing_car = self._api.get_car(car_name)
         if existing_car is not None:  # Need to update the car with current details
@@ -84,6 +85,14 @@ class CarManagerPart(WorkerService):
             car = CarCreate(**current_car_basic_details, worker_id=self.worker.worker_id)
             return self._api.create_car(car)
 
+    def update_worker_state(self, state: WorkerState) -> NoReturn:
+        """
+        Update current car state.
+        :param state: Current state
+        """
+        self.worker.state = state
+        self._api.update_worker(self.worker)
+
     def update(self):
         return
 
@@ -95,7 +104,9 @@ class CarManagerPart(WorkerService):
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int]=None,
-                     controller_x_pressed: Optional[bool]=False
+                     controller_x_pressed: Optional[bool]=False,
+                     inverted: Optional[bool]=False,
+                     scale: Optional[float]=0.5,
                      ) -> Tuple[float, str, bool, bool]:
         """
         :param user_throttle: User throttle value
@@ -105,6 +116,17 @@ class CarManagerPart(WorkerService):
             laptimer/reset_all
             recording
         """
+        changed = False
+        if inverted != self.car.inverted_controls:
+            self.logger.info("Controls inverted")
+            self.car.inverted_controls = inverted
+            changed = True
+        if scale != self.car.throttle_scale:
+            self.car.throttle_scale = scale
+            changed = True
+        if changed:
+            self._api.update_car(self.car)
+
         res = self._job_manager.run_threaded_current_job(
             user_throttle,
             laptimer_current_start_lap_datetime,
