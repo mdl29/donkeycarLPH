@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, Float, String, DateTime
 from sqlalchemy.orm import relationship
 import datetime, pytz
 
@@ -70,6 +70,9 @@ class Car(Base):
     current_stage = Column(String, nullable=True)
     current_player_id = Column(Integer, ForeignKey(Player.player_id), nullable=True)
     current_race_id = Column(Integer, ForeignKey(Race.race_id), nullable=True)
+    inverted_controls = Column(Boolean, nullable=True)
+    throttle_scale = Column(Float, nullable=True)
+
 
     player = relationship("Player", lazy='subquery')
     race = relationship("Race", lazy='subquery')

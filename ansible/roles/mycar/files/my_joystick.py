@@ -22,7 +22,6 @@ class MyJoystick(Joystick):
     """
     def __init__(self, *args, **kwargs):
         super(MyJoystick, self).__init__(*args, **kwargs)
-
         self._led_control = PS4LEDControl()
         self._ds4drv_mac_reader = Ds4drvLastMacReader(devices_pipe_path=DEVICES_PIPE,
                                                       on_new_mac_addr=self._led_control.connect_to,
@@ -70,7 +69,7 @@ class MyJoystickController(JoystickController):
     """
     def __init__(self, *args, **kwargs):
         super(MyJoystickController, self).__init__(*args, **kwargs)
-
+        self.inverted = False
         self.state_x_button = False
 
 
@@ -101,7 +100,22 @@ class MyJoystickController(JoystickController):
                 magnitude *= -1
             self.set_throttle(magnitude)
         return set_magnitude
+    
+    def set_axis_lh(self, axis_val):
+        if self.inverted:
+            self.set_steering(axis_val)
+    def set_axis_lv(self, axis_val):
+        if not self.inverted:
+            self.set_throttle(axis_val)
+    def set_axis_rh(self, axis_val):
+        if not self.inverted:
+            self.set_steering(axis_val)
+    def set_axis_rv(self, axis_val):
+        if self.inverted:
+            self.set_throttle(axis_val)
 
+    def invert_controls(self):
+        self.inverted = not self.inverted
 
     def init_trigger_maps(self):
         """
@@ -109,7 +123,7 @@ class MyJoystickController(JoystickController):
         """
 
         self.button_down_trigger_map = {
-            #'a_button': self.toggle_mode,
+            'a_button': self.invert_controls,
             #'b_button': self.toggle_manual_recording,
             'x_button': self.x_button_pressed,
             'y_button': self.emergency_stop,
@@ -119,8 +133,10 @@ class MyJoystickController(JoystickController):
         }
 
         self.axis_trigger_map = {
-            'left_stick_horz': self.set_steering,
-            'right_stick_vert': self.set_throttle,
+            'left_stick_horz':  self.set_axis_lh,
+            'left_stick_vert':  self.set_axis_lv,
+            'right_stick_horz': self.set_axis_rh,
+            'right_stick_vert': self.set_axis_rv,
             # Forza Mode
             'right_trigger': self.magnitude(),
             'left_trigger': self.magnitude(reversed = True),
@@ -173,4 +189,4 @@ class MyJoystickController(JoystickController):
         if o_x_pressed:
             self.state_x_button = False # resetting it for next turns
 
-        return o_angle, o_throttle, o_mode, o_recording, o_x_pressed
+        return o_angle, o_throttle, o_mode, o_recording, o_x_pressed, self.inverted, self.throttle_scale
