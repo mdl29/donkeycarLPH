@@ -1,5 +1,16 @@
 ---
 
+- name: Install git
+  become: true
+  apt: 
+    name: git 
+    state: latest
+
+- name: Create the /etc/donkeycar directory
+  file:
+    path: /etc/donkeycar
+    state: directory
+
 - name: Install jsfw
   ansible.builtin.git:
     repo: https://github.com/viandoxdev/jsfw.git
@@ -19,3 +30,20 @@
     owner: root
     group: root
   notify: Start jsfw.service service
+
+- name: Install the test pictures script
+  become: yes
+  ansible.builtin.file.copy:
+    src: picture.sh
+    dest: /etc/donkeycar/picture.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create the environment file for led color
+  become: yes
+  template:
+    src: ds4drv.env.j2
+    dest: /etc/donkeycar/ds4drv.env
+    owner: root
+    group: root
