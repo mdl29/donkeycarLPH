@@ -5,7 +5,7 @@ from typing import Optional, Union, Dict, List
 
 import pydantic
 
-from .schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
+from dkmanager_worker.models.schemas import Car, Worker, WorkerCreate, WorkerUpdate, CarCreate, CarUpdate, JobState, Job, \
     MassiveUpdateDeleteResult, Race, RaceCreate, LapTimerCreate, LapTimer, LapTimerUpdate, JobCreate, RaceUpdate, WorkerType
 import requests
 from datetime import date, datetime
