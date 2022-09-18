@@ -150,39 +150,39 @@
           </vs-tr>
         </template>
         <template #tbody>
-          <vs-tr :key="jobs.rank" :data="jobs" v-for="jobs in $vs.getSearch(runningJobs, search)" >
+          <vs-tr :key="job.rank" :data="job" v-for="job in $vs.getSearch(runningJobs, search)" >
             <vs-td>
-              {{ jobs.player.player_pseudo }}
+              {{ job.player.player_pseudo }}
             </vs-td>
             <vs-td>
-            <vs-button :color="'#'+getCarColor(jobs.worker_id)"> {{ getCarName(jobs.worker_id) }} </vs-button>
+            <vs-button :color="'#'+getCarColor(job.worker_id)"> {{ getCarName(job.worker_id) }} </vs-button>
             </vs-td>
             <vs-td>
-            {{ jobs.job_id }}
+            {{ job.job_id }}
             </vs-td>
             <vs-td>
-              <vs-button color="#00b4d8" v-if="jobs.state === 'RUNNING'" > 🎮 Drive </vs-button>
-              <vs-button loading warn v-if="jobs.state === 'PAUSING'"  > ⏸ Pause </vs-button>
-              <vs-button loading success v-if="jobs.state === 'RESUMING'" > ▶️ Resuming </vs-button>
-              <vs-button loading danger v-if="jobs.state === 'CANCELLING'" > 🚫 Cancelling </vs-button>
-              <vs-button warn v-if="jobs.state === 'PAUSED'" > ⏸ Pause </vs-button>
+              <vs-button color="#00b4d8" v-if="job.state === 'RUNNING'" > 🎮 Drive </vs-button>
+              <vs-button loading warn v-if="job.state === 'PAUSING'"  > ⏸ Pause </vs-button>
+              <vs-button loading success v-if="job.state === 'RESUMING'" > ▶️ Resuming </vs-button>
+              <vs-button loading danger v-if="job.state === 'CANCELLING'" > 🚫 Cancelling </vs-button>
+              <vs-button warn v-if="job.state === 'PAUSED'" > ⏸ Pause </vs-button>
             </vs-td>
             <vs-td>
-              {{ jobs.name }}
+              {{ job.name }}
             </vs-td>
             <vs-td>
               <vs-row>
                 <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
                   <vs-button loading v-if="reload===true"> reload</vs-button>
-                  <vs-button  @click="reloadJob(jobs,jobs.worker_id)" > reload </vs-button>
-                  <vs-button warn loading v-if="jobs.state === 'PAUSING'" > Pause </vs-button>
-                  <vs-button warn disabled v-if="jobs.state === 'CANCELLING'" > Pause </vs-button>
-                  <vs-button success loading v-if="jobs.state === 'RESUMING'" > Resume </vs-button>
-                  <vs-button success v-if="jobs.state === 'PAUSED'" @click="resumeJobs(jobs)" > Resume </vs-button>
+                  <vs-button  @click="reloadJob(job,job.worker_id)" > reload </vs-button>
+                  <vs-button warn loading v-if="job.state === 'PAUSING'" > Pause </vs-button>
+                  <vs-button warn disabled v-if="job.state === 'CANCELLING'" > Pause </vs-button>
+                  <vs-button success loading v-if="job.state === 'RESUMING'" > Resume </vs-button>
+                  <vs-button success v-if="job.state === 'PAUSED'" @click="resumeJobs(job)" > Resume </vs-button>
                 </vs-col>
                 <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
-                  <vs-button danger v-if="jobs.state !== 'CANCELLING'" @click="removeJobs(jobs)">Cancel </vs-button>
-                  <vs-button loading danger v-if="jobs.state === 'CANCELLING'" > Cancel </vs-button>
+                  <vs-button danger v-if="job.state !== 'CANCELLING'" @click="removeJobs(job)">Cancel </vs-button>
+                  <vs-button loading danger v-if="job.state === 'CANCELLING'" > Cancel </vs-button>
                 </vs-col>
               </vs-row>
             </vs-td>
@@ -246,8 +246,8 @@
         </template>
         <div class="con-form">
           <vs-input class="param-input" label="Pseudo" v-model="parPlayerPseudo"/>
-          <vs-input class="param-input" label="move before :" v-model="moveBeforeInput" placeholder="jobs id" />
-          <vs-input class="param-input" label="move after :" v-model="moveAfterInput" placeholder="jobs id"/>
+          <vs-input class="param-input" label="move before :" v-model="moveBeforeInput" placeholder="job id" />
+          <vs-input class="param-input" label="move after :" v-model="moveAfterInput" placeholder="job id"/>
         </div>
 
         <template #footer>
@@ -376,21 +376,21 @@ export default {
     async fetchCars (skip, limit) {
       this.donkeycars = await srv.getCars(skip, limit)
     },
-    async removeJobs (player) {
-      await srv.removeJobs(player)
+    async removeJobs (job) {
+      await srv.removeJobs(job)
     },
     async getJobs () {
       this.runningJobs = await srv.getRunningJobs()
     },
-    async resumeJobs (player) {
-      await srv.resumeJobs(player)
+    async resumeJobs (job) {
+      await srv.resumeJobs(job)
     },
-    async reloadJob (player,car) {
+    async reloadJob (job,workerId) {
       this.reload = true
-      await srv.addJobs(player.player_id,car)
-      const firstPlayer = await srv.getDrivingWaitingQueue(true, 0, 1)
-      await srv.moveBefore(player.job_id, firstPlayer[0].job_id)
-      await srv.removeJobs(player)
+      await srv.addJobs(job.player_id,workerId)
+      const firstJob = await srv.getDrivingWaitingQueue(true, 0, 1)
+      await srv.moveBefore(job.job_id, firstJob[0].job_id)
+      await srv.removeJobs(job)
       this.reload = false    
     },
     getCarName (id) {
@@ -409,16 +409,16 @@ export default {
       }
       return 'unknow color'
     },
-    async goUp (player) {
-      const index = this.drivingWaitingQueue.indexOf(player) - 1
+    async goUp (job) {
+      const index = this.drivingWaitingQueue.indexOf(job) - 1
       const playerBefore = this.drivingWaitingQueue[index]
-      await srv.moveBefore(player.job_id, playerBefore.job_id)
+      await srv.moveBefore(job.job_id, playerBefore.job_id)
       console.log(playerBefore)
     },
-    async goDown (player) {
-      const index = this.drivingWaitingQueue.indexOf(player) + 1
+    async goDown (job) {
+      const index = this.drivingWaitingQueue.indexOf(job) + 1
       const playerBefore = this.drivingWaitingQueue[index]
-      await srv.moveAfter(player.job_id, playerBefore.job_id)
+      await srv.moveAfter(job.job_id, playerBefore.job_id)
       console.log(playerBefore)
     }
   }
