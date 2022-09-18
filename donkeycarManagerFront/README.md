@@ -1,5 +1,6 @@
 # donkeycar manager frontend
 
+The donkeycar manager allow to an admin to manage cars and players (jobs) when they race
 > A Vue.js project
 
 ## Frontend views : 
@@ -16,7 +17,7 @@ The donkeycar manager is composed of multiples parts :
 - display waiting list
 
 ### admin dashboard :
--  see players ( jobs ) in waiting list
+-  see players (jobs) in waiting list
 -  manage jobs in the waiting list (remove, upgrade his rank, downgrade)
 - differents cars with their current job, status
 - total player who subscribe in register login 

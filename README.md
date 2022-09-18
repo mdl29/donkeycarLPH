@@ -10,22 +10,22 @@
 </div>
 <br>
 
- > 💡 Inspirated and use the original [donkeycar project](https://github.com/autorope/donkeycar)
+ > 💡 uses the original [donkeycar project](https://github.com/autorope/donkeycar)
  
  <br>
 
 <details>	
-  <summary><b> 🚀 How to use our project</b></summary>
+  <summary><b> 🚀 How to use this project</b></summary>
 
 ## 🧰 Build your own donkeycar 
 
 ***
 
-Before using our project you need to build your donkeycar.
-If you don't have a donkeycar, please follow this [tutorial](https://docs.donkeycar.com/guide/build_hardware/) made by donkeycar community
+Before using this project you need to build your donkeycar.
+If you don't have a donkeycar, please follow this [tutorial](https://docs.donkeycar.com/guide/build_hardware/) made by the donkeycar community
 
 ### **Tips :**
-If you using wide angle camera like [this](https://www.kubii.fr/cameras-capteurs/2207-module-camera-5mp-grand-angle-kubii-3272496011205.html), we have modelize on the chassis a camera cap holder. Convenient to avoid losing it
+if you are using a wide angle camera like [this](https://www.kubii.fr/cameras-capteurs/2207-module-camera-5mp-grand-angle-kubii-3272496011205.html), we have modeled a camera cap holder on the chassis a camera cap holder. Convenient to avoid losing it
 ![chassis](3dDesigns/camera-cover/preview.png)
 > 📒 [open](3dDesigns/camera-cover/preview.png) chassis stl file
 
@@ -77,10 +77,10 @@ If you wanted to use our features and improvements you should create your own re
 
 - modify configuration for single car
 
-  Before launching your recipe, you should modify config var with your configurations like `wpa_suplicant` to specify acces point name and credentials, donkeycar steering, throttle configuration and ip's of donkeycar servers
+  Before deployed your recipe, you should modify config var with your configurations like `wpa_suplicant` to specify acces point name and credentials, donkeycar steering, throttle configuration and ip's of donkeycar servers
   > 📒 [ansible/group_vars/all](ansible/group_vars/all)
 
-  > ⚠️  If you change the server  ip or just change server pc, you should change ip configurations manually at `/etc/systemd/system/donkeycar.service`. **Be carefull, the backend and ftp are normally the same**
+  > ⚠️  If you change the server ip or just change server pc, you should change ip configurations manually at `/etc/systemd/system/donkeycar.service`.
 - configuration for multiple cars with the same image
 
   You can configure the cars independently, in our case we have 4 configurations (see [ansible/config](ansible/config)).
@@ -166,16 +166,16 @@ About our architecture :
 ***
 
 ### Ansible remote installation documentation : 
-  > we have made a ansible book for automate our donleycar and raspberry pi installation remotely (ssh).
+  > we have made a ansible book to automate our donleycar and raspberry pi installation remotely (ssh).
     Indeed, these recipes allow us to have one single clean installation and be able to repeat it to infinity. <br>
     <b>ℹ️ Read [documentation](ansible/README.md) !! </b>
 
 ### Generate raspian image with donkeycar installation :
  > With ansible and packer, we can also generate a raspian image with our donkeycar installation. This feature is very usefull if we want to share it with people and don't use ssh. <br>
- <b>ℹ️ Read [documentation](ansible/README.md) !! </b>
+ <b>ℹ️ Read [documentation](packer/README.md) !! </b>
 
 ### Donkeycar manager :
- > We have created a donkeycar manager. This manager is separated in to parts : a backend ( with database, api ...) and a frontend ( vuejs 2), it allow us to see cars who running, stopped, manage players who race... <br>
+ > We have created a donkeycar manager. This manager is separated in to parts : a backend ( with database, api ...) and a frontend ( vuejs 2), it allow us to see cars who running, stopped, manage players in races... <br>
  <b>ℹ️ For more informations about how it works, you can see our documentation [here](doc/donkeycarManager/manager-features.md)</b>
 
 ## Hardware
@@ -193,7 +193,7 @@ About our architecture :
 **See [documentation](doc/controller.md)**
 
 ### Shutdown button :
-> we have made a shutdown button, for shutdown car manually because when ssh crash we can't make a clean shutdown and we risk to damage the SD card
+> we have made a shutdown button, to shutdown car manually because when ssh crash we can't make a clean shutdown and we risk to damage the SD card
 **See [documentation](doc/button/shutdown-button.md)**
 
 ### Led indicator :

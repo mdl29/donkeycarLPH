@@ -2,10 +2,10 @@
  
 > 🇫🇷 **You can read this documentation in [french](doc/button/Boutton_poussoir.md)**
 
-Method of use for installing and using a push button to turn off a donkeycar
+Installation and usage of the push button to shutdown a donkeycar
 
 > ⚠️ If you using our raspberry pi image generate by ansible and packer. All software requirements are already installed and configured on your car.
-You should just follow our [electronic shematic](doc/schema/schema-electronique.png) for install it 
+You should just follow our [electronic shematic](doc/schema/schema-electronique.png) to install it 
 
 ## Install requirements :
 
@@ -23,9 +23,20 @@ In this file you should add those lines :
 ```bash
 #!/bin/bash
 
-pin=29  # pin 40 (internal: 21) on raspi layout
-gpio mode $pin in
-gpio wfi $pin both
+pin={{ shutdown_pin }}  # pin 18 (internal: 24) on raspi layout
+gpio mode "$pin" "in"
+
+while :; do
+	gpio wfi "$pin" rising
+	d_start="$(date +%s)"
+	gpio wfi "$pin" falling
+	d_end="$(date +%s)"
+	delta=$((d_end - d_start))
+	if [ "$delta" -gt "3" ]; then
+		break
+	fi
+done
+
 logger Shutdown button pressed
 shutdown -h now
 ```
@@ -74,3 +85,4 @@ Finally, to make sure your service is running:
 ```
 # systemctl status button-shutdown.service
 ```
+**Now, you can use the shutdown button, You must maintain pressed 3 seconds the button for shutdown the car**

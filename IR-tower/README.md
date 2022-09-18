@@ -12,7 +12,7 @@ Follow this electronic schematic :
 
 ***
 
-1. Import IR remote librairie [directory](IR-tower/IRremote) in Arduino app
+1. Import IR remote [.zip](IR-tower/IRremote) librairy in Arduino app
 
 2. Import [code folder](IR-tower/IR-tower-code) and verify that you have these two files : `LED_IR_TX.ino` and `PinDefinitionsAndMore.h`
 
