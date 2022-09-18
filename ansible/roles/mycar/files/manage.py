@@ -249,7 +249,15 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
             V.add(
                 ctr,
                 inputs=['cam/image_array', 'user/mode', 'recording', 'manager/job_name'],
-                outputs=['user/angle', 'user/throttle', 'user/mode', 'recording', 'controller/x_pressed'],
+                outputs=[
+                    'user/angle',
+                    'user/throttle',
+                    'user/mode',
+                    'recording',
+                    'controller/x_pressed',
+                    'controller/inverted',
+                    'controller/scale'
+                ],
                 threaded=True)
 
             # IR Lap timer
@@ -293,7 +301,9 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                         'laptimer/last_lap_duration',
                         'laptimer/last_lap_end_date_time',
                         'laptimer/laps_total',
-                        'controller/x_pressed'
+                        'controller/x_pressed',
+                        'controller/inverted',
+                        'controller/scale'
                     ],
                     outputs=[
                         'user/throttle',
