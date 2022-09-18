@@ -5,7 +5,7 @@
 
 Follow this electronic schematic :
 
-![tower](elec-schematic.jpg)
+![tower](IR-tower/elec-schematic.jpg)
 
 
 ## upload the IR tower code

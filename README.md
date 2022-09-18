@@ -6,7 +6,7 @@
 ![commitActivity](https://img.shields.io/github/commit-activity/m/mdl29/donkeycarLPH?logo=github&style=flat-square)
 ![mainLanguage](https://img.shields.io/github/languages/top/mdl29/donkeycarLPH?color=yellow&style=flat-square)
 
-### In this project we present a solution to industrialize the production of donkeycar car raspberry pi images and allow everyone to be able to install easily the donkeycar environnement. We have also added some tools like our manager to make public demonstrations, led several donkleycars to the public having now knowledge of the project, register for a driving session (have an estimated waiting time), drive with multiple cars at the same time and see in live on a huge screen their time lapses, start a recorded driving then view their own model in action (without handling transfers ...).
+### In this project we present a solution to industrialize the production of donkeycar car raspberry pi images and allow everyone to be able to install easily the donkeycar environnement. We have also added some tools like our manager to make public demonstrations, led several donkeycars to the public having now knowledge of the project, register for a driving session (with an estimated waiting time), drive with multiple cars at the same time and see in live on a huge screen their time lapses, start a recorded driving then view their own model in action (without handling transfers ...).
 </div>
 <br>
 
@@ -21,7 +21,7 @@
 
 ***
 
-Before use our project you need to build your donkeycar.
+Before using our project you need to build your donkeycar.
 If you don't have a donkeycar, please follow this [tutorial](https://docs.donkeycar.com/guide/build_hardware/) made by donkeycar community
 
 ### **Tips :**
@@ -35,7 +35,7 @@ If you using wide angle camera like [this](https://www.kubii.fr/cameras-capteurs
 ## 🧪 Create your ansible recipe
 
 *** 
-If you wanted to use our features and improvements you should create your own recipe book with your wanted recipes. Indeed, ansible has a configuration file where we specifie what options ( recipe ) we want, so you have to modify the [donkeycar.yml](ansible/donkeycar.yml) file and comment recipes you don't want
+If you wanted to use our features and improvements you should create your own recipe book with your wanted recipes. Indeed, ansible has a configuration file where we specify what options ( recipe ) we want, so you have to modify the [donkeycar.yml](ansible/donkeycar.yml) file and comment recipes you don't want
 
 ```yml
  roles:
