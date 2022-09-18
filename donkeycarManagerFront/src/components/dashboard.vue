@@ -173,8 +173,8 @@
             <vs-td>
               <vs-row>
                 <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
-                  <vs-button loading v-if="reload===true"> reload</vs-button>
-                  <vs-button  @click="reloadJob(job,job.worker_id)" > reload </vs-button>
+                  <vs-button loading color="#fea735" v-if="reload===true"> reload</vs-button>
+                  <vs-button color="#fea735" v-if="reload===false"  @click="reloadJob(job,job.worker_id)" > reload </vs-button>
                   <vs-button warn loading v-if="job.state === 'PAUSING'" > Pause </vs-button>
                   <vs-button warn disabled v-if="job.state === 'CANCELLING'" > Pause </vs-button>
                   <vs-button success loading v-if="job.state === 'RESUMING'" > Resume </vs-button>
