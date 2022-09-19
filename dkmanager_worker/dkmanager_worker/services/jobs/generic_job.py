@@ -80,6 +80,14 @@ class GenericJob(Thread):
         """
         raise NotImplemented('You need to implement run_job for all jobs')
 
+    def display_screen_msg(self, msg):
+        """
+        :param msg: Message to be displayed on the screen.
+        """
+        self.job_data.screen_msg = msg
+        self.job_data.screen_msg_display = True
+        self.api.update_job(self.job_data)
+
     def run(self) -> None:
         was_resumed = False
         with ConditionalEvents([self.event_resume, self.event_cancelled], CondEventsOperator.OR) as resumed_or_cancelled:
