@@ -90,6 +90,14 @@ class GenericJob(Thread):
         self.logger.debug('[job_id: %i]  Displaying message on screen : %s',
                           self.get_id(), msg)
 
+    def hidde_screen_msg(self):
+        """
+        Hidden the message on the screen.
+        """
+        self.job_data.screen_msg = None
+        self.job_data.screen_msg_display = False
+        self.api.update_job(self.job_data)
+
     def run(self) -> None:
         was_resumed = False
         with ConditionalEvents([self.event_resume, self.event_cancelled], CondEventsOperator.OR) as resumed_or_cancelled:
