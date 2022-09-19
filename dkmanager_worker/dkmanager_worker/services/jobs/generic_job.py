@@ -87,6 +87,8 @@ class GenericJob(Thread):
         self.job_data.screen_msg = msg
         self.job_data.screen_msg_display = True
         self.api.update_job(self.job_data)
+        self.logger.debug('[job_id: %i]  Displaying message on screen : %s',
+                          self.get_id(), msg)
 
     def run(self) -> None:
         was_resumed = False
