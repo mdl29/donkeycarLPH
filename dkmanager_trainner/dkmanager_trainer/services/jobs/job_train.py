@@ -190,5 +190,8 @@ class JobTrain(GenericJob):
         ftp_models_archive = self.compress_and_upload_model(model_folder_path)
         self.clean()
 
-        # TODO create a sort of driving job with the model ?
+        # Here goes the ugly part of outputting in the job's inputs 🙈💩
+        self.job_data.parameters['output:model_remote_archive'] = ftp_models_archive
+        self.api.update_job(self.job_data)
+
         return

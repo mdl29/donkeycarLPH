@@ -7,7 +7,7 @@ from paperspace to train the model.
 
 ```bash
 # Workaround for dkmanager_worker dependency : 
-pip install -e "git+https://github.com/mdl29/donkeycarLPH.git@159_training#egg=dev&subdirectory=dkmanager_worker"
+pip install -e "git+https://github.com/mdl29/donkeycarLPH.git@main#egg=dkmanager-worker&subdirectory=dkmanager_worker"
 
 # Install it 
 python setup.py install
@@ -33,4 +33,7 @@ ssh -o "StrictHostKeyChecking=no" paperspace@$VM_IP -R6666
 ```
 The last command will open port `6666` on the paperspace machine that can be used as a sock proxy to access the manager.
 
-Start the service 
+Start the service :
+```bash
+dkmanager-ai-trainer --debug
+``` 
