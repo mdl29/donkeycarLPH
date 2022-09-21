@@ -1,3 +1,4 @@
+import json
 import os.path
 import tempfile
 import logging
@@ -191,7 +192,9 @@ class JobTrain(GenericJob):
         self.clean()
 
         # Here goes the ugly part of outputting in the job's inputs 🙈💩
-        self.job_data.parameters['output:model_remote_archive'] = ftp_models_archive
+        job_parameters = json.loads(self.job_data.parameters)
+        job_parameters['output:model_remote_archive'] = ftp_models_archive
+        self.job_data.parameters = json.dumps(job_parameters)
         self.api.update_job(self.job_data)
 
         return
