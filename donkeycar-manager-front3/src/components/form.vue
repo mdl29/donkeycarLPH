@@ -36,13 +36,13 @@ export default {
       if (players.length === 0) {
         players[0] = await srv.createPlayer(this.pseudo)
       }
-      let response = await srv.addJobs(players[0].player_id)
-      if (response === 404){
+      const response = await srv.addJobs(players[0].player_id)
+      if (response === 404) {
         this.success = false
-      }else{
+      } else {
         this.success = true
       }
-      this.$emit('success',this.success)
+      this.$emit('success', this.success)
       this.pseudo = ''
       this.click = false
     }
