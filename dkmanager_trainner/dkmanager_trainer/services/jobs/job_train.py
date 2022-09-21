@@ -137,7 +137,7 @@ class JobTrain(GenericJob):
 
         ftp.close()
 
-        return remote_archive_name
+        return f'{FTP_MODELS_ARCHIVE_FOLDER_NAME}/{remote_archive_name}'
 
     def clean(self) -> NoReturn:
         """
