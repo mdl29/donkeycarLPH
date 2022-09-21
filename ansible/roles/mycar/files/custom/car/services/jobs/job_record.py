@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime
@@ -6,6 +7,8 @@ from typing import Optional, Tuple, NoReturn
 
 from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
 from dkmanager_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
+from dkmanager_worker.models.schemas import JobCreate, WorkerType, JobState, Job, EventJobChanged
+
 from custom.car.helpers.os import clean_directory_content, make_tarfile
 from custom.car.services.jobs.job_drive import JobDrive, JobDriveStage
 
@@ -24,6 +27,7 @@ class JobRecord(JobDrive):
         self.by_pass_drive_finished_confirmation = True
 
         self.is_recording = RegistableEvent()  # Will be set when the user is recording
+        self.is_training_finished = RegistableEvent() # Will be set when the user training job is finished
 
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
@@ -47,9 +51,11 @@ class JobRecord(JobDrive):
         # To have the json manifest inited
         self.is_recording.set()
 
-    def compress_transfert_data(self) -> NoReturn:
+    def compress_transfert_data(self) -> str:
         """
         Compress and transfert data in FTP.
+
+        :returns: Remote file path.
         """
         # Create tar file with all data, it speed up the transfer process as we have a lot of small files
         self.logger.debug('Job[job_id: %i] Creating tar file at %s, with all data in %s',
@@ -78,6 +84,8 @@ class JobRecord(JobDrive):
 
         # Clean tar
         os.remove(TMP_TAR_FILE_PATH)
+
+        return f'{FTP_DATASET_FOLDER}/{remote_archive_name}'
 
     def run_threaded(self,
                      user_throttle=None,
@@ -109,6 +117,67 @@ class JobRecord(JobDrive):
 
         return user_throttle, job_name, laptimer_reset_all, recording_state
 
+    def on_training_job_update(self, event_dict: dict):
+        """
+        When the training job is updated.
+
+        :param event: The update job event.
+        """
+        event = EventJobChanged.parse_obj(event_dict)
+        self.logger.debug('on_training_job_update: with event : %r', event)
+
+        if event.job.state == JobState.FAILED:
+            self.logger.debug('Job[job_id: %i] Training job (id: %i) failed with fail_details : %s', self.get_id(),
+                              event.job.job_id, event.job.fail_details)
+            self.display_screen_msg(f'Échec de l\'entrainement (j{event.job.job_id}) ❌')
+        elif event.job.state == JobState.CANCELLED:
+            self.logger.debug('Job[job_id: %i] Training job (id: %i) cancelled', self.get_id(), event.job.job_id)
+            self.display_screen_msg(f'Entrainement annulé (j{event.job.job_id}) ❌')
+        elif event.job.state == JobState.CANCELLING:
+            self.logger.debug('Job[job_id: %i] Training job (id: %i) cancelling', self.get_id(), event.job.job_id)
+            self.display_screen_msg(f'Annulation de l\'entrainement (j{event.job.job_id}) ⏳...')
+        elif event.job.state == JobState.RUNNING:
+            self.logger.debug('Job[job_id: %i] Training job (id: %i) is running \\o/', self.get_id(), event.job.job_id)
+            self.display_screen_msg("Entrainement du modèle en cours 🎓⏳️️... ")
+        elif event.job.state == JobState.SUCCEED:
+            self.logger.debug('Job[job_id: %i] Training job (id: %i) finished ... yeah baby', self.get_id(),
+                              event.job.job_id)
+            parameters = json.loads(event.job.parameters)
+            self.logger.debug('Job[job_id: %i] Training job (id: %i) model available here : %s', self.get_id(),
+                              parameters['output:model_remote_archive'])
+            self.display_screen_msg("Entrainement fini 🎉 [Cross] Pour lancer le modèle")
+            self.is_training_finished.set()
+            self.sio.handlers['/'][f'one_job.{event.job.job_id}.updated']  # Remove socket IO handler
+
+    def start_training(self, remote_dataset_path):
+        """
+        Start the trainning of the model.
+
+        :param remote_dataset_path: remote dataset path
+        """
+        training_job_dict = {
+            'worker_type': WorkerType.AI_TRAINER,
+            'name': 'TRAIN',
+            'parameters': json.dumps({
+                'dataset_file_ftp_path': remote_dataset_path
+            }),
+            'state': JobState.WAITING,
+            'player_id': self.job_data.player_id,
+            'worker_id': None
+        }
+        training_job = JobCreate(**training_job_dict)
+        self.logger.debug('[job_id: %i] Creating training job, for player: %i (%s)', self.get_id(),
+                          self.job_data.player.player_id, self.job_data.player.player_pseudo)
+        training_job: Job = self.api.create_job(training_job)
+        self.logger.debug('[job_id: %i] Training job created with ID %i', self.get_id(),
+                          training_job.job_id)
+        self.logger.debug('[job_id: %i]  Telling the user it\'s model training is launched',
+                          self.get_id())
+        self.display_screen_msg("Entrainement du modèle on attend un prof 🎓️... ")
+
+        event_name = f'one_job_id.{training_job.job_id}.updated'
+        self.logger.debug("Job[job_id: %i] Listening to '%s' events", self.get_id(), event_name)
+        self.sio.on(event_name, self.on_training_job_update)
 
     def run_job(self, resumed: bool = False) -> None:
         self.logger.debug('Job[job_id: %i] Starting RECORD job, will execute Drive job', self.get_id())
@@ -122,22 +191,26 @@ class JobRecord(JobDrive):
 
             self.logger.debug('Job[job_id: %i] Sending data to server ......',
                               self.get_id())
-            self.compress_transfert_data()
+            self.display_screen_msg("Fini ! Transfert de l'enregistrement ⏳...️")
+            remote_dataset_path = self.compress_transfert_data()
             self.clean_data_folder()
 
-            self.logger.debug('[job_id: %i]  Telling the user it\'s finished and he need to press X to continue',
-                              self.get_id())
-            self.job_data.screen_msg = "Enregistrement fini ! [Cross] pour lancer le calcul du modèle"
-            self.job_data.screen_msg_display = True
-            self.api.update_job(self.job_data)
+            self.start_training(remote_dataset_path)
 
+            with ConditionalEvents([self.event_cancelled, self.is_training_finished],
+                                   operator=CondEventsOperator.OR) as training_finished_or_cancelled:
+                training_finished_or_cancelled.wait()
+
+            if self.event_cancelled.isSet():
+                self.logger.debug('[job_id: %i] Cancelled during training waiting', self.get_id())
+                return
+            elif self.is_training_finished.isSet():
+                self.logger.debug('[job_id: %i] Training finished', self.get_id()) # Will already display a msg
+
+            self.event_controller_x_pressed.clear()
             with ConditionalEvents([self.event_cancelled, self.event_controller_x_pressed],
-                                   operator=CondEventsOperator.OR) as x_pressed_or_cancelled:
-                x_pressed_or_cancelled.wait()
-
-            self.job_data.screen_msg = None
-            self.job_data.screen_msg_display = False
-            self.api.update_job(self.job_data)
+                                   operator=CondEventsOperator.OR) as x_pressed_cancelled:
+                x_pressed_cancelled.wait()
 
         else:
             self.logger.error('Job[job_id: %i] Something wrong hapened drive job didn\'t return with finish state',

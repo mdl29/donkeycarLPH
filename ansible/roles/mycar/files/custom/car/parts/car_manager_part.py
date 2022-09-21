@@ -40,7 +40,8 @@ class CarManagerPart(WorkerService):
             ftp_location=ftp_location)
 
         # Create car and worker
-        self.car: Car = self._update_or_create_car(network_interface=network_interface)  # Car representation of the current car
+        self._network_interface = network_interface
+        self.car: Car = self._update_or_create_car()  # Car representation of the current car
 
         if self.worker is None:
             raise Exception("No worker created for this car")
