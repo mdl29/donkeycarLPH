@@ -144,7 +144,7 @@ class JobRecord(JobDrive):
                               event.job.job_id)
             parameters = json.loads(event.job.parameters)
             self.logger.debug('Job[job_id: %i] Training job (id: %i) model available here : %s', self.get_id(),
-                              parameters['output:model_remote_archive'])
+                              event.job.job_id, parameters['output:model_remote_archive'])
             self.display_screen_msg("Entrainement fini 🎉 [Cross] Pour lancer le modèle")
             self.is_training_finished.set()
             self.sio.handlers['/'][f'one_job.{event.job.job_id}.updated']  # Remove socket IO handler
