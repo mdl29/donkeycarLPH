@@ -24,4 +24,3 @@ ps4_contoller_led_color: 00CED1 # hexadecimal color ( don't forget, remove the `
 backendIp: '192.168.20.42'
 ftpIp: '192.168.20.42'
 ftpPort: '21'
-=======
