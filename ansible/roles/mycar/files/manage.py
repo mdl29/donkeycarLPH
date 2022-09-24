@@ -14,7 +14,6 @@ Options:
     --myconfig=filename     Specify myconfig file to use. 
                             [default: myconfig.py]
 """
-import logging
 
 from docopt import docopt
 
@@ -22,7 +21,7 @@ from docopt import docopt
 import donkeycar as dk
 from donkeycar.parts import actuator, pins
 from donkeycar.parts.transform import TriggeredCallback, DelayedTrigger
-from donkeycar.parts.tub_v2 import TubWriter, Tub
+from donkeycar.parts.tub_v2 import Tub
 from donkeycar.parts.datastore import TubHandler
 from donkeycar.parts.controller import LocalWebController, WebFpv, JoystickController
 from donkeycar.parts.throttle_filter import ThrottleFilter
@@ -32,10 +31,10 @@ from donkeycar.parts.launch import AiLaunch
 from donkeycar.utils import *
 from typing_extensions import NoReturn
 
-from custom.helpers.zeroconf import ServiceLocation
-from custom.irlaptimer import IrLapTimerPart
-from custom.manager.car_manager import CarManager, ManagerNoApiFoundException
-from custom.parts.custom_tub_writer import CustomTubWriter
+from dkmanager_worker.helpers.zeroconf import ServiceLocation
+from custom.car.parts.irlaptimer import IrLapTimerPart
+from custom.car.parts.car_manager_part import CarManagerPart, ManagerNoApiFoundException
+from custom.car.parts.custom_tub_writer import CustomTubWriter
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -286,11 +285,11 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                                           port=int(ftp_port)) if ftp_host is not None and ftp_port is not None else None
 
             try:
-                manager = CarManager(tub_path=cfg.DATA_PATH,
-                                     tub_writer=tub_writer,
-                                     api_origin=api_origin,
-                                     ftp_location=ftp_service,
-                                     network_interface=rpi_network_interface)
+                manager = CarManagerPart(tub_path=cfg.DATA_PATH,
+                                         tub_writer=tub_writer,
+                                         api_origin=api_origin,
+                                         ftp_location=ftp_service,
+                                         network_interface=rpi_network_interface)
                 V.add(
                     manager,
                     inputs=[
