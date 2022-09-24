@@ -12,6 +12,7 @@ source venv/bin/activate
 
 Install donkeycarmanager :
 ```
+pip install -e "git+https://github.com/mdl29/donkeycarLPH.git@main#egg=dkmanager_worker&subdirectory=dkmanager_worker"
 python setup.py install
 ```
 
