@@ -17,13 +17,20 @@ export default {
   },
   data () {
     return {
-      success: 'none'
+      success: null
+    }
+  },
+  watch: {
+    success: function () {
+      const that = this
+      setTimeout(function () { that.success = null }, 4000)
     }
   }
 }
 </script>
 <style>
 .alert{
+  margin-top: 1% !important;
   text-align: left !important;
   font-size: 25px;
   width: 98%;
@@ -33,7 +40,7 @@ export default {
 }
 .mainTitle{
   margin-top: 45px;
-  font-size: 50px;
+  font-size: 50px !important;
 }
 
 </style>

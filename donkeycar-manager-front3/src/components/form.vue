@@ -6,7 +6,7 @@
       </div>
       <div class="flex xs12 button-wrapper" id="button-wrapper">
         <va-button id="submit-button" v-if="click === false" size="large" color="info" gradient class="mr-4 mb-2" @click="addUser()">S'enregistrer</va-button>
-        <va-button id="submit-button" v-if="click === true" size="large" loading color="info" gradient class="mr-4 mb-2"></va-button>
+        <va-button id="submit-button" v-if="click === true" size="large" loading:size="80" color="info" gradient class="mr-4 mb-2"></va-button>
       </div>
     </div>
   </div>
@@ -20,8 +20,6 @@ const srv = new DonkeycarManagerService('http://' + ip + ':8000')
 
 export default {
   name: 'RegisterForm',
-  props: {
-  },
   data () {
     return {
       success: 'none',

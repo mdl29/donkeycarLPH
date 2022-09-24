@@ -228,9 +228,9 @@ export default class DonkeycarManagerService {
       worker_id: null
     }).catch(function (error) {
       if (error.response) {
-        return error.response.status;
+        return error.response.status
       }
-    });
+    })
     return response
   }
 
