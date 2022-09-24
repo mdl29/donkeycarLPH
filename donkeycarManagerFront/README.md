@@ -1,6 +1,26 @@
-# listwaiting
+# donkeycar manager frontend
 
+The donkeycar manager allow to an admin to manage cars and players (jobs) when they race
 > A Vue.js project
+
+## Frontend views : 
+
+The donkeycar manager is composed of multiples parts : 
+
+### Register 
+
+- add jobs in waiting list
+
+### Car view
+- see current laps time and those before
+- display cars who running, their color and their job (player) affected
+- display waiting list
+
+### admin dashboard :
+-  see players (jobs) in waiting list
+-  manage jobs in the waiting list (remove, upgrade his rank, downgrade)
+- differents cars with their current job, status
+- total player who subscribe in register login 
 
 ## Build Setup
 
@@ -30,6 +50,11 @@ waiting board :
 admin dashboard :
 `http://localhost:8080/#/dashboard`
 
+## Others docs:
+- [Websocket documentation](doc/donkeycarManager/events.md)
+- [manager features documentation](doc/donkeycarManager/manager-features.md)
+- [data structure diagram](../doc/donkeycarManager/DataStructure.png)
+
 ## Controller icons for the screen\_msg of jobs
 
 The icons are parsed from the message, any `[<name>]` will become an icon
@@ -57,3 +82,11 @@ Available icons are:
  - Square
  - Touch\_Pad
  - Triangle
+
+
+## 📷 Screenshot :
+
+***
+<br> 
+
+![carView](../doc/assets/carView.jpg)

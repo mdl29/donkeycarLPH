@@ -1,0 +1,6 @@
+# Only present when using pycharm remote dev tools
+calibrate.py
+config.py
+
+# Not saving pycharm config as it really depends on the environment
+.idea

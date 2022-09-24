@@ -12,6 +12,7 @@ source venv/bin/activate
 
 Install donkeycarmanager :
 ```
+pip install -e "git+https://github.com/mdl29/donkeycarLPH.git@main#egg=dkmanager_worker&subdirectory=dkmanager_worker"
 python setup.py install
 ```
 
@@ -33,3 +34,8 @@ Take a look at the OpenAPI/SwaggerUI at : http://127.0.0.1:8000/docs
 ### Environment variables
 
 * `NETWORK_INTERFACE` : interface that will be used to find server IP addr, use for ZeroConf. Eg: eth0, ...
+
+## Others docs:
+- [Websocket documentation](doc/donkeycarManager/events.md)
+- [manager features documentation](doc/donkeycarManager/manager-features.md)
+- [data structure diagram](../doc/donkeycarManager/DataStructure.png)

@@ -22,7 +22,7 @@ import axios from 'axios'
 
 export default class DonkeycarManagerService {
   static get ip() {
-    return 'localhost'
+    return '192.168.20.42'
   }
   /**
   *
@@ -213,15 +213,40 @@ export default class DonkeycarManagerService {
   * @param {int} playerId - id of the player
   * @returns {Promise} - all player information
   */
-  async addJobs (playerId, workerId = null) {
-    const response = await axios.post(this.apiUrl + '/jobs', {
-      'worker_type': 'CAR',
-      'name': 'DRIVE',
-      'player_id': playerId,
-      'parameters': '{ "drive_time" : 300 }',
-      'state': 'WAITING',
-      'worker_id': workerId
-    })
+  async addJobs (playerId) {
+    // Basic job parameters
+    const baseJobParams = {
+      player_id: playerId,
+      state: 'WAITING'
+    }
+
+    // Basic parameters for all cars related jobs
+    const baseCarJobParam = Object.assign({
+      worker_type: 'CAR'
+    }, baseJobParams)
+
+    // Drive Job
+    const driveJob = Object.assign({
+      name: 'DRIVE',
+      parameters: JSON.stringify({ drive_time: 10 }, null, 2), // 30 sec of driving session
+      worker_id: null
+    }, baseCarJobParam)
+
+    // Recording Job
+    const recordJob = Object.assign({
+      name: 'RECORD',
+      parameters: JSON.stringify({ drive_time: 20 }, null, 2) // 60 sec of recording
+      // We don't set the worker_id as it will be set by the drive job before this job to used the same car
+    }, baseCarJobParam)
+
+    // TODO: add the driving with model job here assume the model name will be "remplaced" or passed automatically if not given
+
+    // Pipeline : Drive -> Record
+    const chainedJobs = Object.assign({
+      next_job_details: JSON.stringify(recordJob, null, 2)
+    }, driveJob)
+    console.log('chainedJobs: %o', chainedJobs)
+    const response = await axios.post(this.apiUrl + '/jobs', chainedJobs)
     return response.data
   }
 
