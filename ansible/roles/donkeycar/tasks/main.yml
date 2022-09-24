@@ -48,6 +48,14 @@
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 
+- name: Install evdev
+  become: yes
+  become_user: pi
+  pip:
+    name: evdev
+    virtualenv: /home/pi/venv/
+    virtualenv_command: /usr/bin/python3 -m venv
+
 - name: Add virtualenv activation in bashrc file for pi user
   become: yes
   become_user: pi
