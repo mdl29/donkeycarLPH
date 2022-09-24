@@ -1,5 +1,3 @@
-// why are we using 2 wide identation again ?
-
 export function getJobDuration(job) {
   try {
     const params = JSON.parse(job.parameters);
@@ -9,7 +7,8 @@ export function getJobDuration(job) {
     } else {
       return parseInt(params.drive_time);
     }
-  } catch(_) {
+  } catch(e) {
+    console.warn("Error when reading job duration, defaulting to 0s", e);
     return 0;
   }
 }
