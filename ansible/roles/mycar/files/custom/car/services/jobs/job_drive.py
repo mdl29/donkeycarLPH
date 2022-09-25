@@ -2,7 +2,7 @@ import logging
 import threading
 from datetime import datetime
 from enum import Enum
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Any
 
 from dkmanager_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
 from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
@@ -57,16 +57,20 @@ class JobDrive(Job):
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int] = None,
-                     controller_x_pressed: Optional[bool] = False
+                     controller_x_pressed: Optional[bool] = False,
+                     cam_image_array: Optional[Any] = None
                      ) -> Tuple[float, str, bool]:
         """
         Part run_threaded call.
         :param user_throttle: The user throttle, 0 when not moving.
         :return: [
-            user_throttle,
-            job_name,
-            laptimer_reset_all,
-            recording
+            'user/throttle',
+            'manager/job_name',
+            'laptimer/reset_all',
+            'recording',
+            'pilot/angle',
+            'pilot/throttle',
+            'user/mode'
             ]
         """
         super(JobDrive, self).run_threaded(user_throttle,
@@ -76,7 +80,8 @@ class JobDrive(Job):
                      laptimer_last_lap_duration,
                      laptimer_last_lap_end_date_time,
                      laptimer_laps_total,
-                     controller_x_pressed)
+                     controller_x_pressed,
+                     cam_image_array)
         laptimer_reset_all = True
 
         if self.drive_stage == JobDriveStage.USER_NOT_CONFIRMED: # user not confirmed yet
@@ -99,7 +104,13 @@ class JobDrive(Job):
                 laptimer_laps_total
             )
 
-        return user_throttle if self.controller_can_move else 0.0, 'DRIVE', laptimer_reset_all, False
+        return user_throttle if self.controller_can_move else 0.0,\
+               'DRIVE',\
+               laptimer_reset_all,\
+               False,\
+               None,\
+               None,\
+               'user'
 
     def set_move(self, user_can_move: bool) -> threading.Event:
         """

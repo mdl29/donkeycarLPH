@@ -145,7 +145,7 @@ class JobTrain(GenericJob):
         """
         tmp_folder = self.lazy_temp_folder()
         self.logger.debug('Job[job_id: %i] Cleaning %s', self.get_id(), tmp_folder)
-        #os.unlink(tmp_folder)
+        os.unlink(tmp_folder)
 
     def train_model(self, dataset_path) -> str:
         """
