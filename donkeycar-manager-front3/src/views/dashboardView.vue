@@ -20,7 +20,7 @@ const { io } = require('socket.io-client')
 
 const ip = DonkeycarManagerService.ip
 const srv = new DonkeycarManagerService('http://' + ip + ':8000')
-var socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
+const socket = io.connect('http://' + ip + ':8000', { path: '/ws/socket.io' })
 
 export default {
   components: {
