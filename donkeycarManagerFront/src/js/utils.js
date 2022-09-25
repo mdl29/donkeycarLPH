@@ -18,9 +18,10 @@ export function getJobDuration(job) {
  * @method
  * @param {Number[]} prev - duration of the jobs that are to be run before
  * @param {Number} workers - the number of workers
- * @return {Number} wait time in seconds
+ * @return {Number} wait time in seconds, or -1 if wait time is unknown/infinite
 */
 export function getJobWaitTime(prev, workers) {
+  if (workers === 0) return -1;
   // An array with the time spent on each workers
   const wait = new Array(workers).fill(0);
   while (prev.length > 0) {

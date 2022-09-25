@@ -70,12 +70,10 @@
 <script>
 import waitingText from '@/components/waitingText.vue'
 import formatMessage from '@/components/formatMessage.vue'
-import textIcon from '@/components/textIcon.vue'
 
 export default {
   components: {
     waitingText,
-    textIcon,
     formatMessage,
   },
   data() {

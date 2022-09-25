@@ -142,7 +142,9 @@ export default {
       const waitlist = this.waitingList.slice(0, index).map(getJobDuration);
       const previous = current_jobs_wait.concat(waitlist);
       let time = getJobWaitTime(previous, this.entries.length);
-      if (time === 0) {
+      if (time === -1) {
+        return '';
+      } else if (time === 0) {
         return 'maintenant';
       } else if (time < 60) {
         return `${time}s`;
