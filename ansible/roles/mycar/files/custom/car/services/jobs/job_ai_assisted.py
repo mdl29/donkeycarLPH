@@ -38,6 +38,8 @@ class JobAiAssistedStage(int, Enum):
 
 class JobAiAssisted(Job):
 
+    __kl_singleton = None # Keras is heavy and should be instanced only once
+
     def __init__(self, **kwargs):
         super(JobAiAssisted, self).__init__(**kwargs)
         self.drive_stage: JobAiAssistedStage = JobAiAssistedStage.MODEL_INITIALIZATION
@@ -50,6 +52,18 @@ class JobAiAssisted(Job):
         self.tmp_folder = None # Folder where model will be uncompressed, will be created automatically
 
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
+
+    @staticmethod
+    def get_kl(cfg) -> Union['KerasPilot', 'FastAiPilot']:
+        """
+        Init or return already initialized Keras part.
+
+        :param cfg: Donkeycar configuration, used only at first initialization (sadly)
+        """
+        if JobAiAssisted.__kl_singleton is None:
+            JobAiAssisted.__kl_singleton = dk.utils.get_model_by_type(MODEL_TYPE, cfg)
+
+        return JobAiAssisted.__kl_singleton
 
     def load_model(self, kl, model_path):
         """
@@ -113,7 +127,6 @@ class JobAiAssisted(Job):
 
             if self._kl_part is not None:
                 pilot_angle, pilote_throttle = self._kl_part.run(cam_image_array)
-                self.logger.debug('AI T: %f', pilote_throttle)
 
         return user_throttle, \
                job_name, \
@@ -191,7 +204,7 @@ class JobAiAssisted(Job):
 
         :param model_path: Path to the model h5 file.
         """
-        kl = dk.utils.get_model_by_type(MODEL_TYPE, self.cfg)
+        kl = JobAiAssisted.get_kl(self.cfg)
 
         if '.h5' in model_path or '.trt' in model_path or '.tflite' in \
                 model_path or '.savedmodel' in model_path or '.pth':
@@ -220,6 +233,7 @@ class JobAiAssisted(Job):
                                operator=CondEventsOperator.OR) as x_pressed_cancelled:
             x_pressed_cancelled.wait()
 
+        self.hidde_screen_msg()
         if self.event_cancelled.isSet():
             self.clean()
             return
@@ -236,4 +250,3 @@ class JobAiAssisted(Job):
             return
 
         self.clean()
-        return

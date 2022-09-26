@@ -122,8 +122,6 @@ class JobRecord(JobDrive):
         if recording_state and not self.is_recording.isSet():
             self.start_recording()
 
-        self.logger.debug('T: %f', user_throttle)
-
         return user_throttle,\
                job_name,\
                laptimer_reset_all,\
