@@ -24,6 +24,7 @@ import DonkeycarManagerService from '@/js/service.js'
 import { getJobDuration, getJobWaitTime } from '@/js/utils.js'
 import carView from '@/components/carView.vue'
 import { io } from 'socket.io-client'
+
 const ip = DonkeycarManagerService.ip
 const url = `http://${ip}:8000`
 const srv = new DonkeycarManagerService(url)
