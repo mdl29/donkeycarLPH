@@ -4,6 +4,7 @@ import tempfile
 import logging
 from datetime import datetime
 from pathlib import Path
+import shutil
 
 import socketio
 from ftplib import FTP
@@ -145,7 +146,7 @@ class JobTrain(GenericJob):
         """
         tmp_folder = self.lazy_temp_folder()
         self.logger.debug('Job[job_id: %i] Cleaning %s', self.get_id(), tmp_folder)
-        os.unlink(tmp_folder)
+        shutil.rmtree(tmp_folder)
 
     def train_model(self, dataset_path) -> str:
         """
