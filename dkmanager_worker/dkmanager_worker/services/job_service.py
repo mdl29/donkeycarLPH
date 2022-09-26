@@ -188,6 +188,10 @@ class JobService(threading.Thread):
 
             self.on_current_job_ends()
 
+            # Delete and unset the current job
+            del self.current_running_job
+            self.current_running_job = None
+
             self.set_worker_state(WorkerState.AVAILABLE)
 
     def on_before_new_job_start(self) -> NoReturn:
