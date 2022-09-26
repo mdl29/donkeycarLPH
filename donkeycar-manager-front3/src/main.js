@@ -7,5 +7,5 @@ import 'vuestic-ui/css'
 const app = createApp(App)
 app.use(router)
 app.use(createVuestic())
-
+console.log(app.config)
 app.mount('#app')

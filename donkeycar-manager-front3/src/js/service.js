@@ -241,8 +241,8 @@ export default class DonkeycarManagerService {
   * @param {int} player - id of the player
   * @returns {Promise} - all player information
   */
-  async removeJobs (player) {
-    const response = await axios.post(this.apiUrl + '/jobs/' + String(player.job_id) + '/cancel')
+  async removeJob (job) {
+    const response = await axios.post(this.apiUrl + '/jobs/' + String(job.job_id) + '/cancel')
     return response.data
   }
 
@@ -251,8 +251,8 @@ export default class DonkeycarManagerService {
     return response.data
   }
 
-  async resumeJobs (player) {
-    const response = await axios.post(this.apiUrl + '/jobs/' + String(player.job_id) + '/resume')
+  async resumeJob (job) {
+    const response = await axios.post(this.apiUrl + '/jobs/' + String(job.job_id) + '/resume')
     return response.data
   }
 
