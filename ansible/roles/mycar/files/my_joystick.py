@@ -25,7 +25,7 @@ class MyJoystick(Joystick):
         controller_color_hex = os.getenv('CONTROLLER_LED_COLOR')
         if controller_color_hex:
             self._led_color = controller_color_hex
-            write_to_controller(self.led_color, 0, 0)
+            write_to_controller(self._led_color, 0, 0)
 
         self.axis_names = {
             0x00 : 'left_stick_horz',
