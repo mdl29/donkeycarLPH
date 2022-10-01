@@ -85,7 +85,7 @@ class JobDrive(Job):
         laptimer_reset_all = True
 
         if self.drive_stage == JobDriveStage.USER_NOT_CONFIRMED: # user not confirmed yet
-            return 0.0, 'DRIVE', laptimer_reset_all, False
+            return 0.0, 'DRIVE', laptimer_reset_all, False, None, None, 'user'
 
         if user_throttle > 0.0:
             if not self.user_start_moving.isSet(): # Logging only first time
