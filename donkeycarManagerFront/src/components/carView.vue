@@ -51,7 +51,7 @@
         <div v-if="job && job.screen_msg_display" class="end message">
           <format-message :message="job.screen_msg" />
         </div>
-        <div v-if="!race" class="no-race"> Veuillez avancer pour lancer la course </div>
+        <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
       </div>
       <waiting-text v-else />
       <div class="bottom" v-if="job && !is_paused">
