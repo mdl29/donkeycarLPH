@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import NoReturn, Optional, Dict, Type, Tuple
+from typing import NoReturn, Optional, Dict, Type, Tuple, Any
 
 import socketio
 
@@ -7,6 +7,7 @@ from dkmanager_worker.services.manager_api_service import ManagerApiService
 from dkmanager_worker.services.job_service import JobService
 from custom.car.services.jobs.job import Job as JobRun
 from custom.car.services.jobs.job_drive import JobDrive
+from custom.car.services.jobs.job_ai_assisted import JobAiAssisted
 from custom.car.services.jobs.job_record import JobRecord
 from dkmanager_worker.models.schemas import Worker, Job as JobModel, Car
 # Match job name with job runnable instance
@@ -15,16 +16,19 @@ from custom.car.parts.custom_tub_writer import CustomTubWriter
 
 JOB_NAME_TO_JOB_RUNNABLE: Dict[str, Type[JobRun]] = {
     'DRIVE': JobDrive,
-    'RECORD': JobRecord
+    'RECORD': JobRecord,
+    'AI_ASSISTED': JobAiAssisted
 }
 
 class CarJobService(JobService):
 
     def __init__(self, api: ManagerApiService, ftp: ServiceLocation,
+                 cfg,
                  tub_path: str, tub_writer: CustomTubWriter,
                  sio: socketio.Client, worker: Worker, car: Car):
         """
         :param api: API manager instance.
+        :param cfg: Donkeycar main configuration, may come from dk.load_config(myconfig=args['--myconfig'])
         :param tub_path: Path where data are stored
         :param tub_writer: resetable thub writer
         :param sio: Socket IO client.
@@ -35,6 +39,7 @@ class CarJobService(JobService):
 
         self._tub_path = tub_path
         self._tub_writer = tub_writer
+        self._cfg = cfg
 
         self.car = car
 
@@ -56,6 +61,7 @@ class CarJobService(JobService):
         job_run_instance = job_run_class(
             parameters=parameters, job_data=job,
             api=self._api, ftp=self._ftp, sio=self._sio,
+            cfg=self._cfg,
             tub_path=self._tub_path, tub_writer=self._tub_writer,
             car=self.car)
         return job_run_instance
@@ -92,7 +98,8 @@ class CarJobService(JobService):
                                  laptimer_last_lap_duration: Optional[int] = None,
                                  laptimer_last_lap_end_date_time: Optional[datetime] = None,
                                  laptimer_laps_total: Optional[int] = None,
-                                 controller_x_pressed: Optional[bool] = False) -> Tuple[float, str, bool, bool]:
+                                 controller_x_pressed: Optional[bool] = False,
+                                 cam_image_array: Optional[Any] = None) -> Tuple[float, str, bool, bool, float, float, str]:
         """
         See donkeycar CarManager part for details.
         """
@@ -106,7 +113,8 @@ class CarJobService(JobService):
                 laptimer_last_lap_duration,
                 laptimer_last_lap_end_date_time,
                 laptimer_laps_total,
-                controller_x_pressed
+                controller_x_pressed,
+                cam_image_array
             )
             return res
 
@@ -115,4 +123,7 @@ class CarJobService(JobService):
         job_name = 'NO_JOB'
         laptimer_reset_all = True
         recording_state = False
-        return user_throttle, job_name, laptimer_reset_all, recording_state
+        pilote_angle = 0
+        pilote_throttle = 0
+        user_mode = 'user' # Other values are 'local_angle' or anything else (full auto-pilote)
+        return user_throttle, job_name, laptimer_reset_all, recording_state, pilote_angle, pilote_throttle, user_mode

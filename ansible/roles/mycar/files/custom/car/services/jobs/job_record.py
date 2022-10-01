@@ -3,17 +3,19 @@ import logging
 import os
 from datetime import datetime
 from ftplib import FTP
-from typing import Optional, Tuple, NoReturn
+from typing import Optional, Tuple, NoReturn, Any
 
 from dkmanager_worker.helpers.RegistableEvents import RegistableEvent
 from dkmanager_worker.helpers.conditional_events import ConditionalEvents, CondEventsOperator
-from dkmanager_worker.models.schemas import JobCreate, WorkerType, JobState, Job, EventJobChanged
+from dkmanager_worker.models.schemas import JobCreate, WorkerType, JobState, Job, EventJobChanged, Stage
 
 from custom.car.helpers.os import clean_directory_content, make_tarfile
 from custom.car.services.jobs.job_drive import JobDrive, JobDriveStage
 
 TMP_TAR_FILE_PATH = '/tmp/donkeycarLPH-data.tar.gz'
 FTP_DATASET_FOLDER = 'datasets'
+
+DEFAULT_AI_ASSISTED_JOB_DRIVE_TIME = 2 * 60 # Default drive time is 2min
 
 class JobRecord(JobDrive):
 
@@ -28,6 +30,8 @@ class JobRecord(JobDrive):
 
         self.is_recording = RegistableEvent()  # Will be set when the user is recording
         self.is_training_finished = RegistableEvent() # Will be set when the user training job is finished
+
+        self.training_job: Optional[Job] = None # Will old the training job, available when is_training_finished is set.
 
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 
@@ -95,9 +99,10 @@ class JobRecord(JobDrive):
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int] = None,
-                     controller_x_pressed: Optional[bool] = False
+                     controller_x_pressed: Optional[bool] = False,
+                     cam_image_array: Optional[Any] = None
                      ) -> Tuple[float, str, bool, bool]:
-        user_throttle, job_name, laptimer_reset_all, recording_state =  super(JobRecord, self).run_threaded(
+        user_throttle, job_name, laptimer_reset_all, recording_state, pilote_angle, pilote_throttle, user_mode =  super(JobRecord, self).run_threaded(
                 user_throttle,
                 laptimer_current_start_lap_datetime,
                 laptimer_current_lap_duration,
@@ -105,8 +110,10 @@ class JobRecord(JobDrive):
                 laptimer_last_lap_duration,
                 laptimer_last_lap_end_date_time,
                 laptimer_laps_total,
-                controller_x_pressed)
+                controller_x_pressed,
+                cam_image_array)
         job_name = 'RECORD'
+        user_mode = 'user'
 
 
         # Recording stays enabled until drive is finished
@@ -115,7 +122,13 @@ class JobRecord(JobDrive):
         if recording_state and not self.is_recording.isSet():
             self.start_recording()
 
-        return user_throttle, job_name, laptimer_reset_all, recording_state
+        return user_throttle,\
+               job_name,\
+               laptimer_reset_all,\
+               recording_state,\
+               pilote_angle,\
+               pilote_throttle,\
+               user_mode
 
     def on_training_job_update(self, event_dict: dict):
         """
@@ -125,6 +138,8 @@ class JobRecord(JobDrive):
         """
         event = EventJobChanged.parse_obj(event_dict)
         self.logger.debug('on_training_job_update: with event : %r', event)
+
+        self.training_job = event.job # Update training job datas
 
         if event.job.state == JobState.FAILED:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) failed with fail_details : %s', self.get_id(),
@@ -142,12 +157,36 @@ class JobRecord(JobDrive):
         elif event.job.state == JobState.SUCCEED:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) finished ... yeah baby', self.get_id(),
                               event.job.job_id)
-            parameters = json.loads(event.job.parameters)
-            self.logger.debug('Job[job_id: %i] Training job (id: %i) model available here : %s', self.get_id(),
-                              event.job.job_id, parameters['output:model_remote_archive'])
-            self.display_screen_msg("Entrainement fini 🎉 [Cross] Pour lancer le modèle")
             self.is_training_finished.set()
-            self.sio.handlers['/'][f'one_job.{event.job.job_id}.updated']  # Remove socket IO handler
+            self.sio.handlers['/'][f'one_job_id.{event.job.job_id}.updated']  # Remove socket IO handler
+
+    def create_ai_assisted_job(self, model_archive_path: str) -> Job:
+        """
+        Create the drivin model job associated to current player car and a model (stored on the FTP).
+
+        :param model_archive_path: Path to the archive.
+        """
+        parameters = json.loads(self.job_data.parameters)
+        model_drive_time = parameters["model_drive_time"] if "model_drive_time" in parameters else DEFAULT_AI_ASSISTED_JOB_DRIVE_TIME
+        drive_model_job = {
+            'worker_type': WorkerType.CAR,
+            'state': JobState.WAITING,
+            'player_id': self.job_data.player_id,
+            'worker_id': self.job_data.worker_id,  # Had to be run on the same car
+            'name': Stage.AI_ASSISTED,
+            'parameters': json.dumps({
+                'model_remote_archive': model_archive_path,
+                'drive_time': model_drive_time
+            })
+        }
+        model_job_create_req = JobCreate(**drive_model_job)
+        self.logger.debug('[job_id: %i] Creating model driving job, for player: %i (%s)', self.get_id(),
+                          self.job_data.player.player_id, self.job_data.player.player_pseudo)
+        drive_model_job: Job = self.api.create_job(model_job_create_req)
+        drive_model_job = self.api.job_move_after(drive_model_job.job_id, after_job_id=self.job_data.job_id)
+        self.logger.debug('[job_id: %i] Created model driving job id: %i, for player: %i (%s)', self.get_id(),
+                          drive_model_job.job_id, self.job_data.player.player_id, self.job_data.player.player_pseudo)
+        return drive_model_job
 
     def start_training(self, remote_dataset_path):
         """
@@ -206,11 +245,11 @@ class JobRecord(JobDrive):
                 return
             elif self.is_training_finished.isSet():
                 self.logger.debug('[job_id: %i] Training finished', self.get_id()) # Will already display a msg
-
-            self.event_controller_x_pressed.clear()
-            with ConditionalEvents([self.event_cancelled, self.event_controller_x_pressed],
-                                   operator=CondEventsOperator.OR) as x_pressed_cancelled:
-                x_pressed_cancelled.wait()
+                parameters = json.loads(self.training_job.parameters)
+                model_archive_path = parameters['output:model_remote_archive']
+                self.logger.debug('Job[job_id: %i] Training job (id: %i) model available here : %s', self.get_id(),
+                                  self.training_job.job_id, model_archive_path)
+                self.create_ai_assisted_job(model_archive_path)
 
         else:
             self.logger.error('Job[job_id: %i] Something wrong hapened drive job didn\'t return with finish state',

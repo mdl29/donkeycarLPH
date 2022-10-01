@@ -1,8 +1,10 @@
 import logging
 import os, shutil
 import tarfile
+from pathlib import Path
 
 from typing_extensions import NoReturn
+
 
 def clean_directory_content(folder: str) -> NoReturn:
     """
@@ -20,6 +22,18 @@ def clean_directory_content(folder: str) -> NoReturn:
         except Exception as e:
             logger.error('Failed to delete %s. Reason: ', file_path)
             logger.exception(e)
+
+
+def uncompress_tarfile(input_filename, output_folder) -> NoReturn:
+    """
+    Uncomrpess a tar file into a destination directory.
+    :param input_filename:
+    :param output_folder:
+    """
+    with tarfile.open(input_filename, "r:gz") as tar:
+        Path(output_folder).mkdir(parents=True, exist_ok=True)
+
+        tar.extractall(output_folder)
 
 
 def make_tarfile(output_filename, source_dir) -> NoReturn:
