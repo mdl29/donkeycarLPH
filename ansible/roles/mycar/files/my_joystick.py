@@ -39,14 +39,20 @@ class MyJoystick(Joystick):
         }
 
         self.button_names = {
-            0x130: 'a_button',
-            0x133: 'b_button',
-            0x131: 'x_button',
-            0x134: 'y_button',
+            0x134: 'a_button',
+            0x131: 'b_button',
+            0x130: 'x_button',
+            0x133: 'y_button',
+            0x13a: 'share',
             0x13b: 'options',
-            0x136: 'left_shoulder',
-            0x137: 'right_shoulder',
+            0x138: 'left_shoulder',
+            0x139: 'right_shoulder',
         }
+    def poll(self):
+        button, button_state, axis, axis_val = super().poll()
+        if button is not None and button != 0:
+            button = 1
+        return button, button_state, axis, axis_val
 
 class MyJoystickController(JoystickController):
     """
