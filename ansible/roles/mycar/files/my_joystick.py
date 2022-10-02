@@ -63,7 +63,7 @@ class MyJoystick(Joystick):
 
     def poll(self):
         button, button_state, axis, axis_val = super().poll()
-        if button is not None and button != 0:
+        if button is not None and button_state != 0:
             button = 1
         return button, button_state, axis, axis_val
 
