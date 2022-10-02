@@ -1,10 +1,12 @@
 import os
 import logging
+from time import sleep
 
 from donkeycar.parts.controller import Joystick, JoystickController
 from typing import NoReturn
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 RECORDING_BLINK_LED_ON = 0.04
 RECORDING_BLINK_LED_OFF = 0.11
@@ -27,6 +29,8 @@ class MyJoystick(Joystick):
             self._led_color = controller_color_hex
             write_to_controller(self._led_color, 0, 0)
 
+        self.initialized = False
+
         self.axis_names = {
             0x00 : 'left_stick_horz',
             0x01 : 'left_stick_vert',
@@ -48,6 +52,15 @@ class MyJoystick(Joystick):
             0x138: 'left_shoulder',
             0x139: 'right_shoulder',
         }
+
+    def init(self):
+        self.initialized = super().init()
+
+    def cleanup(self):
+        if self.initialized:
+            self.jsdev.close()
+            self.initialized = False
+
     def poll(self):
         button, button_state, axis, axis_val = super().poll()
         if button is not None and button != 0:
@@ -74,8 +87,8 @@ class MyJoystickController(JoystickController):
             self.js.init()
         except FileNotFoundError:
             print(self.dev_fn, "not found.")
-            self.js = None
-        return self.js is not None
+            self.js.initialized = False
+        return self.js.initialized
 
 
     def magnitude(self, reversed = False):
@@ -182,3 +195,15 @@ class MyJoystickController(JoystickController):
             self.state_x_button = False # resetting it for next turns
 
         return o_angle, o_throttle, o_mode, o_recording, o_x_pressed, self.inverted, self.throttle_scale
+
+    def update(self):
+        while True:
+            while not self.js.initialized:
+                self.js.init()
+                sleep(1)
+            try:
+                super().update()
+            except OSError:
+                logger.info("Lost joystick")
+                self.js.cleanup()
+
