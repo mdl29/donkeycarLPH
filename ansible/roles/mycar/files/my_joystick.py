@@ -145,9 +145,9 @@ class MyJoystickController(JoystickController):
         Update LED recording state, run when recording change.
         """
         if self.recording:
-            write_to_controller(self._led_color, RECORDING_BLINK_LED_ON, RECORDING_BLINK_LED_OFF)
+            write_to_controller(self.js._led_color, RECORDING_BLINK_LED_ON, RECORDING_BLINK_LED_OFF)
         else:
-            write_to_controller(self._led_color, 0, 0)
+            write_to_controller(self.js._led_color, 0, 0)
 
     def x_button_pressed(self):
         """
