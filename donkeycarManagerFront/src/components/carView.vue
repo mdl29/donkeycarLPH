@@ -1,7 +1,8 @@
 <template>
   <div class="car">
     <div class="header" :class="{blur: is_paused}"> 
-      <div class="record" v-if="job && (job.name === 'RECORD' || job.name === 'AUTO')">
+      <div class="indicator-wrapper" v-if="job && (job.name === 'RECORD' || job.name === 'AI_ASSISTED')">
+        <div class="indicator" :class="{ record: job.name === 'RECORD', auto: job.name === 'AI_ASSISTED' }"></div>
         {{ job.name === 'RECORD' ? "REC" : "AUTO" }}
       </div>
       <div class="username" v-if="job">{{ job.player.player_pseudo }}</div>
@@ -406,7 +407,7 @@ export default {
 .message {
   font-size: 2em;
 }
-.record {
+.indicator-wrapper {
   display: flex;
   align-items: center;
   flex-direction: row;
@@ -420,12 +421,19 @@ export default {
   margin-right: 1em;
   gap: 0.3em;
 }
-.record::before {
-  align-self: end;
-  margin-bottom: -0.2em;
-  content: "⬤ ";
-  font-size: 0.7em;
-  color: red;
+.indicator.record {
+  width: 1em;
+  height: 1em;
+  border-radius: 2em;
+  background-color: red;
+  animation: blink infinite normal running 1s steps(1, start);
+}
+.indicator.auto {
+  width: 1em;
+  height: 1em;
+  background: url('../assets/brain.svg');
+  background-size: contain;
+  background-position: center;
   animation: blink infinite normal running 1s steps(1, start);
 }
 @keyframes blink {
