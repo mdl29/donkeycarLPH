@@ -198,7 +198,8 @@ class MyJoystickController(JoystickController):
 
     def update(self):
         while True:
-            while not self.js.initialized:
+            # init_js is called by super on update
+            while not self.js.initialized and self.js is not None:
                 self.js.init()
                 sleep(1)
             try:
