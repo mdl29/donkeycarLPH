@@ -198,13 +198,22 @@ class MyJoystickController(JoystickController):
 
     def update(self):
         while True:
+            if self.js is None:
+                self.js = MyJoystick(self.dev_fn)
+
             # init_js is called by super on update
-            while self.js is not None and not self.js.initialized:
+            while not self.js.initialized:
                 self.js.init()
-                sleep(1)
-            try:
-                super().update()
-            except OSError:
-                logger.info("Lost joystick")
-                self.js.cleanup()
+
+                if self.js.initialized: # Ensure color is up to date
+                    self._update_led_recording_sate()
+
+                sleep(2)
+
+            if self.js is not None and self.js.initialized: # Otherwise super.update wait infinitly
+                try:
+                    super().update()
+                except OSError:
+                    logger.info("Lost joystick")
+                    self.js.cleanup()
 
