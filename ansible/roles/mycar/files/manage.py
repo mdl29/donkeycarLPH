@@ -17,7 +17,6 @@ Options:
 
 from docopt import docopt
 
-
 import donkeycar as dk
 from donkeycar.parts import actuator, pins
 from donkeycar.parts.transform import TriggeredCallback, DelayedTrigger
@@ -70,7 +69,6 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
 
     #Initialize car
     V = dk.vehicle.Vehicle()
-
 
     #Initialize logging before anything else to allow console logging
     if cfg.HAVE_CONSOLE_LOGGING:

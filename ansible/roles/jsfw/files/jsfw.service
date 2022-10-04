@@ -1,0 +1,11 @@
+[Unit]
+Description=JSFW
+After=network.target
+
+[Service]
+# ip should be configurable ?
+ExecStart=/home/pi/jsfw/jsfw client 192.168.20.42 7776
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

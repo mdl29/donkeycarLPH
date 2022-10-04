@@ -1,0 +1,8 @@
+---
+
+- name: Start jsfw.service service
+  systemd:
+    name: jsfw
+    state: started
+    enabled: yes
+    daemon-reload: yes
