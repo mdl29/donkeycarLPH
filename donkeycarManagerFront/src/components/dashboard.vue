@@ -174,6 +174,7 @@
               <vs-row>
                 <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
                   <vs-button loading color="#fea735" v-if="reload===true"> reload</vs-button>
+                  <vs-button color="#ad06c7" @click="addRecord(job)"> record </vs-button>
                   <vs-button color="#fea735" v-if="reload===false"  @click="reloadJob(job,job.worker_id)" > reload </vs-button>
                   <vs-button warn loading v-if="job.state === 'PAUSING'" > Pause </vs-button>
                   <vs-button warn disabled v-if="job.state === 'CANCELLING'" > Pause </vs-button>
@@ -262,6 +263,7 @@
 </div>
 </template>
 <script>
+import axios from 'axios'
 import DonkeycarManagerService from '@/js/service.js'
 
 const { io } = require('socket.io-client')
@@ -420,6 +422,19 @@ export default {
       const playerBefore = this.drivingWaitingQueue[index]
       await srv.moveAfter(job.job_id, playerBefore.job_id)
       console.log(playerBefore)
+    },
+    addRecord(job) {
+      const newJob = {
+        player_id: job.player_id,
+        state: 'WAITING',
+        worker_type: 'CAR',
+        name: 'RECORD',
+        parameters: JSON.stringify({ drive_time: 120 }, null, 2),
+        worker_id: job.worker_id,
+        rank: 0,
+      }
+
+      axios.post(srv.apiUrl + '/jobs', newJob).then(res => console.log(res.data));
     }
   }
 }
