@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Any
 
 import socketio
 
@@ -18,6 +18,7 @@ class Job(GenericJob):
                  job_data: JobModel, car: Car,
                  api: ManagerApiService, ftp: ServiceLocation,
                  sio: socketio.Client,
+                 cfg,
                  tub_path: str, tub_writer: CustomTubWriter):
         """
         Init a job
@@ -26,6 +27,7 @@ class Job(GenericJob):
         :param api: DonkeyCarManager API
         :param ftp: DonkeyCarManager FTP server location details
         :param sio: SocketIO to manager
+        :param cfg: Donkeycar main configuration, may come from dk.load_config(myconfig=args['--myconfig'])
         :param tub_path: Path where data are stored
         :param tub_writer: resetable tub writer part
         """
@@ -37,6 +39,7 @@ class Job(GenericJob):
         self.car = car
         self.tub_path = tub_path
         self.tub_writer = tub_writer
+        self.cfg = cfg
 
         # Controllers event
         self.event_controller_x_pressed = RegistableEvent()  # "X" button was pressed on the controller
@@ -51,7 +54,9 @@ class Job(GenericJob):
                      laptimer_last_lap_duration: Optional[int] = None,
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int] = None,
-                     controller_x_pressed: Optional[bool] = False) -> Tuple[float, str, bool, bool]:
+                     controller_x_pressed: Optional[bool] = False,
+                     cam_image_array: Optional[Any] = None
+                     ) -> Tuple[float, str, bool, bool]:
         """
         Part run threaded, is call with all donekcarmanacer I/O.
         Should be implemented if the job need some part I/O.

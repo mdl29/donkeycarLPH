@@ -17,7 +17,6 @@ Options:
 
 from docopt import docopt
 
-
 import donkeycar as dk
 from donkeycar.parts import actuator, pins
 from donkeycar.parts.transform import TriggeredCallback, DelayedTrigger
@@ -70,7 +69,6 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
 
     #Initialize car
     V = dk.vehicle.Vehicle()
-
 
     #Initialize logging before anything else to allow console logging
     if cfg.HAVE_CONSOLE_LOGGING:
@@ -286,6 +284,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
 
             try:
                 manager = CarManagerPart(tub_path=cfg.DATA_PATH,
+                                         cfg=cfg,
                                          tub_writer=tub_writer,
                                          api_origin=api_origin,
                                          ftp_location=ftp_service,
@@ -302,13 +301,17 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                         'laptimer/laps_total',
                         'controller/x_pressed',
                         'controller/inverted',
-                        'controller/scale'
+                        'controller/scale',
+                        'cam/image_array'
                     ],
                     outputs=[
                         'user/throttle',
                         'manager/job_name',
                         'laptimer/reset_all',
-                        'recording'
+                        'recording',
+                        'pilot/angle',
+                        'pilot/throttle',
+                        'user/mode'
                     ], threaded=True)
             except ManagerNoApiFoundException:
                 logger.error(

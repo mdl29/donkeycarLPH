@@ -2,7 +2,7 @@
   <div class="carCard">
     <va-card stripe :stripe-color=car.color>
         <va-card-title><b>{{ car.name }}</b></va-card-title>
-        <va-card-content class="content-card">
+        <va-card-content class="content-card ">
           <b>Ip :</b> {{car.ip}} <br>
           <b> Status:</b>
           <va-badge v-if="car.current_stage === 'DRIVE'" text="🎮 Drive" color="warning" class="mr-4" />
@@ -32,6 +32,7 @@ export default {
 .carCard {
   margin-left: 15px;
   transition: transform .5s;
+  padding-top: 30px;
 }
 .carCard:hover {
   transform: scale(1.05);

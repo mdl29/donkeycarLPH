@@ -26,3 +26,5 @@ AUTO_RECORD_ON_THROTTLE = False      #if true, we will record whenever throttle 
 CONTROLLER_TYPE='custom' # Set the controller to be used to be our custom one ()
 
 LOGGING_LEVEL='DEBUG'
+
+AI_THROTTLE_MULT = 1.25

@@ -11,9 +11,7 @@
     - role: car-config  # car configurations (ntp, hostname, ds4drv...)
       become: yes 
     - role: shutdown-btn # shutdown button service
-      become: yes 
-    - role: ps4-controller # install and configure ds4drv
-      become: no
+      become: yes
     - role: openCV # Install openCV (optional)
       become: yes 
     - role: donkeycar # Donkeycar installation 
@@ -23,4 +21,6 @@
     - role: IR-lap-timer # install dependencies for take charge IR counter
       become: yes 
     - role: optimizations # Remove some expensive and useless things
+      become: yes
+    - role: jsfw # controller over wifi
       become: yes

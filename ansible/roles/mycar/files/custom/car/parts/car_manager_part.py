@@ -2,7 +2,7 @@ import logging
 import os
 import socket
 from datetime import datetime
-from typing import Optional, NoReturn, List, Tuple, Callable
+from typing import Optional, NoReturn, List, Tuple, Callable, Any
 
 from dkmanager_worker.helpers.zeroconf import ServiceLocation
 from dkmanager_worker.models.schemas import Car, WorkerCreate, WorkerState, WorkerType, CarCreate
@@ -21,12 +21,14 @@ class ManagerNoApiFoundException(Exception):
 
 class CarManagerPart(WorkerService):
     def __init__(self,
+                 cfg,
                  tub_path: str,
                  tub_writer: CustomTubWriter,
                  api_origin: Optional[str] = None,
                  ftp_location: Optional[ServiceLocation] = None,
                  network_interface: str = "wlan0"):
         """
+        :param cfg: Donkeycar main configuration, may come from dk.load_config(myconfig=args['--myconfig'])
         :param tub_path: Path where data are stored
         :param tub_writer: Resetable thumb writer
         :param api_origin:  Optionnal api path, if not given will use zeroconf to find it and use the first found IP.
@@ -49,7 +51,7 @@ class CarManagerPart(WorkerService):
         self.set_worker(worker=self.worker)
 
         # Job managment
-        job_manager = CarJobService(self._api, self._ftp, tub_path, tub_writer, self._sio, self.worker, self.car)
+        job_manager = CarJobService(self._api, self._ftp, cfg, tub_path, tub_writer, self._sio, self.worker, self.car)
         self.set_job_manager(job_manager)
 
         self.start_services()
@@ -108,14 +110,18 @@ class CarManagerPart(WorkerService):
                      controller_x_pressed: Optional[bool]=False,
                      inverted: Optional[bool]=False,
                      scale: Optional[float]=0.5,
-                     ) -> Tuple[float, str, bool, bool]:
+                     cam_image_array: Optional[Any] = None
+                     ) -> Tuple[float, str, bool, bool, float, float, str]:
         """
         :param user_throttle: User throttle value
         :return: [manager/enable_controller_throttle, ..]
-            user/throttle
-            manager/job_name
-            laptimer/reset_all
-            recording
+            'user/throttle',
+            'manager/job_name',
+            'laptimer/reset_all',
+            'recording',
+            'pilot/angle',
+            'pilot/throttle',
+            'user/mode'
         """
         changed = False
         if inverted != self.car.inverted_controls:
@@ -136,7 +142,8 @@ class CarManagerPart(WorkerService):
             laptimer_last_lap_duration,
             laptimer_last_lap_end_date_time,
             laptimer_laps_total,
-            controller_x_pressed
+            controller_x_pressed,
+            cam_image_array
         )
         return res
 

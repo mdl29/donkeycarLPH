@@ -1,20 +1,21 @@
 import os
 import logging
+from time import sleep
 
 from donkeycar.parts.controller import Joystick, JoystickController
 from typing import NoReturn
 
-from custom.car.services.PS4_led_control import PS4LEDControl
-from custom.car.services.ds4drv_last_mac_reader import Ds4drvLastMacReader
-
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-RECORDING_BLINK_LED_ON = 10 # 100ms on, 100ms off
-RECORDING_BLINK_LED_OFF = 30 # 100ms on, 100ms off
+RECORDING_BLINK_LED_ON = 0.04
+RECORDING_BLINK_LED_OFF = 0.11
 
-DEVICES_PIPE = "/tmp/ds4drv-device.pipe"
-DEVICES_LAST_ADDR = "/tmp/ds4drv-device.lastaddr"
-
+def write_to_controller(color_hex, led_on, led_off):
+    w = open("/tmp/jsfw_fifo", "w")
+    w.write(f'{{"led_color": "#{color_hex}", "flash": [{led_on}, {led_off}]}}')
+    w.flush()
+    w.close()
 
 class MyJoystick(Joystick):
     """
@@ -22,21 +23,19 @@ class MyJoystick(Joystick):
     """
     def __init__(self, *args, **kwargs):
         super(MyJoystick, self).__init__(*args, **kwargs)
-        self._led_control = PS4LEDControl()
-        self._ds4drv_mac_reader = Ds4drvLastMacReader(devices_pipe_path=DEVICES_PIPE,
-                                                      on_new_mac_addr=self._led_control.connect_to,
-                                                      last_device_addr_file=DEVICES_LAST_ADDR)
-        self._ds4drv_mac_reader.start()
-        # self._led_control.set_led(0, 255, 0)  # Will be set when mac addr is known
+        self._led_color = "FFFFFF" # default color
         controller_color_hex = os.getenv('CONTROLLER_LED_COLOR')
         if controller_color_hex:
-            self._led_control.set_led_hex(controller_color_hex)
+            self._led_color = controller_color_hex
+            write_to_controller(self._led_color, 0, 0)
+
+        self.initialized = False
 
         self.axis_names = {
             0x00 : 'left_stick_horz',
             0x01 : 'left_stick_vert',
-            0x05 : 'right_stick_vert',
-            0x02 : 'right_stick_horz',
+            0x04 : 'right_stick_vert',
+            0x03 : 'right_stick_horz',
             0x0a : 'left_trigger',
             0x09 : 'right_trigger',
             0x10 : 'dpad_horiz',
@@ -44,22 +43,29 @@ class MyJoystick(Joystick):
         }
 
         self.button_names = {
-            0x130: 'a_button',
-            0x133: 'b_button',
-            0x131: 'x_button',
-            0x134: 'y_button',
+            0x134: 'a_button',
+            0x131: 'b_button',
+            0x130: 'x_button',
+            0x133: 'y_button',
+            0x13a: 'share',
             0x13b: 'options',
-            0x136: 'left_shoulder',
-            0x137: 'right_shoulder',
+            0x138: 'left_shoulder',
+            0x139: 'right_shoulder',
         }
 
-    def __del__(self):
-        """
-        Clearly disconnect.
-        """
-        if self._led_control is not None:
-            self._led_control.disconnect()
+    def init(self):
+        self.initialized = super().init()
 
+    def cleanup(self):
+        if self.initialized:
+            self.jsdev.close()
+            self.initialized = False
+
+    def poll(self):
+        button, button_state, axis, axis_val = super().poll()
+        if button is not None and button_state != 0:
+            button_state = 1
+        return button, button_state, axis, axis_val
 
 class MyJoystickController(JoystickController):
     """
@@ -72,7 +78,6 @@ class MyJoystickController(JoystickController):
         self.inverted = False
         self.state_x_button = False
 
-
     def init_js(self):
         """
         attempt to init joystick
@@ -82,8 +87,8 @@ class MyJoystickController(JoystickController):
             self.js.init()
         except FileNotFoundError:
             print(self.dev_fn, "not found.")
-            self.js = None
-        return self.js is not None
+            self.js.initialized = False
+        return self.js.initialized
 
 
     def magnitude(self, reversed = False):
@@ -153,9 +158,9 @@ class MyJoystickController(JoystickController):
         Update LED recording state, run when recording change.
         """
         if self.recording:
-            self.js._led_control.start_led_flash(RECORDING_BLINK_LED_ON, RECORDING_BLINK_LED_OFF)
+            write_to_controller(self.js._led_color, RECORDING_BLINK_LED_ON, RECORDING_BLINK_LED_OFF)
         else:
-            self.js._led_control.stop_led_flash()
+            write_to_controller(self.js._led_color, 0, 0)
 
     def x_button_pressed(self):
         """
@@ -190,3 +195,25 @@ class MyJoystickController(JoystickController):
             self.state_x_button = False # resetting it for next turns
 
         return o_angle, o_throttle, o_mode, o_recording, o_x_pressed, self.inverted, self.throttle_scale
+
+    def update(self):
+        while True:
+            if self.js is None:
+                self.js = MyJoystick(self.dev_fn)
+
+            # init_js is called by super on update
+            while not self.js.initialized:
+                self.js.init()
+
+                if self.js.initialized: # Ensure color is up to date
+                    self._update_led_recording_sate()
+
+                sleep(2)
+
+            if self.js is not None and self.js.initialized: # Otherwise super.update wait infinitly
+                try:
+                    super().update()
+                except OSError:
+                    logger.info("Lost joystick")
+                    self.js.cleanup()
+
