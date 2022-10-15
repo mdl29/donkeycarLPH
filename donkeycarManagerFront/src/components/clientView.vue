@@ -111,7 +111,6 @@ export default {
           this.entries.splice(index, 1)
         }
       }
-      this.entries.sort((a, b) => a.car.worker_id - b.car.worker_id);
       if (this.car1){
         this.job1 = await  srv.getJobCar(this.car1.worker_id)
       }
