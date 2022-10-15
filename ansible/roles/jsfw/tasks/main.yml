@@ -15,6 +15,7 @@
   ansible.builtin.git:
     repo: https://github.com/viandoxdev/jsfw.git
     dest: /home/pi/jsfw
+    version: e371ef3ec4053d83abad683289f91a447d9e92ed
 
 - name: Compile jsfw
   shell:
