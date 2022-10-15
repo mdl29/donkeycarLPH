@@ -1,6 +1,6 @@
 <template>
   <div class="car">
-    <div class="header" :class="{blur: is_paused}"> 
+    <div class="header" :class="{blur: is_paused}">
       <div class="indicator-wrapper" v-if="job && (job.name === 'RECORD' || job.name === 'AI_ASSISTED')">
         <div class="indicator" :class="{ record: job.name === 'RECORD', auto: job.name === 'AI_ASSISTED' }"></div>
         {{ job.name === 'RECORD' ? "REC" : "AUTO" }}
@@ -25,10 +25,10 @@
             @leave="onLeave"
             @after-leave="onAfterLeave"
             >
-            <div 
+            <div
               v-for="lap in laptimers"
               class="lap"
-              :class="{ 
+              :class="{
                 best: isBestLap(lap),
                 ongoing: lap.current,
                 real: !lap.current
@@ -75,9 +75,9 @@ import formatMessage from '@/components/formatMessage.vue'
 export default {
   components: {
     waitingText,
-    formatMessage,
+    formatMessage
   },
-  data() {
+  data () {
     return {
       currentlapDuration: 0,
       timeleft: 0,
@@ -85,8 +85,8 @@ export default {
       maxTimers: 6
     }
   },
-  mounted() {
-    window.addEventListener("resize", this.updateMaxTimers)
+  mounted () {
+    window.addEventListener('resize', this.updateMaxTimers)
     const that = this
     let once = true
     this.interval = setInterval(() => {
@@ -103,13 +103,13 @@ export default {
       }
     }, 30)
   },
-  unmounted() {
+  unmounted () {
     clearInterval(this.interval)
   },
-  props: ["car", "job", "race"],
+  props: ['car', 'job', 'race'],
   methods: {
     // format milliseconds timestamp -> Mmin Ss
-    formatM(m) {
+    formatM (m) {
       m = Math.abs(m)
       if (m < 60000) {
         return `${Math.round(m / 1000)}s`
@@ -118,46 +118,46 @@ export default {
       }
     },
     // format milliseconds timestamp -> SS.XX
-    formatMs(m) {
+    formatMs (m) {
       m = Math.abs(m)
       const seconds = `${Math.floor(m / 1000)}`
-      const cents = `${Math.round(m/10 % 100)}`.padStart(2, "0")
+      const cents = `${Math.round(m / 10 % 100)}`.padStart(2, '0')
       return `${seconds},${cents}`
     },
     // format milliseconds timestamp -> MM:SS.XX
-    formatMMs(m) {
+    formatMMs (m) {
       const minutes = Math.floor(m / 60000)
-      const seconds = `${Math.floor(m / 1000 % 60)}`.padStart(2, "0")
-      const cents = `${Math.round(m/10) % 100}`.padStart(2, "0")
+      const seconds = `${Math.floor(m / 1000 % 60)}`.padStart(2, '0')
+      const cents = `${Math.round(m / 10) % 100}`.padStart(2, '0')
       return `${minutes}:${seconds},${cents}`
     },
-    fromNow(ts) {
+    fromNow (ts) {
       return new Date().getTime() - new Date(ts).getTime()
     },
-    updateMaxTimers() {
+    updateMaxTimers () {
       const height = (a) => {
         const e = document.querySelector(a)
         return e ? e.offsetHeight : 0
       }
-      const lap = Array.from(document.querySelectorAll(".lap.real"))
+      const lap = Array.from(document.querySelectorAll('.lap.real'))
         .map(v => v.offsetHeight)
         .reduce((a, b) => Math.max(a, b), 0)
-      if (lap != 0) {
-        let availableHeight = height(".job")
-        availableHeight -= height(".lap.ongoing")
-        availableHeight -= height(".lap.head") // remove height of head
-        availableHeight -= height(".header") // remove height of header
-        availableHeight -= height(".end")
-        availableHeight -= height(".bottom")
+      if (lap !== 0) {
+        let availableHeight = height('.job')
+        availableHeight -= height('.lap.ongoing')
+        availableHeight -= height('.lap.head') // remove height of head
+        availableHeight -= height('.header') // remove height of header
+        availableHeight -= height('.end')
+        availableHeight -= height('.bottom')
         availableHeight *= 0.8 // remove some space to leave gaps
         const maxTimers = Math.max(Math.floor(availableHeight / lap), 1)
-        if (this.maxTimers != maxTimers) {
+        if (this.maxTimers !== maxTimers) {
           this.maxTimers = maxTimers
-          console.debug("displaying %i laps", this.maxTimers + 1)
+          console.debug('displaying %i laps', this.maxTimers + 1)
         }
       }
     },
-    bestLapIndex() {
+    bestLapIndex () {
       let d = Infinity
       let i = -1
       this.race.laptimers.forEach((v, index) => {
@@ -166,7 +166,7 @@ export default {
       })
       return i
     },
-    isBestLap(lap) {
+    isBestLap (lap) {
       if (this.race) {
         const max = this.race.laptimers.map(v => v.duration).reduce((a, b) => Math.min(a, b), Infinity)
         return max === lap.duration
@@ -175,64 +175,64 @@ export default {
       }
     },
     // because it doesn't fucking work otherwise
-    onBeforeEnter(el) {
-      el.classList.add("list-enter", "list-enter-active")
+    onBeforeEnter (el) {
+      el.classList.add('list-enter', 'list-enter-active')
       requestAnimationFrame(() => {
-        el.classList.replace("list-enter", "list-enter-to")
-      });
+        el.classList.replace('list-enter', 'list-enter-to')
+      })
     },
     // We should be able to just use that, but doesn't work consistently so ¯\_(ツ)_/¯
-    onEnter(el) {},
+    onEnter (el) {},
     // because I need js for one thing, i'm using hooks for all the classes
-    onAfterEnter(el) {
-      el.classList.remove("list-enter-to", "list-enter-active")
+    onAfterEnter (el) {
+      el.classList.remove('list-enter-to', 'list-enter-active')
     },
-    onBeforeLeave(el) {
-      el.classList.add("list-leave", "list-leave-active")
+    onBeforeLeave (el) {
+      el.classList.add('list-leave', 'list-leave-active')
       requestAnimationFrame(() => {
-        el.classList.replace("list-leave", "list-leave-to")
-      });
+        el.classList.replace('list-leave', 'list-leave-to')
+      })
     },
-    onLeave(el) {},
-    onAfterLeave(el) {
-      el.classList.remove("list-leave-to", "list-leave-active")
-    },
+    onLeave (el) {},
+    onAfterLeave (el) {
+      el.classList.remove('list-leave-to', 'list-leave-active')
+    }
   },
   computed: {
-    throughStyle() {
-      const t = Math.min(Math.max(this.car.throttle_scale, 0.0), 1.0);
+    throughStyle () {
+      const t = Math.min(Math.max(this.car.throttle_scale, 0.0), 1.0)
       const stops = [
-        [0.00, [113,  67,  46]],
-        [0.55, [113,  67,  46]],
-        [0.85, [ 26,  83,  54]],
-        [1.00, [  0,  83,  54]],
-      ];
-      let color;
+        [0.00, [113, 67, 46]],
+        [0.55, [113, 67, 46]],
+        [0.85, [26, 83, 54]],
+        [1.00, [0, 83, 54]]
+      ]
+      let color
       for (let i = 0; i < stops.length - 1; i++) {
-        const cur = stops[i];
-        const next = stops[i + 1];
+        const cur = stops[i]
+        const next = stops[i + 1]
         if (cur[0] <= t && t <= next[0]) {
-          const d = Math.abs(next[0] - cur[0]);
-          const id = d > 0 ? 1 / d : 0;
+          const d = Math.abs(next[0] - cur[0])
+          const id = d > 0 ? 1 / d : 0
           // Factor from 0 (all previous stop) to 1 (all next stop)
-          const f = (t - cur[0]) * id;
-          const res = cur[1].map((c, j) => Math.floor(c + f * (next[1][j] - c)));
-          color = `hsl(${res[0]}, ${res[1]}%, ${res[2]}%)`;
+          const f = (t - cur[0]) * id
+          const res = cur[1].map((c, j) => Math.floor(c + f * (next[1][j] - c)))
+          color = `hsl(${res[0]}, ${res[1]}%, ${res[2]}%)`
         }
       }
-      console.log(color);
+      console.log(color)
       return {
-        "height": t * 100 + "%",
-        "background-color": color,
+        height: t * 100 + '%',
+        'background-color': color
       }
     },
-    color() {
+    color () {
       return `#${this.car.color}`
     },
-    is_paused() {
-      return this.job && this.job.state == 'PAUSED'
+    is_paused () {
+      return this.job && this.job.state === 'PAUSED'
     },
-    laptimers() {
+    laptimers () {
       const offset = Math.max(this.race.laptimers.length - this.maxTimers, 0)
       const a = this.race.laptimers.slice(-this.maxTimers).map((v, i) => {
         v.index = offset + i
@@ -254,7 +254,7 @@ export default {
         })
       }
       return a
-    },
+    }
   }
 }
 </script>
@@ -265,7 +265,7 @@ export default {
   font-family: 'Azeret Mono';
   font-style: normal;
   font-weight: 400;
-  src: url("../fonts/AzeretMono-VariableFont_wght.ttf") format('truetype');
+  src: url('../fonts/AzeretMono-VariableFont_wght.ttf') format('truetype');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 .car {
@@ -333,7 +333,7 @@ export default {
   background: none;
 }
 .content.blur::after {
-  content: "En pause";
+  content: 'En pause';
   color: white;
   font-size: 3em;
   display: block;
@@ -366,7 +366,7 @@ export default {
   padding-left: 0.9rem;
 }
 .lap::before {
-  content: "";
+  content: '';
   display: block;
   width: 1.8em;
   height: 1.1em;
@@ -374,9 +374,9 @@ export default {
   margin-left: 0.3em;
 }
 .lap.best::before {
-  content: "";
+  content: '';
   display: block;
-  background-image: url("../assets/crown.png");
+  background-image: url('../assets/crown.png');
   background-size: cover;
   background-position: center;
   margin-right: -1.1em;
