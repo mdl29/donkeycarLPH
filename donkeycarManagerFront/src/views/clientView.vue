@@ -97,6 +97,7 @@ export default {
       for (const car of cars) {
         const state = car.worker.state
         const index = this.entries.findIndex(e => e.car.name === car.name)
+
         if (state === 'BUSY' || state === 'AVAILABLE') {
           if (index >= 0) {
             this.entries[index].car = car
@@ -110,6 +111,7 @@ export default {
           this.entries.splice(index, 1)
         }
       }
+      this.entries.sort((a, b) => a.car.worker_id - b.car.worker_id)
       if (this.car1) {
         this.job1 = await srv.getJobCar(this.car1.worker_id)
       }
@@ -142,7 +144,7 @@ export default {
       const previous = currentJobsWait.concat(waitlist)
       let time = getJobWaitTime(previous, this.entries.length)
       if (time === -1) {
-        return '' // unknown wait time
+        return ''
       } else if (time === 0) {
         return 'maintenant'
       } else if (time < 60) {
