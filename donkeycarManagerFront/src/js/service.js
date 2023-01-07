@@ -22,7 +22,7 @@ import axios from 'axios'
 
 export default class DonkeycarManagerService {
   static get ip () {
-    return 'localhost'
+    return '192.168.20.42'
   }
 
   /**
@@ -218,7 +218,7 @@ export default class DonkeycarManagerService {
   * @param {int} playerId - id of the player
   * @returns {Promise} - all player information
   */
-  async addJobs (playerId) {
+  async addJobs (playerId,driveTime,recordTime) {
     // Basic job parameters
     const baseJobParams = {
       player_id: playerId,
@@ -233,14 +233,14 @@ export default class DonkeycarManagerService {
     // Drive Job
     const driveJob = Object.assign({
       name: 'DRIVE',
-      parameters: JSON.stringify({ drive_time: 10 }, null, 2), // 30 sec of driving session
+      parameters: JSON.stringify({ drive_time: parseInt(driveTime)}, null, 2), // 30 sec of driving session
       worker_id: null
     }, baseCarJobParam)
 
     // Recording Job
     const recordJob = Object.assign({
       name: 'RECORD',
-      parameters: JSON.stringify({ drive_time: 20 }, null, 2) // 60 sec of recording
+      parameters: JSON.stringify({ drive_time: parseInt(recordTime) }, null, 2) // 60 sec of recording
       // We don't set the worker_id as it will be set by the drive job before this job to used the same car
     }, baseCarJobParam)
 
@@ -251,8 +251,14 @@ export default class DonkeycarManagerService {
       next_job_details: JSON.stringify(recordJob, null, 2)
     }, driveJob)
     console.log('chainedJobs: %o', chainedJobs)
-    const response = await axios.post(this.apiUrl + '/jobs', chainedJobs)
-    return response.data
+    if ( driveTime !== '0') {
+      const response = await axios.post(this.apiUrl + '/jobs', driveJob)
+      return response.data
+    } else if ( recordTime !== '0') {
+      const response = await axios.post(this.apiUrl + '/jobs', chainedJobs)
+      return response.data
+    }
+    
   }
 
   /**

@@ -20,6 +20,9 @@ const srv = new DonkeycarManagerService('http://' + ip + ':8000')
 
 export default {
   name: 'RegisterForm',
+  props: {
+    runTime: Object
+  },
   data () {
     return {
       success: 'none',
@@ -34,7 +37,7 @@ export default {
       if (players.length === 0) {
         players[0] = await srv.createPlayer(this.pseudo)
       }
-      const response = await srv.addJobs(players[0].player_id)
+      const response = await srv.addJobs(players[0].player_id,this.runTime.driveTime,this.runTime.recordTime)
       if (response === 404) {
         this.success = false
       } else {
