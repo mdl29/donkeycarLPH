@@ -1,16 +1,19 @@
 <template>
   <div class="header">
-        <h1 class="mainTitle">Donkeycar dashboard</h1>
+        <h5 class="mainTitle">Donkeycar dashboard</h5>
   </div>
-  <div class="row jobs-card">
-    <div class="flex md2">
-        <carInfo v-for="car in cars" :key="car.worker_id" :car="car"></carInfo>
+  <div class="jobs-card">
+    <div class="cars">
+        <carInfo v-for="car in cars" :key="car.worker_id" :car="car" class="gutter--md"></carInfo>
     </div>
-    <div class="flex md5">
-        <waitingJobCard v-for="job in waitingJobs" :key="job.rank" :job="job" @goUp="goUp($event)" @goDown="goDown($event)" @remove="removeJob($event)"></waitingJobCard>
+    <div class="jobs-wrap">
+      <div class="jobs">
+        <waitingJobCard v-for="job in waitingJobs" :key="job.rank" :job="job" @goUp="goUp($event)" @goDown="goDown($event)" @remove="removeJob($event)" class="gutter--md"></waitingJobCard>
+      </div>
+      <div class="jobs-over"></div>
     </div>
-    <div class="flex md5">
-        <runningJobCard v-for="job in runningJobs" :key="job.worker_id" :job="job" :reload="reload" :carColor="getCarColor(job.worker_id)" :carName="getCarName(job.worker_id)" @resume="resumeJob($event)" @reload="reloadJob($event)" @record="addRecord($event)"></runningJobCard>
+    <div class="running-jobs">
+        <runningJobCard v-for="job in runningJobs" :key="job.worker_id" :job="job" :reload="reload" :carColor="getCarColor(job.worker_id)" :carName="getCarName(job.worker_id)" @resume="resumeJob($event)" @reload="reloadJob($event)" @record="addRecord($event)" class="gutter--md"></runningJobCard>
     </div>
   </div>
 </template>
@@ -64,7 +67,7 @@ export default {
       this.cars = await srv.getCars(0, 4)
     },
     async fetchWaitingJobs () {
-      this.waitingJobs = await srv.getDrivingWaitingQueue(true, 0, 20)
+      this.waitingJobs = await srv.getDrivingWaitingQueue(true, 0, 100)
     },
     async goUp (job) {
       const index = this.waitingJobs.indexOf(job) - 1
@@ -135,5 +138,39 @@ export default {
 }
 .jobs-card{
   padding-top: 25px;
+  display: flex;
+  gap: 0.75em;
+  padding: 0.5em;
+  height: calc(100vh - 3.5em);
+}
+
+.running-jobs {
+  flex: 1;
+}
+
+.jobs-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  box-shadow: 0 0.3em 0.6em rgba(0,0,0,0.1);
+  position: relative;
+}
+.jobs {
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.jobs-over {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.header {
+  height: 3.5em;
 }
 </style>

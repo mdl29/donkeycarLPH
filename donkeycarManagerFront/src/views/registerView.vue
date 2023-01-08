@@ -28,7 +28,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .alert{
   margin-top: 1% !important;
   text-align: left !important;
