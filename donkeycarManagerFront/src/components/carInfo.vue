@@ -30,10 +30,7 @@ export default {
   text-align: left !important;
 }
 .carCard {
-  margin-left: 15px;
   transition: transform .5s;
-  padding-top: 30px;
-  padding-right: 10px;
 }
 .carCard:hover {
   transform: scale(1.05);

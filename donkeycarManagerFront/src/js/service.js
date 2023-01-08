@@ -22,7 +22,7 @@ import axios from 'axios'
 
 export default class DonkeycarManagerService {
   static get ip () {
-    return 'localhost' /** change it by your ip server */
+    return '192.168.20.42' /** change it by your ip server */
   }
 
   /**
