@@ -23,7 +23,7 @@ export default {
   data () {
     return {
       success: null,
-      listOption: { 'driveTime':'180', 'recordTime':'180' }
+      listOption: { driveTime: '180', recordTime: '180' }
     }
   },
   watch: {
@@ -34,9 +34,9 @@ export default {
   },
   methods: {
     pushParam (options) {
-     this.listOption = options
+      this.listOption = options
     }
-  },
+  }
 }
 </script>
 <style>

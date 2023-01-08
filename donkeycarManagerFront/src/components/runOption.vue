@@ -47,9 +47,9 @@ export default {
   },
   methods: {
     pushParam () {
-      if (this.drive === false){
+      if (this.drive === false) {
         this.options.driveTime = '0'
-      }else if (this.record === false) {
+      } else if (this.record === false) {
         this.options.recordTime = '0'
       }
       console.log(this.options)
