@@ -2,7 +2,7 @@
   <div class="form">
     <div class="row align--center">
       <div class="flex xs12">
-        <input type="text" placeholder="Entrez votre pseudo" id="input-form" required="required" v-model="pseudo" v-on:keyup.enter="addUser()">
+        <input type="text" placeholder="Entrez votre pseudo" id="input-form" required="required" v-model="pseudo" v-on:keyup.enter="onEnter">
       </div>
       <div class="flex xs12 button-wrapper" id="button-wrapper">
         <va-button id="submit-button" v-if="click === false" size="large" color="info" gradient class="mr-4 mb-2" @click="addUser()">S'enregistrer</va-button>
@@ -33,9 +33,15 @@ export default {
   methods: {
     async addUser () {
       this.click = true
-      const players = await srv.getPlayerByPseudo(this.pseudo)
+      const newPseudo = this.pseudo
+      this.pseudo = ''
+      if (newPseudo.length === 0) {
+        this.click = false
+        return
+      }
+      const players = await srv.getPlayerByPseudo(newPseudo)
       if (players.length === 0) {
-        players[0] = await srv.createPlayer(this.pseudo)
+        players[0] = await srv.createPlayer(newPseudo)
       }
       const response = await srv.addJobs(players[0].player_id, this.runTime.driveTime, this.runTime.recordTime)
       if (response === 404) {
@@ -44,7 +50,6 @@ export default {
         this.success = true
       }
       this.$emit('success', this.success)
-      this.pseudo = ''
       this.click = false
     }
   }
