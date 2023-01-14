@@ -60,7 +60,7 @@ form{
 }
 #input-form{
   text-align: center;
-  width: 100%;
+  width: 90%;
   height: 80px;
   display: inline-block;
   border: 1px solid #ccc;
