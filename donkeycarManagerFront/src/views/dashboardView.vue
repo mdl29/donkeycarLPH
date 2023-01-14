@@ -51,7 +51,7 @@ export default {
     socket.on('jobs.all.updated', function (data) {
       that.fetchWaitingJobs()
       that.getRunningJobs()
-      this.countUsers()
+      that.countUsers()
     })
   },
   mounted () {
