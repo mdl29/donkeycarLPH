@@ -23,7 +23,7 @@ export default {
   data () {
     return {
       success: null,
-      listOption: { driveTime: '180', recordTime: '180' }
+      listOption: {}
     }
   },
   watch: {
@@ -32,9 +32,20 @@ export default {
       setTimeout(function () { that.success = null }, 4000)
     }
   },
+  created () {
+    if (localStorage.getItem('registerOptions')) {
+      try {
+        this.listOption = JSON.parse(localStorage.getItem('registerOptions'))
+      } catch (e) {
+        this.listOption = { driveTime: '180', recordTime: '180' }
+      }
+    }
+  },
   methods: {
     pushParam (options) {
       this.listOption = options
+      const parsed = JSON.stringify(options)
+      localStorage.setItem('registerOptions', parsed)
     }
   }
 }

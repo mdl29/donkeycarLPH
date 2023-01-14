@@ -9,11 +9,14 @@
     <div class="jobs-wrap">
       <div class="jobs">
         <waitingJobCard v-for="job in waitingJobs" :key="job.rank" :job="job" @goUp="goUp($event)" @goDown="goDown($event)" @remove="removeJob($event)" class="gutter--md"></waitingJobCard>
+        <span class="no-job" v-if="waitingJobs.length === 0"> No job in waiting list </span>
       </div>
       <div class="jobs-over"></div>
     </div>
     <div class="running-jobs">
         <runningJobCard v-for="job in runningJobs" :key="job.worker_id" :job="job" :reload="reload" :carColor="getCarColor(job.worker_id)" :carName="getCarName(job.worker_id)" @resume="resumeJob($event)" @reload="reloadJob($event)" @record="addRecord($event)" class="gutter--md"></runningJobCard>
+        <span class="no-job" v-if="cars.length === 0"> no car available to play a job </span>
+        <span class="no-job" v-if="runningJobs.length === 0 && waitingJobs.length === 0 && cars.length !== 0"> No running job </span>
     </div>
   </div>
 </template>
@@ -133,6 +136,9 @@ export default {
 
 </script>
 <style>
+.no-job{
+  font-size: 25px;
+}
 .waitingJobCard{
   padding-top:30px;
 }
