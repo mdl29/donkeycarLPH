@@ -37,8 +37,10 @@ export default {
       try {
         this.listOption = JSON.parse(localStorage.getItem('registerOptions'))
       } catch (e) {
-        this.listOption = { driveTime: '180', recordTime: '180' }
+        console.log(e)
       }
+    } else {
+      this.listOption = { driveTime: '180', recordTime: '180' }
     }
   },
   methods: {
@@ -61,7 +63,6 @@ export default {
   padding-top: 5%;
 }
 .mainTitle{
-  margin-top: 45px;
   font-size: 50px !important;
 }
 .option-container{

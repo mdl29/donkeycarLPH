@@ -65,7 +65,7 @@ export default {
   justify-content: center;
 }
 .button-container{
-  position: absolute;
+  position: fixed;
   right: 0;
   bottom: 0;
 }
