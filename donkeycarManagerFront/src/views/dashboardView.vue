@@ -1,17 +1,18 @@
 <template>
   <div class="header">
-        <h5 class="mainTitle">Donkeycar dashboard</h5>
+    <h1 class="mainTitle">Donkeycar dashboard</h1>
+    <div class="count">
+      <img class="groupIcon" :src="groupSvg" />
+      {{userCount}}
+    </div>
   </div>
   <div class="jobs-card">
     <div class="cars">
         <carInfo v-for="car in cars" :key="car.worker_id" :car="car" class="gutter--md"></carInfo>
     </div>
-    <div class="jobs-wrap">
-      <div class="jobs">
-        <waitingJobCard v-for="job in waitingJobs" :key="job.rank" :job="job" @goUp="goUp($event)" @goDown="goDown($event)" @remove="removeJob($event)" class="gutter--md"></waitingJobCard>
-        <span class="no-job" v-if="waitingJobs.length === 0"> No job in waiting list </span>
-      </div>
-      <div class="jobs-over"></div>
+    <div class="jobs">
+      <waitingJobCard v-for="job in waitingJobs" :key="job.rank" :job="job" @goUp="goUp($event)" @goDown="goDown($event)" @remove="removeJob($event)" class="gutter--md"></waitingJobCard>
+      <span class="no-job" v-if="waitingJobs.length === 0"> No job in waiting list </span>
     </div>
     <div class="running-jobs">
         <runningJobCard v-for="job in runningJobs" :key="job.worker_id" :job="job" :reload="reload" :carColor="getCarColor(job.worker_id)" :carName="getCarName(job.worker_id)" @resume="resumeJob($event)" @reload="reloadJob($event)" @record="addRecord($event)" class="gutter--md"></runningJobCard>
@@ -50,19 +51,26 @@ export default {
     socket.on('jobs.all.updated', function (data) {
       that.fetchWaitingJobs()
       that.getRunningJobs()
+      this.countUsers()
     })
   },
   mounted () {
     this.fetchcars()
     this.fetchWaitingJobs()
     this.getRunningJobs()
+    this.countUsers()
+  },
+  beforeUnmount () {
+    clearInterval(this.playerInterval)
   },
   data () {
     return {
       cars: [],
       waitingJobs: [],
       runningJobs: [],
-      reload: false
+      reload: false,
+      groupSvg: require('../assets/group.svg'),
+      userCount: 0
     }
   },
   methods: {
@@ -85,6 +93,9 @@ export default {
         const playerBefore = this.waitingJobs[index]
         await srv.moveAfter(job.job_id, playerBefore.job_id)
       }
+    },
+    async countUsers () {
+      this.userCount = (await srv.getJobs()).length
     },
     async removeJob (job) {
       await srv.removeJob(job)
@@ -136,6 +147,11 @@ export default {
 
 </script>
 <style>
+@font-face {
+  font-family: "Rowdies";
+  src: url("../assets/Rowdies-Regular.ttf") format("truetype");
+}
+
 .no-job{
   font-size: 25px;
 }
@@ -143,40 +159,59 @@ export default {
   padding-top:30px;
 }
 .jobs-card{
-  padding-top: 25px;
+  padding: 0.8em;
   display: flex;
   gap: 0.75em;
-  padding: 0.5em;
-  height: calc(100vh - 3.5em);
+
 }
 
 .running-jobs {
   flex: 1;
+  align-self: flex-start;
+  position: sticky;
+  top: 4.5em;
 }
 
-.jobs-wrap {
+.cars {
+  align-self: flex-start;
+  position: sticky;
+  top: 4.5em;
+}
+
+.jobs {
   display: flex;
   flex-direction: column;
   flex: 1;
-  box-shadow: 0 0.3em 0.6em rgba(0,0,0,0.1);
-  position: relative;
-}
-.jobs {
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
   gap: 0.5em;
+  padding-top: 0;
 }
-.jobs-over {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  pointer-events: none;
+
+.mainTitle {
+  font-size: 2rem;
+  font-family: Rowdies;
+}
+
+.count {
+  font-size: 1.5rem;
+  font-family: Rowdies;
+  text-align: center;
+}
+
+.groupIcon {
+  height: 1em;
 }
 
 .header {
   height: 3.5em;
+  align-self: flex-start;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 0 0.5em rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1em 0;
 }
 </style>

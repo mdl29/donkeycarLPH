@@ -46,6 +46,16 @@ export default {
   font-weight: bold;
 }
 
+.id::before {
+  color: grey;
+  content: "#"
+}
+
+.id {
+  color: grey;
+  margin-left: 0.5em;
+}
+
 .spacer {
   flex: 2;
 }

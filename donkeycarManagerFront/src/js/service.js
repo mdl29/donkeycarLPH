@@ -289,6 +289,11 @@ export default class DonkeycarManagerService {
     return response.data
   }
 
+  async getJobs () {
+    const response = await axios.get(this.apiUrl + '/jobs/?skip=0&limit=1000&worker_type=CAR&job_states=RUNNING&job_states=PAUSING&job_states=PAUSED&job_states=RESUMING&job_states=WAITING&job_states=SUCCEED&job_states=RESUMING')
+    return response.data
+  }
+
   /**
   *
   * @async
