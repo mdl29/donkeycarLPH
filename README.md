@@ -150,6 +150,8 @@ If you want to build your one, **you can follow this [documentation](IR-tower/RE
 
 2 - Run our frontend according to our [documentation](donkeycarManagerFront/README.md)
 
+3 - Run jsfw server for wired controllers [documentation](doc/JSFW/README.md)
+
 About our architecture :
 
 ![diagram](doc/donkeycarManager/DonkeycarBoothManagerArchitecture.png)
