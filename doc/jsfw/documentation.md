@@ -10,6 +10,10 @@ git clone https://github.com/viandoxdev/jsfw.git
 ```bash
 cd jsfw
 ```
+> Go to the good commit 
+```bash
+git checkout e371ef3ec4053d83abad683289f91a447d9e92ed
+```
 > Build jsfw executable :
 ```bash
 make
