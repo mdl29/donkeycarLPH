@@ -43,7 +43,7 @@ export default {
       if (players.length === 0) {
         players[0] = await srv.createPlayer(newPseudo)
       }
-      const response = await srv.addJobs(players[0].player_id, this.runTime.driveTime, this.runTime.recordTime)
+      const response = await srv.addJobs(players[0].player_id, parseInt(this.runTime.driveTime), parseInt(this.runTime.recordTime))
       if (response === 404) {
         this.success = false
       } else {

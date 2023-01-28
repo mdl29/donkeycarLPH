@@ -22,7 +22,7 @@ import axios from 'axios'
 
 export default class DonkeycarManagerService {
   static get ip () {
-    return '192.168.0.42' /** change it by your ip server */
+    return '192.168.20.42' /** change it to your ip server */
   }
 
   /**
@@ -216,6 +216,8 @@ export default class DonkeycarManagerService {
   * @async
   * @augments donkeycarManagerService
   * @param {int} playerId - id of the player
+  * @param {int} driveTime - job drive duration in seconds
+  * @param {int} recordTime - job record duration in seconds
   * @returns {Promise} - all player information
   */
   async addJobs (playerId, driveTime, recordTime) {
@@ -233,14 +235,14 @@ export default class DonkeycarManagerService {
     // Drive Job
     const driveJob = Object.assign({
       name: 'DRIVE',
-      parameters: JSON.stringify({ drive_time: parseInt(driveTime) }, null, 2), // 30 sec of driving session
+      parameters: JSON.stringify({ drive_time: driveTime }, null, 2), // 30 sec of driving session
       worker_id: null
     }, baseCarJobParam)
 
     // Recording Job
     const recordJob = Object.assign({
       name: 'RECORD',
-      parameters: JSON.stringify({ drive_time: parseInt(recordTime) }, null, 2) // 60 sec of recording
+      parameters: JSON.stringify({ drive_time: recordTime }, null, 2) // 60 sec of recording
       // We don't set the worker_id as it will be set by the drive job before this job to used the same car
     }, baseCarJobParam)
 
@@ -250,10 +252,10 @@ export default class DonkeycarManagerService {
     const chainedJobs = Object.assign({
       next_job_details: JSON.stringify(recordJob, null, 2)
     }, driveJob)
-    if (driveTime !== '0' && recordTime === '0') {
+    if (driveTime !== 0 && recordTime === 0) {
       const response = await axios.post(this.apiUrl + '/jobs', driveJob)
       return response.data
-    } else if (recordTime !== '0') {
+    } else if (recordTime !== 0) {
       const response = await axios.post(this.apiUrl + '/jobs', chainedJobs)
       return response.data
     }
