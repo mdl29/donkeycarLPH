@@ -58,7 +58,7 @@ export default {
 </script>
 <style scoped>
 form{
-  text-align: center !important;
+  text-align: center;
 }
 .button-wrapper{
   padding-top: 65px;
