@@ -28,8 +28,7 @@ export default {
   },
   watch: {
     success: function () {
-      const that = this
-      setTimeout(function () { that.success = null }, 4000)
+      setTimeout(() => { this.success = null }, 4000)
     }
   },
   created () {

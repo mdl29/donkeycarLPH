@@ -22,7 +22,7 @@ import axios from 'axios'
 
 export default class DonkeycarManagerService {
   static get ip () {
-    return '192.168.20.42' /** change it by your ip server */
+    return '192.168.0.42' /** change it by your ip server */
   }
 
   /**
@@ -250,9 +250,6 @@ export default class DonkeycarManagerService {
     const chainedJobs = Object.assign({
       next_job_details: JSON.stringify(recordJob, null, 2)
     }, driveJob)
-    console.log('chainedJobs: %o', chainedJobs)
-    console.log('drive: ' + driveTime)
-    console.log('record: ' + recordTime)
     if (driveTime !== '0' && recordTime === '0') {
       const response = await axios.post(this.apiUrl + '/jobs', driveJob)
       return response.data
