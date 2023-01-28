@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     async goUp () {
-      console.log('click')
       this.$emit('goUp', this.job)
     }
   }

@@ -2,7 +2,7 @@
   <div class="form">
     <div class="row align--center">
       <div class="flex xs12">
-        <input type="text" placeholder="Entrez votre pseudo" id="input-form" required="required" v-model="pseudo" v-on:keyup.enter="onEnter">
+        <input type="text" placeholder="Entrez votre pseudo" id="input-form" required="required" v-model="pseudo" v-on:keyup.enter="addUser()">
       </div>
       <div class="flex xs12 button-wrapper" id="button-wrapper">
         <va-button id="submit-button" v-if="click === false" size="large" color="info" gradient class="mr-4 mb-2" @click="addUser()">S'enregistrer</va-button>
