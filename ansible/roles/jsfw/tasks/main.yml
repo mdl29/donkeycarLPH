@@ -15,7 +15,7 @@
   ansible.builtin.git:
     repo: https://github.com/viandoxdev/jsfw.git
     dest: /home/pi/jsfw
-    version: e371ef3ec4053d83abad683289f91a447d9e92ed
+    version: 749c8f6c01ec891fa344cf532e686ca7b44cad96
 
 - name: Compile jsfw
   shell:
@@ -31,6 +31,14 @@
     owner: root
     group: root
   notify: Start jsfw.service service
+
+- name: Install jsfw client configuration
+  become: yes
+  ansible.builtin.copy:
+    src: jsfw.json
+    dest: /etc/donkeycar/jsfw.json
+    owner: root
+    group: root
 
 - name: Install the test pictures script
   become: yes
