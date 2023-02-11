@@ -21,7 +21,6 @@
       - libgeos-dev 
       - git 
       - ntp
-    state: latest
 
 - name: Create projects directory
   become: yes
