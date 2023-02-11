@@ -2,5 +2,5 @@
     "controllers": [
         { "tag": "ctr" }
     ],
-    "fifo_path": "tmp/jsfw_fifo"
+    "fifo_path": "/tmp/jsfw_fifo"
 }
