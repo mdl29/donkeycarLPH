@@ -21,6 +21,8 @@
       - libgeos-dev 
       - git 
       - ntp
+      # setuptools 66.0.0 enforces semvers and breaks with donkeycar's current version
+      - setuptools<66.0.0
     state: latest
 
 - name: Create projects directory
