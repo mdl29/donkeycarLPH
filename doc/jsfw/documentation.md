@@ -20,6 +20,8 @@ make
 ```
 ## How use it :
 
+> You may need to run jsfw as root, or use the udev rules in 50-donkeycar.rules
+
 If you are the jsfw server centralizing all PS4 controllers, run this command to launch it (specify the path to the config in this directory relative to where you built jsfw):
 > The port used in donkeycar manager is 7776
 ```bash
