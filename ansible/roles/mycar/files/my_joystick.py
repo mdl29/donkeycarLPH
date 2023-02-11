@@ -77,8 +77,8 @@ class MyJoystickController(JoystickController):
     """
     def __init__(self, *args, **kwargs):
         self.easy_drive_mode = False
-        super(MyJoystickController, self).__init__(*args, **kwargs)
         self.inverted = False
+        super(MyJoystickController, self).__init__(*args, **kwargs)
         self.state_x_button = False
 
     def init_js(self):
@@ -109,30 +109,19 @@ class MyJoystickController(JoystickController):
             self.set_throttle(magnitude)
         return set_magnitude
     
-    def set_axis_lh(self, axis_val):
-        if self.inverted:
-            self.set_steering(axis_val)
-    def set_axis_lv(self, axis_val):
-        if not self.inverted:
-            self.set_throttle(axis_val)
-    def set_axis_rh(self, axis_val):
-        if not self.inverted:
-            self.set_steering(axis_val)
-    def set_axis_rv(self, axis_val):
-        if self.inverted:
-            self.set_throttle(axis_val)
-
     def invert_controls(self):
         self.inverted = not self.inverted
+        self.init_trigger_maps()
+
     
     def go_easy_mode(self):
         self.easy_drive_mode = not self.easy_drive_mode
         self.init_trigger_maps()
         
-    def left_shoulder_throttle(self):
+    def backward_throttle(self):
         self.set_throttle(-1)
     
-    def right_shoulder_throttle(self):
+    def forward_throttle(self):
         self.set_throttle(1)
     
     def throttle_stop(self):
@@ -142,55 +131,61 @@ class MyJoystickController(JoystickController):
         """
         init set of mapping from buttons to function calls
         """
+
+        self.button_down_trigger_map = {
+            'b_button': self.go_easy_mode,
+            'a_button': self.invert_controls,
+            'x_button': self.x_button_pressed,
+            'y_button': self.emergency_stop,
+            'right_shoulder': self.increase_max_throttle,
+            'left_shoulder': self.decrease_max_throttle,
+            'options': self.toggle_constant_throttle,
+        }
+
+        self.button_up_trigger_map = { }
+
+        self.axis_trigger_map = {
+            'left_stick_horz':  self.set_steering,
+            'right_stick_vert': self.set_throttle,
+            # Forza Mode
+            'right_trigger': self.magnitude(),
+            'left_trigger': self.magnitude(reversed = True),
+        }
+
         if self.easy_drive_mode: 
 
             self.button_down_trigger_map = {
-                'a_button': self.invert_controls,
-                'b_button': self.go_easy_mode,
-                'x_button': self.x_button_pressed,
-                'y_button': self.emergency_stop,
-                'right_shoulder': self.left_shoulder_throttle,
-                'left_shoulder': self.right_shoulder_throttle,
-                'options': self.toggle_constant_throttle,
+                **self.button_down_trigger_map,
+                'right_shoulder': self.backward_throttle,
+                'left_shoulder': self.forward_throttle,
                 "R1" : self.increase_max_throttle,
                 "L1" : self.decrease_max_throttle,
             }
             
             self.button_up_trigger_map = {
+                **self.button_up_trigger_map,
                 'right_shoulder': self.throttle_stop,
                 'left_shoulder': self.throttle_stop,
             }
+
+            self.axis_trigger_map = {
+                **self.axis_trigger_map,
+                'right_trigger': self.magnitude(),
+                'left_trigger': self.magnitude(reversed = True),
+            }
         
-            self.axis_trigger_map = {
-                'left_stick_horz':  self.set_axis_rh, # self.set_axis_lh
-                'left_stick_vert':  self.set_axis_rv, # self.set_axis_lv
-                #'right_stick_horz': self.set_axis_rh,
-                #'right_stick_vert': self.set_axis_rv,
-                # Forza Mode
-                'right_trigger': self.magnitude(),
-                'left_trigger': self.magnitude(reversed = True),
-            }
-        else :
+            del self.axis_trigger_map['right_stick_vert']
 
-            self.button_down_trigger_map = {
-                'a_button': self.invert_controls,
-                'b_button': self.go_easy_mode,
-                'x_button': self.x_button_pressed,
-                'y_button': self.emergency_stop,
-                'right_shoulder': self.increase_max_throttle,
-                'left_shoulder': self.decrease_max_throttle,
-                'options': self.toggle_constant_throttle,
-            }
+        elif self.inverted : 
 
             self.axis_trigger_map = {
-                'left_stick_horz':  self.set_axis_lh,
-                'left_stick_vert':  self.set_axis_lv,
-                'right_stick_horz': self.set_axis_rh,
-                'right_stick_vert': self.set_axis_rv,
-                # Forza Mode
-                'right_trigger': self.magnitude(),
-                'left_trigger': self.magnitude(reversed = True),
+                **self.axis_trigger_map,
+                'left_stick_vert':  self.set_throttle,
+                'right_stick_horz': self.set_steering,
             }
+
+            del self.axis_trigger_map['right_stick_vert']
+            del self.axis_trigger_map['left_stick_horz']
 
     def _on_recording_change(self) -> NoReturn:
         """
@@ -261,4 +256,5 @@ class MyJoystickController(JoystickController):
                 except OSError:
                     logger.info("Lost joystick")
                     self.js.cleanup()
+
 
