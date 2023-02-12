@@ -1,0 +1,37 @@
+{
+    "controllers": [
+        {
+            "tag": "ctr",
+            "filter": {
+                "vendor": "054c",
+                "product": "05c4",
+                "js": true
+            },
+            "properties": { 
+                "ps4_hidraw": true
+            }
+        },
+        {
+            "tag": "ctr",
+            "filter": {
+                "vendor": "054c",
+                "product": "09cc",
+                "js": true
+            },
+            "properties": { 
+                "ps4_hidraw": true
+            }
+        },
+        {
+            "tag": "ctr",
+            "filter": {
+                "vendor": "0f0d",
+                "product": "00ee",
+                "js": true
+            },
+            "properties": { 
+                "ps4_hidraw": true
+            }
+        }
+    ]
+}

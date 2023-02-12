@@ -13,7 +13,7 @@ RECORDING_BLINK_LED_OFF = 0.11
 
 def write_to_controller(color_hex, led_on, led_off):
     w = open("/tmp/jsfw_fifo", "w")
-    w.write(f'{{"led_color": "#{color_hex}", "flash": [{led_on}, {led_off}]}}')
+    w.write(f'{{"index": 0, "led_color": "#{color_hex}", "flash": [{led_on}, {led_off}]}}')
     w.flush()
     w.close()
 
@@ -51,6 +51,8 @@ class MyJoystick(Joystick):
             0x13b: 'options',
             0x138: 'left_shoulder',
             0x139: 'right_shoulder',
+            0x137: 'R1',
+            0x136: 'L1',
         }
 
     def init(self):
@@ -74,8 +76,9 @@ class MyJoystickController(JoystickController):
     https://github.com/Ezward/donkeypart_ps3_controller/blob/master/donkeypart_ps3_controller/part.py
     """
     def __init__(self, *args, **kwargs):
-        super(MyJoystickController, self).__init__(*args, **kwargs)
+        self.easy_drive_mode = False
         self.inverted = False
+        super(MyJoystickController, self).__init__(*args, **kwargs)
         self.state_x_button = False
 
     def init_js(self):
@@ -106,21 +109,23 @@ class MyJoystickController(JoystickController):
             self.set_throttle(magnitude)
         return set_magnitude
     
-    def set_axis_lh(self, axis_val):
-        if self.inverted:
-            self.set_steering(axis_val)
-    def set_axis_lv(self, axis_val):
-        if not self.inverted:
-            self.set_throttle(axis_val)
-    def set_axis_rh(self, axis_val):
-        if not self.inverted:
-            self.set_steering(axis_val)
-    def set_axis_rv(self, axis_val):
-        if self.inverted:
-            self.set_throttle(axis_val)
-
     def invert_controls(self):
         self.inverted = not self.inverted
+        self.init_trigger_maps()
+
+    
+    def go_easy_mode(self):
+        self.easy_drive_mode = not self.easy_drive_mode
+        self.init_trigger_maps()
+        
+    def backward_throttle(self):
+        self.set_throttle(-1)
+    
+    def forward_throttle(self):
+        self.set_throttle(1)
+    
+    def throttle_stop(self):
+        self.set_throttle(0)
 
     def init_trigger_maps(self):
         """
@@ -128,8 +133,8 @@ class MyJoystickController(JoystickController):
         """
 
         self.button_down_trigger_map = {
+            'b_button': self.go_easy_mode,
             'a_button': self.invert_controls,
-            #'b_button': self.toggle_manual_recording,
             'x_button': self.x_button_pressed,
             'y_button': self.emergency_stop,
             'right_shoulder': self.increase_max_throttle,
@@ -137,15 +142,50 @@ class MyJoystickController(JoystickController):
             'options': self.toggle_constant_throttle,
         }
 
+        self.button_up_trigger_map = { }
+
         self.axis_trigger_map = {
-            'left_stick_horz':  self.set_axis_lh,
-            'left_stick_vert':  self.set_axis_lv,
-            'right_stick_horz': self.set_axis_rh,
-            'right_stick_vert': self.set_axis_rv,
+            'left_stick_horz':  self.set_steering,
+            'right_stick_vert': self.set_throttle,
             # Forza Mode
             'right_trigger': self.magnitude(),
             'left_trigger': self.magnitude(reversed = True),
         }
+
+        if self.easy_drive_mode: 
+
+            self.button_down_trigger_map = {
+                **self.button_down_trigger_map,
+                'right_shoulder': self.backward_throttle,
+                'left_shoulder': self.forward_throttle,
+                "R1" : self.increase_max_throttle,
+                "L1" : self.decrease_max_throttle,
+            }
+            
+            self.button_up_trigger_map = {
+                **self.button_up_trigger_map,
+                'right_shoulder': self.throttle_stop,
+                'left_shoulder': self.throttle_stop,
+            }
+
+            self.axis_trigger_map = {
+                **self.axis_trigger_map,
+                'right_trigger': self.magnitude(),
+                'left_trigger': self.magnitude(reversed = True),
+            }
+        
+            del self.axis_trigger_map['right_stick_vert']
+
+        elif self.inverted : 
+
+            self.axis_trigger_map = {
+                **self.axis_trigger_map,
+                'left_stick_vert':  self.set_throttle,
+                'right_stick_horz': self.set_steering,
+            }
+
+            del self.axis_trigger_map['right_stick_vert']
+            del self.axis_trigger_map['left_stick_horz']
 
     def _on_recording_change(self) -> NoReturn:
         """
@@ -216,4 +256,5 @@ class MyJoystickController(JoystickController):
                 except OSError:
                     logger.info("Lost joystick")
                     self.js.cleanup()
+
 

@@ -44,7 +44,10 @@
   become: yes
   become_user: pi
   pip:
-    name: https://github.com/lhelontra/tensorflow-on-arm/releases/download/v2.2.0/tensorflow-2.2.0-cp37-none-linux_armv7l.whl
+    name: 
+      - https://github.com/lhelontra/tensorflow-on-arm/releases/download/v2.2.0/tensorflow-2.2.0-cp37-none-linux_armv7l.whl
+      # setuptools 66.0.0 and above enforces semvers, and breaks with the current donkeycar's version
+      - setuptools<66.0.0
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
 
