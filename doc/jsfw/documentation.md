@@ -1,29 +1,29 @@
-# JSFW documentation :
+# JSFW documentation
 
-## How install it : 
+## Installation
 
-> clone github repository :
+> clone the repository
 ```bash
 git clone https://github.com/viandoxdev/jsfw.git
 ```
-> Go to jsfw directory :
+> Go to jsfw directory
 ```bash
 cd jsfw
 ```
-> Go to the good commit 
+> Checkout the correct version
 ```bash
-git checkout 749c8f6c01ec891fa344cf532e686ca7b44cad96
+git checkout a4b69eb0a115e7fd862dd5e3bc20a3561ea9bcc6
 ```
-> Build jsfw executable :
+> Build the binary
 ```bash
-make
+make jsfw
 ```
-## How use it :
+## Usage
 
 > You may need to run jsfw as root, or use the udev rules in 50-donkeycar.rules
 
-If you are the jsfw server centralizing all PS4 controllers, run this command to launch it (specify the path to the config in this directory relative to where you built jsfw):
-> The port used in donkeycar manager is 7776
+The jsfw server should run on the same computer as the donkeycar backend (this can be changed by editing the ip used in the jsfw.service file), and all controllers should be plugged in that computer as well. To start it:
+
 ```bash
 ./jsfw server 7776 <path to jsfw/server.json>
 ```
