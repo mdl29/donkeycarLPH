@@ -13,7 +13,7 @@ RECORDING_BLINK_LED_OFF = 0.11
 
 def write_to_controller(color_hex, led_on, led_off):
     w = open("/tmp/jsfw_fifo", "w")
-    w.write(f'{{"led_color": "#{color_hex}", "flash": [{led_on}, {led_off}]}}')
+    w.write(f'{{"index": 0, "led_color": "#{color_hex}", "flash": [{led_on}, {led_off}]}}')
     w.flush()
     w.close()
 
