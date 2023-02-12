@@ -1,6 +1,6 @@
 <template>
   <div class="carCard">
-    <va-card stripe :stripe-color=car.color>
+    <va-card  class="car-card" stripe :stripe-color=car.color>
         <va-card-title><b>{{ car.name }}</b></va-card-title>
         <va-card-content class="content-card ">
           <b>Ip :</b> {{car.ip}} <br>
@@ -26,8 +26,8 @@ export default {
 }
 </script>
 <style scoped>
-.content-card{
-  text-align: left !important;
+.car-card .content-card{
+  text-align: left ;
 }
 .carCard {
   transition: transform .5s;
