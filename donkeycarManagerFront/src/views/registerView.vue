@@ -53,8 +53,8 @@ export default {
 </script>
 <style scoped>
 .alert{
-  margin-top: 1% !important;
-  text-align: left !important;
+  margin-top: 1%;
+  text-align: left;
   font-size: 25px;
   width: 98%;
 }
@@ -62,7 +62,7 @@ export default {
   padding-top: 5%;
 }
 .mainTitle{
-  font-size: 50px !important;
+  font-size: 50px;
 }
 .option-container{
   position: relative;
