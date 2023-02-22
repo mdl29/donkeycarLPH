@@ -1,6 +1,6 @@
 <template>
   <div class="carCard">
-    <va-card  class="car-card" stripe :stripe-color=car.color>
+    <va-card  class="car-card" stripe :stripe-color="'#'+car.color">
         <va-card-title><b>{{ car.name }}</b></va-card-title>
         <va-card-content class="content-card ">
           <b>Ip :</b> {{car.ip}} <br>
