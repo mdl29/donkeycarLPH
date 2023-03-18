@@ -23,14 +23,11 @@
             }
         },
         {
-            "tag": "ctr",
+            "tag": "kids",
             "filter": {
                 "vendor": "0f0d",
                 "product": "00ee",
                 "js": true
-            },
-            "properties": { 
-                "ps4_hidraw": true
             }
         }
     ]

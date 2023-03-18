@@ -1,6 +1,17 @@
 {
-    "controllers": [
-        { "tag": "ctr" }
+    "slots": [
+        {
+            "controllers": [
+                { 
+                    "tag": "ctr",
+                    "product": "09cc"
+                },
+                {
+                    "tag": "kids",
+                    "product": "00ee"
+                }
+            ]
+        }
     ],
     "fifo_path": "/tmp/jsfw_fifo"
 }
