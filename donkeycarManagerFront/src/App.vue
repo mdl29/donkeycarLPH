@@ -3,7 +3,7 @@
 </template>
 
 <style>
-/* @import url('https://fonts.googleapis.com/icon?family=Material+Icons'); */
+/* @import url('https://fonts.googleapis.com/icon?family=Material+Icons'); No needed now */
 
 
 /* fallback */
