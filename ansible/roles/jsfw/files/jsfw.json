@@ -4,11 +4,13 @@
             "controllers": [
                 { 
                     "tag": "ctr",
-                    "product": "09cc"
+                    "product": "09cc",
+                    "name": "PS4 Virtual Controller"
                 },
                 {
                     "tag": "kids",
-                    "product": "00ee"
+                    "product": "00ee",
+                    "name": "HORI Virtual Controller"
                 }
             ]
         }
