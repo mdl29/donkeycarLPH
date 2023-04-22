@@ -28,22 +28,22 @@ import { io } from 'socket.io-client'
 const ip = DonkeycarManagerService.ip
 const url = `http://${ip}:8000`
 const srv = new DonkeycarManagerService(url)
-const car_count = 2
-const socket = io.connect(url, { path: `/ws/socket.io` })
+const carCount = 2
+const socket = io.connect(url, { path: '/ws/socket.io' })
 export default {
   components: {
-    carView,
+    carView
   },
-  data() {
+  data () {
     return {
       // Array of { car, job, race }
       entries: [],
       waitingList: [],
       waitTime: [],
-      interval: null,
+      interval: null
     }
   },
-  mounted() {
+  mounted () {
     this.fetchWaitingList()
     this.fetchCars().then(async () => {
       await that.fetchJobs()
@@ -54,10 +54,10 @@ export default {
       that.waitTime = that.waitingList.map((_, i) => that.getEstimatedWait(i))
     }, 5000)
   },
-  unmounted() {
+  unmounted () {
     clearInterval(this.interval)
   },
-  created() {
+  created () {
     const that = this
     // TODO: that
     // I don't really know what event implies what change,
@@ -92,18 +92,18 @@ export default {
   },
   methods: {
     // fetch and update the cars
-    async fetchCars() {
+    async fetchCars () {
       const cars = await srv.getCars(0, 10)
       for (const car of cars) {
         const state = car.worker.state
         const index = this.entries.findIndex(e => e.car.name === car.name)
 
-        if(state === 'BUSY' || state === 'AVAILABLE') {
+        if (state === 'BUSY' || state === 'AVAILABLE') {
           if (index >= 0) {
             this.entries[index].car = car
             this.entries[index].race = car.race
             console.debug('clientView: (update) displaying car %s', car.name)
-          } else if (this.entries.length < car_count) {
+          } else if (this.entries.length < carCount) {
             this.entries.push({ car: car, job: undefined, race: car.race })
             console.debug('clientView: (added)  displaying car %s', car.name)
           }
@@ -111,16 +111,16 @@ export default {
           this.entries.splice(index, 1)
         }
       }
-      this.entries.sort((a, b) => a.car.worker_id - b.car.worker_id);
-      if (this.car1){
-        this.job1 = await  srv.getJobCar(this.car1.worker_id)
+      this.entries.sort((a, b) => a.car.worker_id - b.car.worker_id)
+      if (this.car1) {
+        this.job1 = await srv.getJobCar(this.car1.worker_id)
       }
-      if (this.car2){
-        this.job2 = await  srv.getJobCar(this.car2.worker_id)
+      if (this.car2) {
+        this.job2 = await srv.getJobCar(this.car2.worker_id)
       }
     },
     // fetch and update the jobs of the currently displayed cars
-    async fetchJobs() {
+    async fetchJobs () {
       this.entries = await Promise.all(
         this.entries.map(async entry => {
           entry.job = (await srv.getJobCar(entry.car.worker_id))[0]
@@ -128,30 +128,30 @@ export default {
         })
       )
     },
-    async fetchWaitingList() {
+    async fetchWaitingList () {
       this.waitingList = await srv.getDrivingWaitingQueue(true, 0, 20)
     },
-    getEstimatedWait(index) {
-      const current_jobs_wait = this.entries.map(e => {
-        let duration = e.job ? getJobDuration(e.job) : 0;
+    getEstimatedWait (index) {
+      const currentJobsWait = this.entries.map(e => {
+        let duration = e.job ? getJobDuration(e.job) : 0
         if (e.race && e.race !== null) {
-          const elapsed = new Date().getTime() - new Date(e.race.start_datetime).getTime();
-          duration = Math.max(Math.floor(duration - elapsed / 1000), 0);
+          const elapsed = new Date().getTime() - new Date(e.race.start_datetime).getTime()
+          duration = Math.max(Math.floor(duration - elapsed / 1000), 0)
         }
-        return Math.max(duration, 0);
+        return Math.max(duration, 0)
       })
-      const waitlist = this.waitingList.slice(0, index).map(getJobDuration);
-      const previous = current_jobs_wait.concat(waitlist);
-      let time = getJobWaitTime(previous, this.entries.length);
+      const waitlist = this.waitingList.slice(0, index).map(getJobDuration)
+      const previous = currentJobsWait.concat(waitlist)
+      let time = getJobWaitTime(previous, this.entries.length)
       if (time === -1) {
-        return '';
+        return ''
       } else if (time === 0) {
-        return 'maintenant';
+        return 'maintenant'
       } else if (time < 60) {
-        return `${time}s`;
+        return `${time}s`
       } else {
-        time = Math.round(time / 60);
-        return `${time} min`;
+        time = Math.round(time / 60)
+        return `${time} min`
       }
     }
   }

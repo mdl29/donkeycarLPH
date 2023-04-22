@@ -4,10 +4,10 @@
 
 <script>
 export default {
-  props: ["src"],
+  props: ['src'],
   methods: {
-    getImg(src) {
-      return require("../assets/controller/" + src)
+    getImg (src) {
+      return require('../assets/controller/' + src)
     }
   }
 }

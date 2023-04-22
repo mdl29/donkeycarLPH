@@ -1,39 +1,28 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import home from '@/components/home'
-import register from '@/components/register'
-import waitingBoard from '@/components/waitingBoard'
-import dashboard from '@/components/dashboard'
-import clientView from '@/components/clientView'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import registerView from '../views/registerView.vue'
+import dashboardView from '../views/dashboardView.vue'
+import clientView from '../views/clientView.vue'
 
-Vue.use(Router)
+const routes = [
+  {
+    path: '/',
+    name: 'registerView',
+    component: registerView
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: dashboardView
+  },
+  {
+    path: '/client',
+    name: 'client',
+    component: clientView
+  }
+]
 
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: home
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: register
-    },
-    {
-      path: '/waitingBoard',
-      name: 'waiting board',
-      component: waitingBoard
-    },
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: dashboard
-    },
-    {
-      path: '/client/',
-      component: clientView,
-      props: true
-    }
-  ]
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes
 })
+export default router
