@@ -21,9 +21,10 @@ import axios from 'axios'
  */
 
 export default class DonkeycarManagerService {
-  static get ip() {
-    return '192.168.20.42'
+  static get ip () {
+    return '192.168.20.42' /** change it to your ip server */
   }
+
   /**
   *
   * @constructor
@@ -63,17 +64,18 @@ export default class DonkeycarManagerService {
     return response.data
   }
 
-    /**
+  /**
   *
   * @async
   * @augments donkeycarManagerService
   * @param {int} playerId - player Id , e.g: 0
   * @returns {Promise} - all player information
   */
-     async getPlayerByPseudo (pseudo) {
-      const response = await axios.get(this.apiUrl + '/players/?player_pseudo=' + String(pseudo)+'&skip=0&limit=100')
-      return response.data
-    }
+  async getPlayerByPseudo (pseudo) {
+    const response = await axios.get(this.apiUrl + '/players/?player_pseudo=' + String(pseudo) + '&skip=0&limit=100')
+    return response.data
+  }
+
   /**
   *
   * @async
@@ -98,6 +100,7 @@ export default class DonkeycarManagerService {
     const response = await axios.get(this.apiUrl + '/jobs/?by_rank=' + rank + '&skip=' + String(skip) + '&limit=' + String(limit) + '&worker_type=CAR&job_states=WAITING')
     return response.data
   }
+
   /**
   * @async
   * @augments donkeycarManagerService
@@ -106,7 +109,7 @@ export default class DonkeycarManagerService {
   */
   async createPlayer (pseudo) {
     const response = await axios.post(this.apiUrl + '/players', {
-      'player_pseudo': pseudo
+      player_pseudo: pseudo
     })
     return response.data
   }
@@ -121,7 +124,7 @@ export default class DonkeycarManagerService {
   */
   async moveAfter (playerId, afterId) {
     const response = await axios.post(this.apiUrl + '/jobs/' + String(playerId) + '/move_after', {
-      'after_job_id': afterId
+      after_job_id: afterId
     })
     return response.data
   }
@@ -136,10 +139,11 @@ export default class DonkeycarManagerService {
   */
   async moveBefore (playerId, beforeId) {
     const response = await axios.post(this.apiUrl + '/jobs/' + String(playerId) + '/move_before', {
-      'before_job_id': beforeId
+      before_job_id: beforeId
     })
     return response.data
   }
+
   /**
    *
    * @async
@@ -193,6 +197,7 @@ export default class DonkeycarManagerService {
     })
     return response.data
   }
+
   /**
   *
   * @async
@@ -211,9 +216,11 @@ export default class DonkeycarManagerService {
   * @async
   * @augments donkeycarManagerService
   * @param {int} playerId - id of the player
+  * @param {int} driveTime - job drive duration in seconds
+  * @param {int} recordTime - job record duration in seconds
   * @returns {Promise} - all player information
   */
-  async addJobs (playerId) {
+  async addJobs (playerId, driveTime, recordTime) {
     // Basic job parameters
     const baseJobParams = {
       player_id: playerId,
@@ -228,14 +235,14 @@ export default class DonkeycarManagerService {
     // Drive Job
     const driveJob = Object.assign({
       name: 'DRIVE',
-      parameters: JSON.stringify({ drive_time: 10 }, null, 2), // 30 sec of driving session
+      parameters: JSON.stringify({ drive_time: driveTime }, null, 2), // 30 sec of driving session
       worker_id: null
     }, baseCarJobParam)
 
     // Recording Job
     const recordJob = Object.assign({
       name: 'RECORD',
-      parameters: JSON.stringify({ drive_time: 20 }, null, 2) // 60 sec of recording
+      parameters: JSON.stringify({ drive_time: recordTime }, null, 2) // 60 sec of recording
       // We don't set the worker_id as it will be set by the drive job before this job to used the same car
     }, baseCarJobParam)
 
@@ -245,9 +252,13 @@ export default class DonkeycarManagerService {
     const chainedJobs = Object.assign({
       next_job_details: JSON.stringify(recordJob, null, 2)
     }, driveJob)
-    console.log('chainedJobs: %o', chainedJobs)
-    const response = await axios.post(this.apiUrl + '/jobs', chainedJobs)
-    return response.data
+    if (driveTime !== 0 && recordTime === 0) {
+      const response = await axios.post(this.apiUrl + '/jobs', driveJob)
+      return response.data
+    } else if (recordTime !== 0) {
+      const response = await axios.post(this.apiUrl + '/jobs', chainedJobs)
+      return response.data
+    }
   }
 
   /**
@@ -257,22 +268,31 @@ export default class DonkeycarManagerService {
   * @param {int} player - id of the player
   * @returns {Promise} - all player information
   */
-  async removeJobs (player) {
-    const response = await axios.post(this.apiUrl + '/jobs/' + String(player.job_id) + '/cancel')
+  async removeJob (job) {
+    const response = await axios.post(this.apiUrl + '/jobs/' + String(job.job_id) + '/cancel')
     return response.data
   }
+
   async pauseJobs (player) {
     const response = await axios.post(this.apiUrl + '/jobs/' + String(player.job_id) + '/pause')
     return response.data
   }
-  async resumeJobs (player) {
-    const response = await axios.post(this.apiUrl + '/jobs/' + String(player.job_id) + '/resume')
+
+  async resumeJob (job) {
+    const response = await axios.post(this.apiUrl + '/jobs/' + String(job.job_id) + '/resume')
     return response.data
   }
+
   async getJobCar (carId) {
     const response = await axios.get(this.apiUrl + '/jobs/?by_rank=true&skip=0&limit=100&worker_id=' + String(carId) + '&job_states=RUNNING&job_states=PAUSING&job_states=PAUSED&job_states=RESUMING&job_states=CANCELLING&job_states=PAUSED')
     return response.data
   }
+
+  async getJobs () {
+    const response = await axios.get(this.apiUrl + '/jobs/?skip=0&limit=1000&worker_type=CAR&job_states=RUNNING&job_states=PAUSING&job_states=PAUSED&job_states=RESUMING&job_states=WAITING&job_states=SUCCEED&job_states=RESUMING')
+    return response.data
+  }
+
   /**
   *
   * @async
