@@ -1,9 +1,14 @@
 name: Build and Push Docker Image to Docker Hub
 
-on:
+on: 
+  pull_request_target: # Allow from forks, but a condition limit where the forks comes from on the sensitive job
+    paths:
+    - donkeycarManagerFront/**
   push:
     branches:
-      - "main"
+      - main
+    paths:
+    - donkeycarManagerFront/**
 
 jobs:
   build:
