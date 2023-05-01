@@ -22,6 +22,10 @@ The donkeycar manager is composed of multiples parts :
 - differents cars with their current job, status
 - total player who subscribe in register login 
 
+## Run with Docker
+
+TODO 
+
 ## Build Setup
 
 ``` bash
