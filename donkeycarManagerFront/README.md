@@ -24,7 +24,14 @@ The donkeycar manager is composed of multiples parts :
 
 ## Run with Docker
 
-TODO 
+> be careful, the backend ip in `service.js` is `192.168.20.42`
+``` bash
+## pull the latest docker image
+docker pull yannismlgrn/donkeycarlph-front
+
+## Run the docker image 
+docker run -d -p 8080:80 yannismlgrn/donkeycarlph-front
+```
 
 ## Build Setup
 
