@@ -84,7 +84,7 @@ class AiTrainerWorkerService(WorkerService):
         if ai_worker_config is not None:
             worker = self._api.get_worker(ai_worker_config.worker_id)
 
-        if worker is not None:  # We assume there is only one IA Worker at all
+        if worker is not None:  # Worker fetched, already existing using it
             self.logger.debug('Using existing IA Worker with ID : %i', worker.worker_id)
             return worker
         else:
