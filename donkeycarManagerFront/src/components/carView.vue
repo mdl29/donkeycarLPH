@@ -10,7 +10,7 @@
     </div>
     <div class="content" :class="{blur: is_paused}">
       <div v-if="job" class="job">
-        <div v-if="race" class="race">
+        <div v-if="race && job.screen_msg !== 'UI-train' " class="race">
           <!-- head -->
           <div class="lap head" v-if="race.laptimers.length > 0 || timeleft > 0">
             <div class="number"> Tour </div>
@@ -46,13 +46,16 @@
             </div>
           </transition-group>
         </div>
-        <div v-if="race && timeleft > 0" class="end">
+        <div v-if="race && timeleft > 0 && job.screen_msg !== 'UI-train'" class="end">
           Fini dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
         <div v-if="job && job.screen_msg_display" class="end message">
           <format-message :message="job.screen_msg" />
         </div>
         <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
+        <div v-if="job.screen_msg === 'UI-train'" class="UI-train">
+          <uiTraining></uiTraining>
+        </div>
       </div>
       <waiting-text v-else />
       <div class="bottom" v-if="job && !is_paused">
@@ -71,11 +74,13 @@
 <script>
 import waitingText from '@/components/waitingText.vue'
 import formatMessage from '@/components/formatMessage.vue'
+import uiTraining from '@/components/uiTraining.vue'
 
 export default {
   components: {
     waitingText,
-    formatMessage
+    formatMessage,
+    uiTraining
   },
   data () {
     return {
@@ -519,5 +524,10 @@ export default {
 .throttle-through {
   border-radius: 0.5em;
   transition: 0.2s all;
+}
+.UI-train {
+  width: 60%;
+  height: 30%;
+  text-align: center;
 }
 </style>
