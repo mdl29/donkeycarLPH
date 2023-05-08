@@ -39,4 +39,5 @@ services:
       FTP_USER_NAME: donkeycarlph
       FTP_USER_PASS: donkeycarlph
       FTP_USER_HOME: /home/donkeycarlph
+      FTP_MAX_CLIENTS: 10 # We might have 3 cars + 2-3 AI trainer, it's safer to let more connexion
     restart: always

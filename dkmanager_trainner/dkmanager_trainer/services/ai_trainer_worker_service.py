@@ -1,11 +1,25 @@
+import os
 import logging
+from pathlib import Path
 from typing import Optional
 
 from dkmanager_worker.helpers.zeroconf import ServiceLocation
+from pydantic import BaseModel
 
 from dkmanager_trainer.services.ia_job_service import IaJobService
 from dkmanager_worker.models.schemas import WorkerType, WorkerCreate, WorkerState, Worker
 from dkmanager_worker.services.worker_service import WorkerService
+
+# Configuration file of the current AI Worker
+# HOME_FOLDER/donkey_car_lph_ai_worker_config.json
+WORKER_CONFIG_LOCATION = f"{os.path.expanduser('~')}/donkey_car_lph_ai_worker_config.json"
+
+
+class AIWorkerConfig(BaseModel):
+    """
+        Format of the configuration file of the worker, located in WORKER_CONFIG_LOCATION
+    """
+    worker_id: int
 
 
 class AiTrainerWorkerService(WorkerService):
@@ -34,17 +48,45 @@ class AiTrainerWorkerService(WorkerService):
 
         self.start_services()
 
+    @staticmethod
+    def get_ai_worker_config() -> AIWorkerConfig:
+        """
+        :return: Current AI Worker configuration.
+        """
+        if Path(WORKER_CONFIG_LOCATION).exists():
+            return AIWorkerConfig.parse_file(WORKER_CONFIG_LOCATION)
+
+        return None
+
+    def create_ai_worker(self) -> Worker:
+        """
+        Create the AI Worker
+        :return: The newly created AI Worker
+        """
+        worker_create_request = WorkerCreate(type=WorkerType.AI_TRAINER, state=WorkerState.STOPPED)
+        worker = self._api.create_worker(worker_create_request)
+
+        # Save worker AI as configuration file
+        self.logger.info('Saving newly created worker id %i, for this AI Trainner in %s',
+                         worker.worker_id,
+                         WORKER_CONFIG_LOCATION)
+        Path(WORKER_CONFIG_LOCATION).write_text(AIWorkerConfig(worker_id=worker.worker_id).json())
+
+        return worker
+
     def create_or_get_worker(self) -> Worker:
         """
         Create IA worker if needed.
         """
-        ai_workers = self._api.get_workers(worker_type=WorkerType.AI_TRAINER)
+        worker = None
 
-        if len(ai_workers) > 0: # We assume there is only one IA Worker at all
-            worker = ai_workers[0]
+        ai_worker_config = AiTrainerWorkerService.get_ai_worker_config()
+        if ai_worker_config is not None:
+            worker = self._api.get_worker(ai_worker_config.worker_id)
+
+        if worker is not None:  # We assume there is only one IA Worker at all
             self.logger.debug('Using existing IA Worker with ID : %i', worker.worker_id)
             return worker
         else:
             self.logger.debug('No existing AI worker, creating one')
-            worker = WorkerCreate(type=WorkerType.AI_TRAINER, state=WorkerState.STOPPED)
-            return self._api.create_worker(worker)
+            return self.create_ai_worker()
