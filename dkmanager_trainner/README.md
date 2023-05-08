@@ -30,6 +30,10 @@ On the machine running the manager :
 ```bash
 VM_IP=$1
 ssh -o "StrictHostKeyChecking=no" paperspace@$VM_IP -R6666
+
+# To improve resilency, use autossh and directly start the service
+sudo apt install autossh
+autossh -M 5731 paperspace@$VM_IP -R 6666 "/home/paperspace/miniconda3/bin/dkmanager-ai-trainer --debug"
 ```
 The last command will open port `6666` on the paperspace machine that can be used as a sock proxy to access the manager.
 
@@ -37,3 +41,12 @@ Start the service :
 ```bash
 dkmanager-ai-trainer --debug
 ``` 
+
+### Troubleshooting
+
+#### GPU Memory issue after previous trainning crashed
+
+Crash after the training of the h5 model coming from the tflite version generation, on our side we disable it in car/config.py :
+```python
+CREATE_TF_LITE = False
+```
