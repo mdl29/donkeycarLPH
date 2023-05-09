@@ -49,14 +49,14 @@
         <div v-if="race && timeleft > 0 && job.screen_msg !== 'UI-train'" class="end">
           Fini dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
-        <div v-if="job && job.screen_msg_display" class="end message">
-          <format-message :message="job.screen_msg" />
-        </div>
-          <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
+        <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
         <div v-if="job.screen_msg === 'UI-train'" class="UI-box">
           <div class="svg-container">
             <uiTraining class="svg-UI"></uiTraining>
           </div>
+        </div>
+        <div v-if="job && job.screen_msg_display" class="end message">
+          <format-message :message="job.screen_msg" />
         </div>
       </div>
       <waiting-text v-else />
