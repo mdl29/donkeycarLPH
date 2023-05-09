@@ -153,7 +153,7 @@ class JobRecord(JobDrive):
             self.display_screen_msg(f'Annulation de l\'entrainement (j{event.job.job_id}) ⏳...')
         elif event.job.state == JobState.RUNNING:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) is running \\o/', self.get_id(), event.job.job_id)
-            self.display_screen_msg("Entrainement du modèle en cours 🎓⏳️️... ")
+            self.display_screen_msg("UI-train | Entrainement du modèle en cours 🎓⏳️️... ")
         elif event.job.state == JobState.SUCCEED:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) finished ... yeah baby', self.get_id(),
                               event.job.job_id)
@@ -212,7 +212,7 @@ class JobRecord(JobDrive):
                           training_job.job_id)
         self.logger.debug('[job_id: %i]  Telling the user it\'s model training is launched',
                           self.get_id())
-        self.display_screen_msg("Entrainement du modèle on attend un prof 🎓️... ")
+        self.display_screen_msg("UI-train | Entrainement du modèle on attend un prof 🎓️... ")
 
         event_name = f'one_job_id.{training_job.job_id}.updated'
         self.logger.debug("Job[job_id: %i] Listening to '%s' events", self.get_id(), event_name)
@@ -225,11 +225,11 @@ class JobRecord(JobDrive):
         if self.event_cancelled.isSet() or self.event_paused.isSet():
             return
         elif self.drive_stage == JobDriveStage.DRIVE_FINISHED:
-            self.logger.debug('UI-train | Job[job_id: %i] Finish drive with success',
+            self.logger.debug('Job[job_id: %i] Finish drive with success',
                               self.get_id())
             self.logger.debug('Job[job_id: %i] Sending data to server ......',
                               self.get_id())
-            self.display_screen_msg("Fini ! Transfert de l'enregistrement ⏳...️")
+            self.display_screen_msg("UI-train | Fini ! Transfert de l'enregistrement ⏳...️")
             remote_dataset_path = self.compress_transfert_data()
             self.clean_data_folder()
 
