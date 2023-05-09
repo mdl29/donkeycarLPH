@@ -10,7 +10,7 @@
     </div>
     <div class="content" :class="{blur: is_paused}">
       <div v-if="job" class="job">
-        <div v-if="race && job.screen_msg !== 'UI-train' " class="race">
+        <div v-if="race && job.screen_msg.split(' | ')[0] !== 'UI-train' " class="race">
           <!-- head -->
           <div class="lap head" v-if="race.laptimers.length > 0 || timeleft > 0">
             <div class="number"> Tour </div>
@@ -46,7 +46,7 @@
             </div>
           </transition-group>
         </div>
-        <div v-if="race && timeleft > 0 && job.screen_msg !== 'UI-train'" class="end">
+        <div v-if="race && timeleft > 0 && job.screen_msg.split(' | ')[0] !== 'UI-train'" class="end">
           Fini dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
         <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
@@ -55,8 +55,11 @@
             <uiTraining class="svg-UI"></uiTraining>
           </div>
         </div>
-        <div v-if="job && job.screen_msg_display" class="end message">
-          <format-message :message="job.screen_msg" />
+        <div v-if="job && job.screen_msg_display && job.screen_msg.split(' | ')[0] !== 'UI-train'" class="end message">
+          <format-message :message="job.screen_msg.split(' | ')[0]" />
+        </div>
+        <div v-if="job && job.screen_msg_display && job.screen_msg.split(' | ')[0] === 'UI-train'" class="end message">
+          <format-message :message="job.screen_msg.split(' | ')[1]" />
         </div>
       </div>
       <waiting-text v-else />
