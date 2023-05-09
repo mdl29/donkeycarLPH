@@ -145,9 +145,11 @@ class JobRecord(JobDrive):
             self.logger.debug('Job[job_id: %i] Training job (id: %i) failed with fail_details : %s', self.get_id(),
                               event.job.job_id, event.job.fail_details)
             self.display_screen_msg(f'Échec de l\'entrainement (j{event.job.job_id}) ❌')
+            self.screen_msg('')
         elif event.job.state == JobState.CANCELLED:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) cancelled', self.get_id(), event.job.job_id)
             self.display_screen_msg(f'Entrainement annulé (j{event.job.job_id}) ❌')
+            self.screen_msg('')
         elif event.job.state == JobState.CANCELLING:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) cancelling', self.get_id(), event.job.job_id)
             self.display_screen_msg(f'Annulation de l\'entrainement (j{event.job.job_id}) ⏳...')
@@ -227,7 +229,7 @@ class JobRecord(JobDrive):
         elif self.drive_stage == JobDriveStage.DRIVE_FINISHED:
             self.logger.debug('Job[job_id: %i] Finish drive with success',
                               self.get_id())
-
+            self.screen_msg("UI-train")
             self.logger.debug('Job[job_id: %i] Sending data to server ......',
                               self.get_id())
             self.display_screen_msg("Fini ! Transfert de l'enregistrement ⏳...️")
@@ -242,6 +244,7 @@ class JobRecord(JobDrive):
 
             if self.event_cancelled.isSet():
                 self.logger.debug('[job_id: %i] Cancelled during training waiting', self.get_id())
+                self.screen_msg('')
                 return
             elif self.is_training_finished.isSet():
                 self.logger.debug('[job_id: %i] Training finished', self.get_id()) # Will already display a msg
@@ -249,6 +252,7 @@ class JobRecord(JobDrive):
                 model_archive_path = parameters['output:model_remote_archive']
                 self.logger.debug('Job[job_id: %i] Training job (id: %i) model available here : %s', self.get_id(),
                                   self.training_job.job_id, model_archive_path)
+                self.screen_msg('')
                 self.create_ai_assisted_job(model_archive_path)
 
         else:
