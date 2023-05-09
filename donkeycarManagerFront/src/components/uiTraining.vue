@@ -19,7 +19,7 @@ export default {
         x = 1
         document.getElementById('svg-ui').src = require('../assets/svg/' + x + '.svg')
       }
-    }, 1500)
+    }, 30000)
   },
   unmounted () {
     clearInterval(this.boucle)
