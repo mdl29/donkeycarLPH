@@ -1,6 +1,8 @@
 import os
 import logging
 from time import sleep
+from fcntl import ioctl
+import array
 
 from donkeycar.parts.controller import Joystick, JoystickController
 from typing import NoReturn
@@ -11,18 +13,60 @@ logger.setLevel(logging.INFO)
 RECORDING_BLINK_LED_ON = 0.04
 RECORDING_BLINK_LED_OFF = 0.11
 
-def write_to_controller(color_hex, led_on, led_off):
+def write_to_controller(color_hex: str, led_on: float, led_off: float) -> NoReturn:
     w = open("/tmp/jsfw_fifo", "w")
     w.write(f'{{"index": 0, "led_color": "#{color_hex}", "flash": [{led_on}, {led_off}]}}')
     w.flush()
     w.close()
 
+def get_device_name(path: str) -> str:
+    dev = open(path, 'rb')
+    buf = array.array('B', [0] * 64)
+    ioctl(dev, 0x80006a13 + (0x10000 * len(buf)), buf) # JSIOCGNAME(len)
+    name = buf.tobytes().decode('utf-8')
+    dev.close()
+    return name
+
+# Should be an abstract class, but needs to have Joystick as superclass
 class MyJoystick(Joystick):
-    """
-    Totally not a copy of the xbox one joystick (because the ps4 one doesn't work on ps4 controllers)
-    """
+    def build(dev_fn: str = "/dev/input/js0") -> 'MyJoystick':
+        dev_name = get_device_name(dev_fn)
+        if dev_name.startswith("PS4 Virtual Controller"):
+            return PS4Joystick(dev_fn)
+        elif dev_name.startswith("HORI Virtual Controller"):
+            return HORIJoystick(dev_fn)
+        else:
+            logger.error(f"Unexpected joystick name on {dev_fn}: {dev_name}, not a JSFW device")
+            raise(Exception("Unexpected joystick name"))
+
     def __init__(self, *args, **kwargs):
         super(MyJoystick, self).__init__(*args, **kwargs)
+        self.initialized = False;
+
+    def init(self):
+        self.initialized = super().init()
+
+    def cleanup(self):
+        if self.initialized:
+            self.jsdev.close()
+            self.initialized = False
+
+    def poll(self):
+        button, button_state, axis, axis_val = super().poll()
+        if button is not None and button_state != 0:
+            button_state = 1
+        return button, button_state, axis, axis_val
+
+    # Start blinking, if the controller supports it
+    def set_blink(self):
+        pass
+    # Stop blinking, if the controller supports it
+    def unset_blink(self):
+        pass
+
+class PS4Joystick(MyJoystick):
+    def __init__(self, *args, **kwargs):
+        super(PS4Joystick, self).__init__(*args, **kwargs)
         self._led_color = "FFFFFF" # default color
         controller_color_hex = os.getenv('CONTROLLER_LED_COLOR')
         if controller_color_hex:
@@ -55,19 +99,39 @@ class MyJoystick(Joystick):
             0x136: 'L1',
         }
 
-    def init(self):
-        self.initialized = super().init()
+    def set_blink(self):
+        write_to_controller(self._led_color, RECORDING_BLINK_LED_ON, RECORDING_BLINK_LED_OFF)
 
-    def cleanup(self):
-        if self.initialized:
-            self.jsdev.close()
-            self.initialized = False
+    def unset_blink(self):
+        write_to_controller(self._led_color, 0, 0)
 
-    def poll(self):
-        button, button_state, axis, axis_val = super().poll()
-        if button is not None and button_state != 0:
-            button_state = 1
-        return button, button_state, axis, axis_val
+class HORIJoystick(MyJoystick):
+    def __init__(self, *args, **kwargs):
+        super(HORIJoystick, self).__init__(*args, **kwargs)
+
+        self.axis_names = {
+            0x00 : 'left_stick_horz',
+            0x01 : 'left_stick_vert',
+            0x05 : 'right_stick_vert',
+            0x02 : 'right_stick_horz',
+            0x0a : 'left_trigger',
+            0x09 : 'right_trigger',
+            0x10 : 'dpad_horiz',
+            0x11 : 'dpad_vert'
+        }
+
+        self.button_names = {
+            0x130: 'a_button',
+            0x132: 'b_button',
+            0x131: 'x_button',
+            0x133: 'y_button',
+            0x138: 'share',
+            0x139: 'options',
+            0x136: 'left_shoulder',
+            0x137: 'right_shoulder',
+            0x135: 'R1',
+            0x134: 'L1',
+        }
 
 class MyJoystickController(JoystickController):
     """
@@ -80,19 +144,20 @@ class MyJoystickController(JoystickController):
         self.inverted = False
         super(MyJoystickController, self).__init__(*args, **kwargs)
         self.state_x_button = False
+        self.js = None
 
     def init_js(self):
         """
         attempt to init joystick
         """
         try:
-            self.js = MyJoystick(self.dev_fn)
+            self.js = MyJoystick.build(self.dev_fn)
             self.js.init()
+            return True
         except FileNotFoundError:
             print(self.dev_fn, "not found.")
-            self.js.initialized = False
-        return self.js.initialized
-
+            self.js = None
+            return False
 
     def magnitude(self, reversed = False):
         def set_magnitude(axis_val):
@@ -112,7 +177,6 @@ class MyJoystickController(JoystickController):
     def invert_controls(self):
         self.inverted = not self.inverted
         self.init_trigger_maps()
-
     
     def go_easy_mode(self):
         self.easy_drive_mode = not self.easy_drive_mode
@@ -198,9 +262,9 @@ class MyJoystickController(JoystickController):
         Update LED recording state, run when recording change.
         """
         if self.recording:
-            write_to_controller(self.js._led_color, RECORDING_BLINK_LED_ON, RECORDING_BLINK_LED_OFF)
+            self.js.set_blink()
         else:
-            write_to_controller(self.js._led_color, 0, 0)
+            self.js.unset_blink()
 
     def x_button_pressed(self):
         """
@@ -239,7 +303,12 @@ class MyJoystickController(JoystickController):
     def update(self):
         while True:
             if self.js is None:
-                self.js = MyJoystick(self.dev_fn)
+                try:
+                    self.js = MyJoystick.build(self.dev_fn)
+                except:
+                    self.js = None
+                    sleep(2)
+                    continue
 
             # init_js is called by super on update
             while not self.js.initialized:
@@ -256,5 +325,7 @@ class MyJoystickController(JoystickController):
                 except OSError:
                     logger.info("Lost joystick")
                     self.js.cleanup()
+                    # reset the joystick since it might change
+                    self.js = None
 
 

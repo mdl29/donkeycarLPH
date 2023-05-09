@@ -2,7 +2,7 @@
     <va-card class="job-card">
           <va-card-content class="job-content">
             <div class="row justify--space-between">
-              <va-badge :color="carColor" :text="carName" />
+              <va-badge :color="'#'+carColor" :text="carName" />
               <p id="text-info"> <b>{{job.player.player_pseudo}}</b></p>
             </div>
             <div>
