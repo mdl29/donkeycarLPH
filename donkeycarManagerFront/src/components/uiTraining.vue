@@ -1,26 +1,28 @@
 <template>
-  <img id="svg-ui">
+  <img classs="svgUI" id="svg-ui">
 </template>
 <script>
 export default {
   data () {
     return {
+      boucle: null
     }
   },
-  created () {
-    let x = 1
-    setInterval(function () {
-      if (x <= 4) {
-        console.log('hello')
+  mounted () {
+    document.getElementById('svg-ui').src = require('../assets/svg/1.svg')
+    let x = 2
+    this.boucle = setInterval(function () {
+      if (x < 5) {
         document.getElementById('svg-ui').src = require('../assets/svg/' + x + '.svg')
         x += 1
       } else {
         x = 1
+        document.getElementById('svg-ui').src = require('../assets/svg/' + x + '.svg')
       }
     }, 30000)
+  },
+  unmounted () {
+    clearInterval(this.boucle)
   }
 }
 </script>
-<style>
-
-</style>

@@ -52,9 +52,9 @@
         <div v-if="job && job.screen_msg_display" class="end message">
           <format-message :message="job.screen_msg" />
         </div>
-        <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
+        <!--<div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div> -->
         <div v-if="job.screen_msg === 'UI-train'" class="UI-train">
-          <uiTraining></uiTraining>
+          <uiTraining class="svg-UI"></uiTraining>
         </div>
       </div>
       <waiting-text v-else />
@@ -525,9 +525,11 @@ export default {
   border-radius: 0.5em;
   transition: 0.2s all;
 }
-.UI-train {
-  width: 60%;
-  height: 30%;
-  text-align: center;
+.svg-UI {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  height: 80%;
 }
 </style>
