@@ -532,7 +532,7 @@ export default {
   padding-right: 5em;
   padding-left: 5em;
   flex-direction: row;
-  height: 400px;
+  height: 600px;
 }
 
 .svg-container{
@@ -542,6 +542,7 @@ export default {
   justify-content: center;
 }
 .svg-container .svg-UI{
+  width: 100%;
   height: 100%;
 }
 </style>
