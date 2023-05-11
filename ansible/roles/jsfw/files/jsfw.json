@@ -1,6 +1,19 @@
 {
-    "controllers": [
-        { "tag": "ctr" }
+    "slots": [
+        {
+            "controllers": [
+                { 
+                    "tag": "ctr",
+                    "product": "09cc",
+                    "name": "PS4 Virtual Controller"
+                },
+                {
+                    "tag": "kids",
+                    "product": "00ee",
+                    "name": "HORI Virtual Controller"
+                }
+            ]
+        }
     ],
     "fifo_path": "/tmp/jsfw_fifo"
 }
