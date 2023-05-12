@@ -155,6 +155,13 @@ class ManagerApiService:
         """
         return self._create_resource(worker, RES_WORKERS, Worker, "worker")
 
+    def get_worker(self, worker_id: int) -> Optional[Worker]:
+        """
+        :param worker_id: Get a worker by it's ID.
+        :return: The worker if it exists.
+        """
+        return self._get_resource(worker_id, RES_WORKERS, Worker, "worker")
+
     def get_workers(self, worker_type: Optional[WorkerType]=None) -> Optional[List[Worker]]:
         """
         :param worker_type: Filter by worker type.

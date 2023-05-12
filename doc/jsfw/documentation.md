@@ -12,7 +12,7 @@ cd jsfw
 ```
 > Checkout the correct version
 ```bash
-git checkout a4b69eb0a115e7fd862dd5e3bc20a3561ea9bcc6
+git checkout 6f76aef7976ec472566a4dc6a60fa25742161288
 ```
 > Build the binary
 ```bash
