@@ -10,7 +10,7 @@
     </div>
     <div class="content" :class="{blur: is_paused}">
       <div v-if="job" class="job">
-        <div v-if="race && job.screen_msg.split(' | ')[0] !== 'UI-train' " class="race">
+        <div v-if="race &&  !displayUiTraining" class="race">
           <!-- head -->
           <div class="lap head" v-if="race.laptimers.length > 0 || timeleft > 0">
             <div class="number"> Tour </div>
@@ -46,20 +46,17 @@
             </div>
           </transition-group>
         </div>
-        <div v-if="race && timeleft > 0 && job.screen_msg.split(' | ')[0] !== 'UI-train'" class="end">
+        <div v-if="race && timeleft > 0 && !displayUiTraining" class="end">
           Fini dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
         <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
-        <div v-if="job.screen_msg === 'UI-train'" class="UI-box">
+        <div v-if="displayUiTraining" class="UI-box">
           <div class="svg-container">
             <uiTraining class="svg-UI"></uiTraining>
           </div>
         </div>
-        <div v-if="job && job.screen_msg_display && job.screen_msg.split(' | ')[0] !== 'UI-train'" class="end message">
-          <format-message :message="job.screen_msg.split(' | ')[0]" />
-        </div>
-        <div v-if="job && job.screen_msg_display && job.screen_msg.split(' | ')[0] === 'UI-train'" class="end message">
-          <format-message :message="job.screen_msg.split(' | ')[1]" />
+        <div v-if="job && job.screen_msg_display" class="end message">
+          <format-message :message="job.screen_msg" />
         </div>
       </div>
       <waiting-text v-else />
@@ -209,6 +206,10 @@ export default {
     }
   },
   computed: {
+    displayUiTraining () {
+      // convert to bool for sanity
+      return !!(this.job.screen_msg?.match(/(?:cours|Transfert|prof)/))
+    },
     throughStyle () {
       const t = Math.min(Math.max(this.car.throttle_scale, 0.0), 1.0)
       const stops = [
