@@ -417,6 +417,7 @@ export default {
 }
 .message {
   font-size: 2em;
+  flex: 2;
 }
 .indicator-wrapper {
   display: flex;
@@ -536,7 +537,7 @@ export default {
   padding-right: 5em;
   padding-left: 5em;
   flex-direction: row;
-  height: 600px;
+  flex-grow: 3;
 }
 
 .svg-container{
@@ -544,6 +545,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 .svg-container .svg-UI{
   width: 100%;

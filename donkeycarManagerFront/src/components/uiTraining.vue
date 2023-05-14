@@ -1,28 +1,30 @@
 <template>
-  <img classs="svgUI" id="svg-ui">
+  <img classs="svgUI" ref="uiSvg" id="svg-ui">
 </template>
 <script>
+const imageCount = 4
 export default {
   data () {
     return {
-      boucle: null
+      loop: null
     }
   },
   mounted () {
-    document.getElementById('svg-ui').src = require('../assets/svg/1.svg')
-    let x = 2
-    this.boucle = setInterval(function () {
-      if (x < 5) {
-        document.getElementById('svg-ui').src = require('../assets/svg/' + x + '.svg')
-        x += 1
-      } else {
-        x = 1
-        document.getElementById('svg-ui').src = require('../assets/svg/' + x + '.svg')
-      }
-    }, 30000)
+    let image = 0
+    this.setImage(image)
+    const that = this
+    this.loop = setInterval(function () {
+      image = (image + 1) % imageCount
+      that.setImage(image)
+    }, 10000)
   },
   unmounted () {
-    clearInterval(this.boucle)
+    clearInterval(this.loop)
+  },
+  methods: {
+    setImage (n) {
+      this.$refs.uiSvg.src = require(`../assets/svg/${n + 1}.svg`)
+    }
   }
 }
 </script>
