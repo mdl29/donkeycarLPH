@@ -90,9 +90,10 @@
   pip:
     name: 
       - pigpio
-      - numpy
+      - numpy==1.21.6
       - picamera
       - pandas
       - rpi.gpio
+      - protobuf==3.20.*
     virtualenv: /home/pi/venv/
     virtualenv_command: /usr/bin/python3 -m venv
