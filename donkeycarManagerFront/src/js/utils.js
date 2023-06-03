@@ -1,5 +1,3 @@
-import { isNaN, parseInt } from "core-js/core/number"
-
 /**
  * Get the duration of a job, prints a warning and returns 0 if failed.
  * @param {Job} job - the job to take the duration of
