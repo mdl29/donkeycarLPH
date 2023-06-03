@@ -10,7 +10,7 @@
     </div>
     <div class="content" :class="{blur: is_paused}">
       <div v-if="job" class="job">
-        <div v-if="race &&  !displayUiTraining" class="race">
+        <div v-if="race && !displayUiTraining" class="race">
           <!-- head -->
           <div class="lap head" v-if="race.laptimers.length > 0 || timeleft > 0">
             <div class="number"> Tour </div>
@@ -55,7 +55,7 @@
             <uiTraining class="svg-UI"></uiTraining>
           </div>
         </div>
-        <div v-if="job && job.screen_msg_display" class="end message">
+        <div v-if="job && job.screen_msg_display" class="end message" :class="{ expand: displayUiTraining }">
           <format-message :message="job.screen_msg" />
         </div>
       </div>
@@ -417,7 +417,12 @@ export default {
 }
 .message {
   font-size: 2em;
+}
+.message.expand {
   flex: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .indicator-wrapper {
   display: flex;
@@ -545,7 +550,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 .svg-container .svg-UI{
   width: 100%;

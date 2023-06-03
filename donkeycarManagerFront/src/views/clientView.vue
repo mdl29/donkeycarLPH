@@ -28,7 +28,7 @@ import { io } from 'socket.io-client'
 const ip = DonkeycarManagerService.ip
 const url = `http://${ip}:8000`
 const srv = new DonkeycarManagerService(url)
-const carCount = 2
+const carCount = 3
 const socket = io.connect(url, { path: '/ws/socket.io' })
 export default {
   components: {
