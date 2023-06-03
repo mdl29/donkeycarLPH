@@ -10,6 +10,7 @@ import socketio
 from ftplib import FTP
 from typing import Dict, NoReturn
 
+from dkmanager_worker.helpers.retry_action import retry
 from dkmanager_worker.helpers.zeroconf import ServiceLocation
 from dkmanager_worker.models.schemas import Job
 from dkmanager_worker.services.manager_api_service import ManagerApiService
@@ -73,6 +74,7 @@ class JobTrain(GenericJob):
         login_res = ftp.login(user='donkeycarlph', passwd='donkeycarlph')
         return ftp
 
+    @retry(nb_max_retry=7, time_increment_between_attempts=5, fun_description='FTP download')
     def download_and_uncompress_dataset(self) -> str:
         """
         Download job data set to a tmp folder.
@@ -107,6 +109,7 @@ class JobTrain(GenericJob):
 
         return f"{tmp_dataset_destination}/{DATASET_INSIDE_ARCHIVE_DATA_FOLDER}"
 
+    @retry(nb_max_retry=7, time_increment_between_attempts=5, fun_description='FTP upload')
     def compress_and_upload_model(self, models_folder_path) -> str:
         """
         Upload model to server and return it's file name.
@@ -148,6 +151,7 @@ class JobTrain(GenericJob):
         self.logger.debug('Job[job_id: %i] Cleaning %s', self.get_id(), tmp_folder)
         shutil.rmtree(tmp_folder)
 
+    @retry(nb_max_retry=2, time_increment_between_attempts=15, fun_description='Model training')
     def train_model(self, dataset_path) -> str:
         """
         Start a training of the model and return it's path (h5 folder path) when finished.
