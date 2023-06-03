@@ -8,7 +8,7 @@ export function getJobDuration (job) {
     const params = JSON.parse(job.parameters)
     let driveTime = parseInt(params.drive_time)
     if(isNaN(driveTime)) {
-        driveTime = 0;
+        driveTime = 0
     }
 
     if (typeof job.next_job_details === 'string') {
