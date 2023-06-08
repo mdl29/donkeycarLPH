@@ -70,7 +70,7 @@
   ansible.builtin.lineinfile:
     path: /home/pi/projects/setup.py
     search_string: 'numpy==1.19'
-    line: 'numpy==1.21.6'
+    line: "'numpy==1.21.6',"
 
 - name: run setup.py
   become: yes
