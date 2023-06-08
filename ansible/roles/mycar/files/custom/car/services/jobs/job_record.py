@@ -15,7 +15,8 @@ from custom.car.services.jobs.job_drive import JobDrive, JobDriveStage
 TMP_TAR_FILE_PATH = '/tmp/donkeycarLPH-data.tar.gz'
 FTP_DATASET_FOLDER = 'datasets'
 
-DEFAULT_AI_ASSISTED_JOB_DRIVE_TIME = 2 * 60 # Default drive time is 2min
+DEFAULT_AI_ASSISTED_JOB_DRIVE_TIME = 2 * 60  # Default drive time is 2min
+
 
 class JobRecord(JobDrive):
 
@@ -29,12 +30,14 @@ class JobRecord(JobDrive):
         self.by_pass_drive_finished_confirmation = True
 
         self.is_recording = RegistableEvent()  # Will be set when the user is recording
-        self.is_training_finished = RegistableEvent() # Will be set when the user training job is finished
+        # Will be set when the user training job is finished
+        self.is_training_finished = RegistableEvent()
 
-        self.training_job: Optional[Job] = None # Will old the training job, available when is_training_finished is set.
+        # Will old the training job, available when is_training_finished is set.
+        self.training_job: Optional[Job] = None
 
-        self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
-
+        self.logger = logging.getLogger(
+            self.__module__ + "." + self.__class__.__name__)
 
     def clean_data_folder(self) -> NoReturn:
         """
@@ -47,7 +50,7 @@ class JobRecord(JobDrive):
 
     def start_recording(self) -> NoReturn:
         self.logger.debug('Job[job_id: %i] Starting recording for user %s',
-                              self.get_id(), self.job_data.player.player_pseudo)
+                          self.get_id(), self.job_data.player.player_pseudo)
         self.clean_data_folder()
         # Would need to reset tub_writer
         self.tub_writer.reset()
@@ -74,14 +77,17 @@ class JobRecord(JobDrive):
         remote_archive_name = f'{d_now.strftime("%Y-%m-%d_%H:%I")}_{self.car.name}_p{self.job_data.player_id}_j{self.job_data.job_id}.tar.gz'
 
         if not (FTP_DATASET_FOLDER in ftp.nlst()):
-            self.logger.debug('Job[job_id: %i] Creating FTP folder "%s"', self.get_id(), FTP_DATASET_FOLDER)
+            self.logger.debug(
+                'Job[job_id: %i] Creating FTP folder "%s"', self.get_id(), FTP_DATASET_FOLDER)
             ftp.mkd(FTP_DATASET_FOLDER)
 
         ftp.cwd(FTP_DATASET_FOLDER)
         file = open(TMP_TAR_FILE_PATH, 'rb')
-        self.logger.debug('Job[job_id: %i] Transferring to "%s"', self.get_id(), remote_archive_name)
+        self.logger.debug('Job[job_id: %i] Transferring to "%s"',
+                          self.get_id(), remote_archive_name)
         res = ftp.storbinary(f'STOR {remote_archive_name}', file)
-        self.logger.debug('Job[job_id: %i] Transfer result : %s', self.get_id(), res)
+        self.logger.debug(
+            'Job[job_id: %i] Transfer result : %s', self.get_id(), res)
         file.close()
 
         ftp.close()
@@ -102,19 +108,18 @@ class JobRecord(JobDrive):
                      controller_x_pressed: Optional[bool] = False,
                      cam_image_array: Optional[Any] = None
                      ) -> Tuple[float, str, bool, bool]:
-        user_throttle, job_name, laptimer_reset_all, recording_state, pilote_angle, pilote_throttle, user_mode =  super(JobRecord, self).run_threaded(
-                user_throttle,
-                laptimer_current_start_lap_datetime,
-                laptimer_current_lap_duration,
-                laptimer_last_lap_start_datetime,
-                laptimer_last_lap_duration,
-                laptimer_last_lap_end_date_time,
-                laptimer_laps_total,
-                controller_x_pressed,
-                cam_image_array)
+        user_throttle, job_name, laptimer_reset_all, recording_state, pilote_angle, pilote_throttle, user_mode = super(JobRecord, self).run_threaded(
+            user_throttle,
+            laptimer_current_start_lap_datetime,
+            laptimer_current_lap_duration,
+            laptimer_last_lap_start_datetime,
+            laptimer_last_lap_duration,
+            laptimer_last_lap_end_date_time,
+            laptimer_laps_total,
+            controller_x_pressed,
+            cam_image_array)
         job_name = 'RECORD'
         user_mode = 'user'
-
 
         # Recording stays enabled until drive is finished
         recording_state = self.drive_stage == JobDriveStage.USER_DRIVING
@@ -123,12 +128,12 @@ class JobRecord(JobDrive):
             self.start_recording()
 
         return user_throttle,\
-               job_name,\
-               laptimer_reset_all,\
-               recording_state,\
-               pilote_angle,\
-               pilote_throttle,\
-               user_mode
+            job_name,\
+            laptimer_reset_all,\
+            recording_state,\
+            pilote_angle,\
+            pilote_throttle,\
+            user_mode
 
     def on_training_job_update(self, event_dict: dict):
         """
@@ -139,26 +144,33 @@ class JobRecord(JobDrive):
         event = EventJobChanged.parse_obj(event_dict)
         self.logger.debug('on_training_job_update: with event : %r', event)
 
-        self.training_job = event.job # Update training job datas
+        self.training_job = event.job  # Update training job datas
 
         if event.job.state == JobState.FAILED:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) failed with fail_details : %s', self.get_id(),
                               event.job.job_id, event.job.fail_details)
-            self.display_screen_msg(f'Échec de l\'entrainement (j{event.job.job_id}) ❌')
+            self.display_screen_msg(
+                f'Échec de l\'entrainement (j{event.job.job_id}) ❌')
         elif event.job.state == JobState.CANCELLED:
-            self.logger.debug('Job[job_id: %i] Training job (id: %i) cancelled', self.get_id(), event.job.job_id)
-            self.display_screen_msg(f'Entrainement annulé (j{event.job.job_id}) ❌')
+            self.logger.debug(
+                'Job[job_id: %i] Training job (id: %i) cancelled', self.get_id(), event.job.job_id)
+            self.display_screen_msg(
+                f'Entrainement annulé (j{event.job.job_id}) ❌')
         elif event.job.state == JobState.CANCELLING:
-            self.logger.debug('Job[job_id: %i] Training job (id: %i) cancelling', self.get_id(), event.job.job_id)
-            self.display_screen_msg(f'Annulation de l\'entrainement (j{event.job.job_id}) ⏳...')
+            self.logger.debug(
+                'Job[job_id: %i] Training job (id: %i) cancelling', self.get_id(), event.job.job_id)
+            self.display_screen_msg(
+                f'Annulation de l\'entrainement (j{event.job.job_id}) ⏳...')
         elif event.job.state == JobState.RUNNING:
-            self.logger.debug('Job[job_id: %i] Training job (id: %i) is running \\o/', self.get_id(), event.job.job_id)
-            self.display_screen_msg("UI-train | Entrainement du modèle en cours 🎓⏳️️... ")
+            self.logger.debug(
+                'Job[job_id: %i] Training job (id: %i) is running \\o/', self.get_id(), event.job.job_id)
+            self.display_screen_msg("Entrainement du modèle en cours 🎓⏳️️... ")
         elif event.job.state == JobState.SUCCEED:
             self.logger.debug('Job[job_id: %i] Training job (id: %i) finished ... yeah baby', self.get_id(),
                               event.job.job_id)
             self.is_training_finished.set()
-            self.sio.handlers['/'][f'one_job_id.{event.job.job_id}.updated']  # Remove socket IO handler
+            # Remove socket IO handler
+            self.sio.handlers['/'][f'one_job_id.{event.job.job_id}.updated']
 
     def create_ai_assisted_job(self, model_archive_path: str) -> Job:
         """
@@ -183,7 +195,8 @@ class JobRecord(JobDrive):
         self.logger.debug('[job_id: %i] Creating model driving job, for player: %i (%s)', self.get_id(),
                           self.job_data.player.player_id, self.job_data.player.player_pseudo)
         drive_model_job: Job = self.api.create_job(model_job_create_req)
-        drive_model_job = self.api.job_move_after(drive_model_job.job_id, after_job_id=self.job_data.job_id)
+        drive_model_job = self.api.job_move_after(
+            drive_model_job.job_id, after_job_id=self.job_data.job_id)
         self.logger.debug('[job_id: %i] Created model driving job id: %i, for player: %i (%s)', self.get_id(),
                           drive_model_job.job_id, self.job_data.player.player_id, self.job_data.player.player_pseudo)
         return drive_model_job
@@ -212,14 +225,17 @@ class JobRecord(JobDrive):
                           training_job.job_id)
         self.logger.debug('[job_id: %i]  Telling the user it\'s model training is launched',
                           self.get_id())
-        self.display_screen_msg("UI-train | Entrainement du modèle on attend un prof 🎓️... ")
+        self.display_screen_msg(
+            "Entrainement du modèle on attend un prof 🎓️... ")
 
         event_name = f'one_job_id.{training_job.job_id}.updated'
-        self.logger.debug("Job[job_id: %i] Listening to '%s' events", self.get_id(), event_name)
+        self.logger.debug(
+            "Job[job_id: %i] Listening to '%s' events", self.get_id(), event_name)
         self.sio.on(event_name, self.on_training_job_update)
 
     def run_job(self, resumed: bool = False) -> None:
-        self.logger.debug('Job[job_id: %i] Starting RECORD job, will execute Drive job', self.get_id())
+        self.logger.debug(
+            'Job[job_id: %i] Starting RECORD job, will execute Drive job', self.get_id())
         super(JobRecord, self).run_job()
 
         if self.event_cancelled.isSet() or self.event_paused.isSet():
@@ -229,7 +245,8 @@ class JobRecord(JobDrive):
                               self.get_id())
             self.logger.debug('Job[job_id: %i] Sending data to server ......',
                               self.get_id())
-            self.display_screen_msg("UI-train | Fini ! Transfert de l'enregistrement ⏳...️")
+            self.display_screen_msg(
+                "Fini ! Transfert de l'enregistrement ⏳...️")
             remote_dataset_path = self.compress_transfert_data()
             self.clean_data_folder()
 
@@ -240,10 +257,13 @@ class JobRecord(JobDrive):
                 training_finished_or_cancelled.wait()
 
             if self.event_cancelled.isSet():
-                self.logger.debug('[job_id: %i] Cancelled during training waiting', self.get_id())
+                self.logger.debug(
+                    '[job_id: %i] Cancelled during training waiting', self.get_id())
                 return
             elif self.is_training_finished.isSet():
-                self.logger.debug('[job_id: %i] Training finished', self.get_id()) # Will already display a msg
+                # Will already display a msg
+                self.logger.debug(
+                    '[job_id: %i] Training finished', self.get_id())
                 parameters = json.loads(self.training_job.parameters)
                 model_archive_path = parameters['output:model_remote_archive']
                 self.logger.debug('Job[job_id: %i] Training job (id: %i) model available here : %s', self.get_id(),
