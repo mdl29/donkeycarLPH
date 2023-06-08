@@ -6,11 +6,16 @@
 export function getJobDuration (job) {
   try {
     const params = JSON.parse(job.parameters)
+    let driveTime = parseInt(params.drive_time)
+    if (isNaN(driveTime)) {
+      driveTime = 0
+    }
+
     if (typeof job.next_job_details === 'string') {
       const nextJob = JSON.parse(job.next_job_details)
-      return parseInt(params.drive_time) + getJobDuration(nextJob)
+      return driveTime + getJobDuration(nextJob)
     } else {
-      return parseInt(params.drive_time)
+      return driveTime
     }
   } catch (e) {
     console.warn('Error when reading job duration, defaulting to 0s', e)
