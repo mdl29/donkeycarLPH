@@ -1,5 +1,5 @@
 # Donkeycar front build
-FROM node:14 as build-stage
+FROM node:18 as build-stage
 COPY package*.json ./
 RUN npm install       
 COPY . .
