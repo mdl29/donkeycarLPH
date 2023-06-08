@@ -7,7 +7,7 @@ WORKDIR ./donkeycarManagerFront
 RUN  npm install @vue/cli-service --save-dev
 RUN npm run build
 
-# étape de production
+# Production stage
 FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage ./donkeycarManagerFront/dist /usr/share/nginx/html
 EXPOSE 80
