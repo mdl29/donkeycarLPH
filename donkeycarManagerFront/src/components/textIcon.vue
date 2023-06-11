@@ -6,7 +6,7 @@
 export default {
   props: ['src'],
   methods: {
-    getImg (src) {
+    getImg(src) {
       return require('../assets/controller/' + src)
     }
   }

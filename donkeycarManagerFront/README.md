@@ -1,92 +1,35 @@
-# donkeycar manager frontend
+# .
 
-The donkeycar manager allow to an admin to manage cars and players (jobs) when they race
-> A Vue.js project
+This template should help get you started developing with Vue 3 in Vite.
 
-## Frontend views : 
+## Recommended IDE Setup
 
-The donkeycar manager is composed of multiples parts : 
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-### Register 
+## Customize configuration
 
-- add jobs in waiting list
+See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-### Car view
-- see current laps time and those before
-- display cars who running, their color and their job (player) affected
-- display waiting list
+## Project Setup
 
-### admin dashboard :
--  see players (jobs) in waiting list
--  manage jobs in the waiting list (remove, upgrade his rank, downgrade)
-- differents cars with their current job, status
-- total player who subscribe in register login 
-
-## Build Setup
-
-``` bash
-# install dependencies
+```sh
 npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
 ```
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
-## Views
+### Compile and Hot-Reload for Development
 
-client login :
-`http://localhost:8080/#/`
+```sh
+npm run dev
+```
 
-waiting board :
-`http://localhost:8080/#/waitingBoard`
+### Compile and Minify for Production
 
-admin dashboard :
-`http://localhost:8080/#/dashboard`
+```sh
+npm run build
+```
 
-## Others docs:
-- [Websocket documentation](doc/donkeycarManager/events.md)
-- [manager features documentation](doc/donkeycarManager/manager-features.md)
-- [data structure diagram](../doc/donkeycarManager/DataStructure.png)
+### Lint with [ESLint](https://eslint.org/)
 
-## Controller icons for the screen\_msg of jobs
-
-The icons are parsed from the message, any `[<name>]` will become an icon
-
-Available icons are:
- - Circle
- - Cross
- - Diagram
- - Diagram\_Simple
- - Dpad\_Down
- - Dpad\_Left
- - Dpad
- - Dpad\_Right
- - Dpad\_Up
- - L1
- - L2
- - Left\_Stick\_Click
- - Left\_Stick
- - Options
- - R1
- - R2
- - Right\_Stick\_Click
- - Right\_Stick
- - Share
- - Square
- - Touch\_Pad
- - Triangle
-
-
-## 📷 Screenshot :
-
-***
-<br> 
-
-![carView](../doc/assets/carView.jpg)
+```sh
+npm run lint
+```
