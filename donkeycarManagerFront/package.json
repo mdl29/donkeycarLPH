@@ -15,7 +15,7 @@
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vue-socket.io": "^3.0.10",
-    "vuestic-ui": "^1.4.11"
+    "vuestic-ui": "1.4.11"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
