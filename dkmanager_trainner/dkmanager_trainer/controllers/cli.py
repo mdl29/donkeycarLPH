@@ -26,7 +26,7 @@ def main():
     logger = logging.getLogger("dkmanager_trainer")
     logger.info('Starting IA Trainer')
 
-    set_sock_proxy(host="localhost", port=6666)
+    #set_sock_proxy(host="localhost", port=6666)
     ftp_location = ServiceLocation(ip="localhost", port=21)
     ia_worker_service = AiTrainerWorkerService(api_origin="http://localhost:8000", ftp_location=ftp_location)
 
