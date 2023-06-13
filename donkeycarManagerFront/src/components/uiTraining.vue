@@ -16,7 +16,7 @@ export default {
     this.loop = setInterval(function () {
       image = (image + 1) % imageCount
       that.setImage(image)
-    }, 10000)
+    }, 17000)
   },
   unmounted () {
     clearInterval(this.loop)
