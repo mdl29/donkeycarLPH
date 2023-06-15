@@ -22,6 +22,17 @@ The donkeycar manager is composed of multiples parts :
 - differents cars with their current job, status
 - total player who subscribe in register login 
 
+## Run with Docker
+
+> be careful, the backend ip in `service.js` is `192.168.20.42`
+``` bash
+## pull the latest docker image
+docker pull yannismlgrn/donkeycarlph-front
+
+## Run the docker image 
+docker run -d -p 8080:80 yannismlgrn/donkeycarlph-front
+```
+
 ## Build Setup
 
 ``` bash
