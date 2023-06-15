@@ -268,7 +268,6 @@ class JobRecord(JobDrive):
                 model_archive_path = parameters['output:model_remote_archive']
                 self.logger.debug('Job[job_id: %i] Training job (id: %i) model available here : %s', self.get_id(),
                                   self.training_job.job_id, model_archive_path)
-                self.screen_msg('')
                 self.create_ai_assisted_job(model_archive_path)
 
         else:
