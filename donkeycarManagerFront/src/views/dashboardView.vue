@@ -11,7 +11,7 @@
         <carInfo v-for="car in cars" :key="car.worker_id" :car="car" class="gutter--md"></carInfo>
     </div>
     <div class="jobs">
-      <waitingJobCard v-for="job in waitingJobs" :key="job.rank" :job="job" @goUp="goUp($event)" @goDown="goDown($event)" @remove="removeJob($event)" class="gutter--md"></waitingJobCard>
+      <waitingJobCard v-for="job in waitingJobs" :key="job.rank" :job="job" @goUp="goUp($event)" @goDown="goDown($event)" @remove="removeJob($event)" @go1="goFirst($event)" class="gutter--md"></waitingJobCard>
       <span class="no-job" v-if="waitingJobs.length === 0"> No job in waiting list </span>
     </div>
     <div class="running-jobs">
@@ -86,6 +86,9 @@ export default {
         const playerBefore = this.waitingJobs[index]
         await srv.moveBefore(job.job_id, playerBefore.job_id)
       }
+    },
+    async goFirst (job) {
+      await srv.moveBefore(job.job_id, this.waitingJobs[0].job_id)
     },
     async goDown (job) {
       const index = this.waitingJobs.indexOf(job) + 1
