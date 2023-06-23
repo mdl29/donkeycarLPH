@@ -1,5 +1,5 @@
 <template>
-  <img classs="svgUI" ref="uiSvg" id="svg-ui">
+  <div ref="uiSvg" id="svg-ui"></div>
 </template>
 <script>
 const imageCount = 4
@@ -23,8 +23,15 @@ export default {
   },
   methods: {
     setImage (n) {
-      this.$refs.uiSvg.src = require(`../assets/svg/${n + 1}.svg`)
+      this.$refs.uiSvg.style.backgroundImage = `url( ${require(`../assets/svg/${n + 1}.svg`)} )`
     }
   }
 }
 </script>
+<style scoped>
+#svg-ui {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+</style>

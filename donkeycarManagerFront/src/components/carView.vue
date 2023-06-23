@@ -208,7 +208,7 @@ export default {
   computed: {
     displayUiTraining () {
       // convert to bool for sanity
-      return !!(this.job.screen_msg?.match(/(?:cours|Transfert|prof)/))
+      return !!(this.job.screen_msg?.match(/(?:cours|Transfert|prof|lancer)/))
     },
     throughStyle () {
       const t = Math.min(Math.max(this.car.throttle_scale, 0.0), 1.0)
@@ -283,6 +283,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .header {
   transition: all 0.2s ease;
@@ -333,7 +334,7 @@ export default {
   align-items: center;
   flex: 2;
   justify-content: space-evenly;
-  margin-top: -4.6em;
+  /*margin-top: -4.6em;*/
   overflow-y: hidden;
   transition: all 0.2s ease;
 }
@@ -539,10 +540,12 @@ export default {
 }
 .UI-box {
   display: flex;
-  padding-right: 5em;
-  padding-left: 5em;
+  /*padding-right: 5em;
+  padding-left: 5em;*/
   flex-direction: row;
   flex-grow: 3;
+  /*max-height: calc(100% - 7em);
+  padding-top: 1.5em;*/
 }
 
 .svg-container{
