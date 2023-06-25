@@ -10,7 +10,7 @@
     </div>
     <div class="content" :class="{blur: is_paused}">
       <div v-if="job" class="job">
-        <div v-if="race" class="race">
+        <div v-if="race && !displayUiTraining" class="race">
           <!-- head -->
           <div class="lap head" v-if="race.laptimers.length > 0 || timeleft > 0">
             <div class="number"> Tour </div>
@@ -46,13 +46,18 @@
             </div>
           </transition-group>
         </div>
-        <div v-if="race && timeleft > 0" class="end">
+        <div v-if="race && timeleft > 0 && !displayUiTraining" class="end">
           Fini dans <strong>{{ formatM(timeleft) }}</strong>
         </div>
-        <div v-if="job && job.screen_msg_display" class="end message">
+        <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
+        <div v-if="displayUiTraining" class="UI-box">
+          <div class="svg-container">
+            <uiTraining class="svg-UI"></uiTraining>
+          </div>
+        </div>
+        <div v-if="job && job.screen_msg_display" class="end message" :class="{ expand: displayUiTraining }">
           <format-message :message="job.screen_msg" />
         </div>
-        <div v-if="!race && job && job.name != 'AI_ASSISTED'" class="no-race"> Veuillez avancer pour lancer la course </div>
       </div>
       <waiting-text v-else />
       <div class="bottom" v-if="job && !is_paused">
@@ -71,11 +76,13 @@
 <script>
 import waitingText from '@/components/waitingText.vue'
 import formatMessage from '@/components/formatMessage.vue'
+import uiTraining from '@/components/uiTraining.vue'
 
 export default {
   components: {
     waitingText,
-    formatMessage
+    formatMessage,
+    uiTraining
   },
   data () {
     return {
@@ -199,6 +206,10 @@ export default {
     }
   },
   computed: {
+    displayUiTraining () {
+      // convert to bool for sanity
+      return !!(this.job.screen_msg?.match(/(?:cours|Transfert|prof|lancer)/))
+    },
     throughStyle () {
       const t = Math.min(Math.max(this.car.throttle_scale, 0.0), 1.0)
       const stops = [
@@ -272,6 +283,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .header {
   transition: all 0.2s ease;
@@ -407,6 +419,13 @@ export default {
 .message {
   font-size: 2em;
 }
+.message.expand {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 1em;
+}
 .indicator-wrapper {
   display: flex;
   align-items: center;
@@ -519,5 +538,24 @@ export default {
 .throttle-through {
   border-radius: 0.5em;
   transition: 0.2s all;
+}
+.UI-box {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 3;
+  margin-top: 5em;
+  margin-left: 2em;
+  margin-right: 2em;
+}
+
+.svg-container{
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.svg-container .svg-UI{
+  width: 100%;
+  height: 100%;
 }
 </style>
