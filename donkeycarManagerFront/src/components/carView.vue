@@ -334,7 +334,7 @@ export default {
   align-items: center;
   flex: 2;
   justify-content: space-evenly;
-  /*margin-top: -4.6em;*/
+  margin-top: -4.6em;
   overflow-y: hidden;
   transition: all 0.2s ease;
 }
@@ -420,10 +420,11 @@ export default {
   font-size: 2em;
 }
 .message.expand {
-  flex: 2;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-left: 1em;
 }
 .indicator-wrapper {
   display: flex;
@@ -540,12 +541,11 @@ export default {
 }
 .UI-box {
   display: flex;
-  /*padding-right: 5em;
-  padding-left: 5em;*/
   flex-direction: row;
   flex-grow: 3;
-  /*max-height: calc(100% - 7em);
-  padding-top: 1.5em;*/
+  margin-top: 5em;
+  margin-left: 2em;
+  margin-right: 2em;
 }
 
 .svg-container{
