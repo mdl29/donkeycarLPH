@@ -2,7 +2,7 @@
   <div class="form">
     <div class="row align--center">
       <div class="flex xs12">
-        <input type="text" placeholder="Entrez votre pseudo" id="input-form" required="required" v-model="pseudo" v-on:keyup.enter="addUser()">
+        <input type="text" placeholder="Entrez votre pseudo" id="input-form" required="required" v-model="pseudo" v-on:keyup.enter="addUser()" maxlength="16">
       </div>
       <div class="flex xs12 button-wrapper" id="button-wrapper">
         <va-button id="submit-button" :loading="click"  size="large" color="info" gradient class="mr-4 mb-2" @click="addUser()">S'enregistrer</va-button>
@@ -38,23 +38,18 @@ export default {
         this.click = false
         return
       }
-      if (newPseudo.length <= 16) {
-        const players = await srv.getPlayerByPseudo(newPseudo)
-        if (players.length === 0) {
-          players[0] = await srv.createPlayer(newPseudo)
-        }
-        const response = await srv.addJobs(players[0].player_id, parseInt(this.runTime.driveTime), parseInt(this.runTime.recordTime))
-        if (response === 404) {
-          this.success = false
-        } else {
-          this.success = true
-        }
-        this.$emit('success', this.success)
-        this.click = false
-      } else {
-        this.click = false
-        this.$emit('success', 'toobig')
+      const players = await srv.getPlayerByPseudo(newPseudo)
+      if (players.length === 0) {
+        players[0] = await srv.createPlayer(newPseudo)
       }
+      const response = await srv.addJobs(players[0].player_id, parseInt(this.runTime.driveTime), parseInt(this.runTime.recordTime))
+      if (response === 404) {
+        this.success = false
+      } else {
+        this.success = true
+      }
+      this.$emit('success', this.success)
+      this.click = false
     }
   }
 }
