@@ -28,7 +28,7 @@ import { io } from 'socket.io-client'
 const ip = DonkeycarManagerService.ip
 const url = `http://${ip}:8000`
 const srv = new DonkeycarManagerService(url)
-const carCount = 2
+const carCount = 3
 const socket = io.connect(url, { path: '/ws/socket.io' })
 export default {
   components: {
@@ -164,17 +164,21 @@ export default {
   flex-direction: column;
   width: 100%;
   height: 100vh;
+  max-height: 100vh;
 }
 .car-views {
   display:flex;
   flex-direction: row;
   flex: 1;
+  max-height: calc(100% - 3.5em);
 }
 .car-view {
   display: flex;
   flex: 2;
   box-sizing: content-box;
   flex-direction: column;
+  height: 100%;
+  max-height: 100%;
 }
 .car-view:not(:last-child) {
   border-right: 4px dashed gray;
@@ -185,10 +189,10 @@ export default {
   overflow-x: hidden;
   padding-bottom: 0.4em;
   padding-left: 0.4em;
-  z-index: 20;
   background-color: white;
   padding-top: 0.4em;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  min-height: 3.5em;
 }
 .waiting-list::after {
   display: block;
