@@ -38,18 +38,23 @@ export default {
         this.click = false
         return
       }
-      const players = await srv.getPlayerByPseudo(newPseudo)
-      if (players.length === 0) {
-        players[0] = await srv.createPlayer(newPseudo)
-      }
-      const response = await srv.addJobs(players[0].player_id, parseInt(this.runTime.driveTime), parseInt(this.runTime.recordTime))
-      if (response === 404) {
-        this.success = false
+      if (newPseudo.length <= 16) {
+        const players = await srv.getPlayerByPseudo(newPseudo)
+        if (players.length === 0) {
+          players[0] = await srv.createPlayer(newPseudo)
+        }
+        const response = await srv.addJobs(players[0].player_id, parseInt(this.runTime.driveTime), parseInt(this.runTime.recordTime))
+        if (response === 404) {
+          this.success = false
+        } else {
+          this.success = true
+        }
+        this.$emit('success', this.success)
+        this.click = false
       } else {
-        this.success = true
+        this.click = false
+        this.$emit('success', 'toobig')
       }
-      this.$emit('success', this.success)
-      this.click = false
     }
   }
 }
