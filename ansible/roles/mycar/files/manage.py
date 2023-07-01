@@ -253,7 +253,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                     'recording',
                     'controller/x_pressed',
                     'controller/inverted',
-                    'controller/scale'
+                    'controller/scale',
+                    'controller/use_pilot_angle'
                 ],
                 threaded=True)
 
@@ -302,7 +303,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
                         'controller/x_pressed',
                         'controller/inverted',
                         'controller/scale',
-                        'cam/image_array'
+                        'cam/image_array',
+                        'controller/use_pilot_angle'
                     ],
                     outputs=[
                         'user/throttle',

@@ -106,7 +106,8 @@ class JobRecord(JobDrive):
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int] = None,
                      controller_x_pressed: Optional[bool] = False,
-                     cam_image_array: Optional[Any] = None
+                     cam_image_array: Optional[Any] = None,
+                     use_pilot_angle: Optional[bool] = None
                      ) -> Tuple[float, str, bool, bool]:
         user_throttle, job_name, laptimer_reset_all, recording_state, pilote_angle, pilote_throttle, user_mode = super(JobRecord, self).run_threaded(
             user_throttle,
@@ -117,7 +118,8 @@ class JobRecord(JobDrive):
             laptimer_last_lap_end_date_time,
             laptimer_laps_total,
             controller_x_pressed,
-            cam_image_array)
+            cam_image_array,
+            use_pilot_angle)
         job_name = 'RECORD'
         user_mode = 'user'
 

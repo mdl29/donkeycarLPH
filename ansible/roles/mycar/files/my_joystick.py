@@ -144,6 +144,7 @@ class MyJoystickController(JoystickController):
         self.inverted = False
         super(MyJoystickController, self).__init__(*args, **kwargs)
         self.state_x_button = False
+        self.use_pilot_angle = False
         self.js = None
 
     def init_js(self):
@@ -191,6 +192,9 @@ class MyJoystickController(JoystickController):
     def throttle_stop(self):
         self.set_throttle(0)
 
+    def toggle_use_pilot_angle(self):
+        self.use_pilot_angle = not self.use_pilot_angle
+
     def init_trigger_maps(self):
         """
         init set of mapping from buttons to function calls
@@ -200,7 +204,7 @@ class MyJoystickController(JoystickController):
             'b_button': self.go_easy_mode,
             'a_button': self.invert_controls,
             'x_button': self.x_button_pressed,
-            'y_button': self.emergency_stop,
+            'y_button': self.toggle_use_pilot_angle,
             'right_shoulder': self.increase_max_throttle,
             'left_shoulder': self.decrease_max_throttle,
             'options': self.toggle_constant_throttle,
@@ -298,7 +302,7 @@ class MyJoystickController(JoystickController):
         if o_x_pressed:
             self.state_x_button = False # resetting it for next turns
 
-        return o_angle, o_throttle, o_mode, o_recording, o_x_pressed, self.inverted, self.throttle_scale
+        return o_angle, o_throttle, o_mode, o_recording, o_x_pressed, self.inverted, self.throttle_scale, self.use_pilot_angle
 
     def update(self):
         while True:
