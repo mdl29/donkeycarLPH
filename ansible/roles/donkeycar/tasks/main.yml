@@ -38,7 +38,7 @@
     dest: /home/pi/projects/
     force: yes
     single_branch: yes
-    version: main
+    version: 5e234c3101cc5f54935c240819e3840596c753a3 # Trying older commit
 
 - name: Create python3 virtual environment & install tensorflow
   become: yes
