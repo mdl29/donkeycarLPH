@@ -140,7 +140,7 @@ class MyJoystickController(JoystickController):
     https://github.com/Ezward/donkeypart_ps3_controller/blob/master/donkeypart_ps3_controller/part.py
     """
     def __init__(self, *args, **kwargs):
-        self.easy_drive_mode = False
+        self.easy_drive_mode = True
         self.inverted = False
         super(MyJoystickController, self).__init__(*args, **kwargs)
         self.state_x_button = False
@@ -179,7 +179,10 @@ class MyJoystickController(JoystickController):
         self.init_trigger_maps()
     
     def go_easy_mode(self):
-        self.easy_drive_mode = not self.easy_drive_mode
+        btn_states = self.js.button_states
+        if btn_states['L1'] != 0 and btn_states['R1'] != 0 and \
+                btn_states['x_button'] != 0:
+            self.easy_drive_mode = not self.easy_drive_mode
         self.init_trigger_maps()
         
     def backward_throttle(self):
