@@ -83,7 +83,8 @@ class JobAiAssisted(Job):
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int] = None,
                      controller_x_pressed: Optional[bool] = False,
-                     cam_image_array: Optional[Any] = None
+                     cam_image_array: Optional[Any] = None,
+                     use_pilot_angle: Optional[bool] = None
                      ) -> Tuple[float, str, bool]:
         """
         Part run_threaded call.
@@ -104,7 +105,8 @@ class JobAiAssisted(Job):
                                                 laptimer_last_lap_end_date_time,
                                                 laptimer_laps_total,
                                                 controller_x_pressed,
-                                                cam_image_array)
+                                                cam_image_array,
+                                                use_pilot_angle)
 
         # Default values
         user_throttle = 0.0
@@ -113,7 +115,7 @@ class JobAiAssisted(Job):
         recording_state = False
         pilot_angle = 0
         pilote_throttle = 0
-        user_mode = 'auto_pilote'
+        user_mode = 'local_angle' if use_pilot_angle else 'local'
 
         if self.drive_stage == JobAiAssistedStage.MODEL_DRIVING:
             laptimer_reset_all = self.race_service.handle_laptimer_outputs(

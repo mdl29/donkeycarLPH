@@ -110,7 +110,8 @@ class CarManagerPart(WorkerService):
                      controller_x_pressed: Optional[bool]=False,
                      inverted: Optional[bool]=False,
                      scale: Optional[float]=0.5,
-                     cam_image_array: Optional[Any] = None
+                     cam_image_array: Optional[Any] = None,
+                     use_pilot_angle: Optional[bool] = None
                      ) -> Tuple[float, str, bool, bool, float, float, str]:
         """
         :param user_throttle: User throttle value
@@ -143,7 +144,8 @@ class CarManagerPart(WorkerService):
             laptimer_last_lap_end_date_time,
             laptimer_laps_total,
             controller_x_pressed,
-            cam_image_array
+            cam_image_array,
+            use_pilot_angle
         )
         return res
 

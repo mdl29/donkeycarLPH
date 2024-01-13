@@ -55,7 +55,8 @@ class Job(GenericJob):
                      laptimer_last_lap_end_date_time: Optional[datetime] = None,
                      laptimer_laps_total: Optional[int] = None,
                      controller_x_pressed: Optional[bool] = False,
-                     cam_image_array: Optional[Any] = None
+                     cam_image_array: Optional[Any] = None,
+                     use_pilot_angle: Optional[bool] = None
                      ) -> Tuple[float, str, bool, bool]:
         """
         Part run threaded, is call with all donekcarmanacer I/O.
